@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: API de Recebimentos PIX
+  version: '0.0.1'
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Suporte TI BCB
+    email: suporte.ti@bcb.gov.br
+    url: https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos
+  description: |- 
+    A API do PIX padroniza serviços oferecidos pelo PSP recebedor no contexto de configuração de QR Code Dinâmico, 
+    acusação de recebimentos, devolução e conciliação. Os serviços expostos pelo PSP recebedor permitem ao usuário 
+    recebedor estabelecer integração de sua automação com os serviços PIX do PSP.
+
+    # Segurança
+    Em construção.
+
+    ## Autenticação
+    A Autenticação
+
+    As definições de autenticação para essa API estão especificados no 
+    [manual de segurança PIX](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/Anexo%20IV%20-%20Manual%20de%20Seguranca%20PIX%20v2.0.pdf)
+   
+    # Evolução da API
+    Em construção
+
+    As seguintes mudanças são esperadas e consideradas retro-compatíveis (_backwards-compatibility_):
+
+    - Adição de novos recursos na API.
+    - Adição de novos parâmetros opcionais a requisições.
+    - Adição de novos campos em respostas da API.
+    - Alteração da ordem de campos.
+    - Adição de novos elementos em enumerações
+
+    Mudanças compatíveis não geram nova versão da API. 
+    Clientes devem estar preparados para lidar com essas mudanças sem quebrar.
+
+    Mudanças incompatíveis geram nova versão da API.
+
+    # Tratamento de erros
+
+    Em construção...
+
+servers:
+  - url: https://pix.example.com/api/v1/
+    description: Servidor de Produção
+  - url: https://pix-h.com/api/v1/
+    description: Servidor de Homologação
+tags:
+  - name: Config
+    x-displayName: Configuração de QR Code
+    description: |- 
+      Reune endpoints destinados a lidar com configuração e remoção de QR Codes (payloads JSON)
+
+paths:
+########################################################################################################################
+## ENTRIES 
+########################################################################################################################
+  '/documento/':
+    post:
+      summary: Criar Payload
+      description: |- 
+          Cria um novo payload JSON representando um QR/Link dinâmico
+
+          ### Idempotência
+          A fazer
+
+      operationId: createPayload
+      tags:
+        - Config
+      requestBody:
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayload'
+            examples:
+                phone:
+                  value: 
+                    $ref: "./examples/entries/CreatePayload1.json"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/xml:           
+              schema:
+                $ref: '#/components/schemas/CreatePayloadResponse'                                
+              examples:
+                example:
+                  value: 
+                    $ref: "./examples/entries/CreatePayloadResponse.json"
+
+  '/documento/{MeuCodigoPIX}':
+    parameters:
+      - schema:
+          $ref: "#/components/schemas/MeuCodigoPIX"
+        name: Key
+        in: path
+        required: true  
+    get:
+      summary: atualiza um Payload JSON
+      tags:
+        - Config
+      description: |-
+        Atualiza um payload JSON já criado.
+        
+        Em construção...
+
+      operationId: getPayload
+      parameters:
+        - schema:
+            type: string
+            pattern: '^[0-9]{8}'
+            example: '12345678'            
+          in: header
+          name: PI-MeuCodigoPIX
+          description: 'O código escolhido pelo usuári recebedor para fins de conciliação de transação'
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPayloadResponse'
+              examples:
+                natural-person:
+                  value: 
+                    $ref: './examples/entries/GetPayloadResponse.json'
+
+
+
