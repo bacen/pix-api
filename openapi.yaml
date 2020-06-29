@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+  title: API de Recebimentos PIX
+  version: '0.0.1'
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Suporte TI BCB
+    email: suporte.ti@bcb.gov.br
+    url: https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos
+  description: |- 
+    A API do PIX padroniza serviços oferecidos pelo PSP recebedor no contexto de configuração de QR Code Dinâmico,
+    verificação de recebimentos, devolução e conciliação. Os serviços expostos pelo PSP recebedor permitem ao usuário
+    recebedor estabelecer integração de sua automação com os serviços PIX do PSP.
+
+    # Evolução da API
+    As seguintes mudanças são esperadas e consideradas retro-compatíveis (_backwards-compatibility_):
+
+    - Adição de novos recursos na API.
+    - Adição de novos parâmetros opcionais a requisições.
+    - Adição de novos campos em respostas da API.
+    - Alteração da ordem de campos.
+    - Adição de novos elementos em enumerações
+
+    Mudanças compatíveis não geram nova versão da API.
+    Clientes devem estar preparados para lidar com essas mudanças sem quebrar.
+    Mudanças incompatíveis geram nova versão da API.
+
+servers:
+  - url: https://pix.example.com/api/v1/
+    description: Servidor de Produção
+  - url: https://pix-h.example.com/api/v1/
+    description: Servidor de Homologação
+tags:
+  - name: Config
+    x-displayName: Configuração de QR Code
+    description: |- 
+      Reune endpoints destinados a lidar com configuração e remoção de QR Codes (payloads JSON)
+
+paths:
+########################################################################################################################
+## DOCUMENTO
+########################################################################################################################
+  '/documento/':
+    post:
+      tags:
+      - "Config"
+      summary: Criar Payload
+      description: |-
+          Cria um novo payload JSON representando um QR/Link dinâmico
+      requestBody:
+        description: "Dados para geração do documento."
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Documento"
+      responses:
+        "201":
+          description: "Documento gerado"
+          headers:
+            Location:
+              description: "URL do documento gerado."
+              schema:
+                type: "string"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  idDocumento:
+                    type: "string"
+                    title: "Id"
+                    description: "Id do documento."
+                    maxLength: 35
+                  revisao:
+                    type: "integer"
+                    format: "int32"
+                    title: "Revisão"
+                    description: "Revisão do documento."
+                  txid:
+                    type: "string"
+                    maxLength: 35
+                    title: "TransactionID que transita na PACS008"
+                    ## TODO: verificar o pattern
+                  valorFinal:
+                    type: "string"
+                    title: "Valor final"
+                    description: "Valor final do documento."
+                    pattern: "/^\\d*(\\.\\d*)?$/"
+                    minLength: 1
+                    maxLength: 13
+
+components:
+  schemas:
+    PessoaFisica:
+      type: "object"
+      required: ["cpf", "nome"]
+      properties:
+        cpf:
+          type: "string"
+          title: "CPF"
+          description: "CPF do devedor ou “sacado”."
+          pattern: "/^\\d{3}\\.\\d{3}\\.\\d{3}\\-\\d{2}$/"
+        nome:
+          type: "string"
+          title: "Nome"
+          description: "Nome do devedor ou “sacado”."
+          maxLength: 200
+    PessoaJuridica:
+      type: "object"
+      required: ["cnpj", "nome"]
+      properties:
+        cnpj:
+          type: "string"
+          title: "CPF"
+          description: "CNPJ do devedor ou “sacado”."
+          pattern: "/^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}$/"
+        nome:
+          type: "string"
+          title: "Nome"
+          description: "Nome do devedor ou “sacado”."
+          maxLength: 200
+    Expiracao:
+      type: "object"
+      properties:
+        expiracao:
+          type: "string"
+          format: "date-time"
+          title: "Timestamp de expiração do documento"
+          description: "Timestamp que indica o momento a partir do qual o QR Dinâmico não será mais considerado válido. Respeita o formato definido na RFC 3339."
+          example: "2020-04-01T18:00:00.000-0300"
+        recebivelAposVencimento:
+          type: "boolean"
+          default: false
+          title: "Recebível após vencimento"
+          description: "Trata-se de um campo booleano, ou uma flag. A semântica dessa flag é definir se essa cobrança pode ser paga após o vencimento ou após a expiração. Quando seu valor for true, significa que a cobrança pode ser paga após o vencimento. Quando esse campo não estiver presente, assume-se o valor false, ou seja, a cobrança não pode ser paga após o vencimento."
+    DataDeVencimento:
+      type: "object"
+      properties:
+        dataDeVenciemnto:
+          type: "string"
+          format: "date"
+          title: "Data de vencimento do documento"
+          description: "Trata-se de uma data, no formato `yyyy-mm-dd`, segundo ISO 8601. É a data de vencimento da cobrança. A cobrança pode ser honrada até esse dia, inclusive, em qualquer horário do dia."
+          example: "2020-04-01"
+        recebivelAposVencimento:
+          type: "boolean"
+          default: false
+          title: "Recebível após vencimento"
+          description: "Trata-se de um campo booleano, ou uma flag. A semântica dessa flag é definir se essa cobrança pode ser paga após o vencimento ou após a expiração. Quando seu valor for true, significa que a cobrança pode ser paga após o vencimento. Quando esse campo não estiver presente, assume-se o valor false, ou seja, a cobrança não pode ser paga após o vencimento."
+    Documento:
+      type: "object"
+      required: ["valor", "chave"]
+      properties:        
+        calendario:
+          oneOf:
+            - $ref: "#/components/schemas/Expiracao"
+            - $ref: "#/components/schemas/DataDeVencimento"
+        pagador:
+          oneOf:
+            - $ref: "#/components/schemas/PessoaFisica"
+            - $ref: "#/components/schemas/PessoaJuridica"
+        valor:
+          type: "object"
+          required: ["original"]
+          properties:
+            original:
+              type: "string"
+              title: "Valor"
+              description: "Valor original do documento."
+              pattern: "/^\\d*(\\.\\d*)?$/"
+              minLength: 1
+              maxLength: 13
+            juros:
+              type: "string"
+              title: "Juros"
+              description: "Juros aplicados à cobrança."
+              pattern: "/^\\d*(\\.\\d*)?$/"
+              minLength: 1
+              maxLength: 13
+            multa:
+              type: "string"
+              title: "Multa"
+              description: "Multa aplicada à cobrança."
+              pattern: "/^\\d*(\\.\\d*)?$/"
+              minLength: 1
+              maxLength: 13
+            desconto:
+              type: "string"
+              title: "Desconto"
+              description: "Descontos ou abatimentos aplicados à cobrança."
+              pattern: "/^\\d*(\\.\\d*)?$/"
+              minLength: 1
+              maxLength: 13
+            permiteAlteracao:
+              type: "boolean"
+              title: "Permite alteração"
+              description: "Trata-se de uma flag do tipo boolean que determina se o valor final do documento pode ser alterado pelo pagador."
+              default: false
+        chave:
+          type: "string"
+          title: "DICT"
+          description: "Chave DICT do recebedor."
+          maxLength: 77
+        solicitacaoPagador:
+          type: "string"
+          title: "Solicitação ao pagador"
+          description: "Um texto a ser apresentado ao pagador para que o pagador possa digitar uma informação correlata, em formato livre, a ser enviada ao recebedor."
+          maxLength: 140
+        infoAdicionais:
+          type: "array"
+          items:
+            type: "object"
+            required: ["nome", "valor"]
+            properties:
+              nome:
+                type: "string"
+                title: "Nome"
+                maxLength: 50
+              valor:
+                type: "string"
+                title: "Valor"
+                maxLength: 200
+
