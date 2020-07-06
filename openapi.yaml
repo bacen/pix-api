@@ -48,51 +48,124 @@ paths:
       - "Config"
       summary: Criar Payload
       description: |-
-          Cria um novo payload JSON representando um QR/Link dinâmico
+          Cria um novo payload JSON representando um QR/Link dinâmico.
       requestBody:
-        description: "Dados para geração do documento."
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/Documento"
+        $ref: "#/components/requestBodies/DocumentoBody"
       responses:
         "201":
-          description: "Documento gerado"
+          description: "Documento gerado."
           headers:
             Location:
-              description: "URL do documento gerado."
+              description: "URL do documento gerado. Deve ser retornado no formato /documento/{txid}"
               schema:
                 type: "string"
           content:
             "application/json":
               schema:
-                type: "object"
-                properties:
-                  idDocumento:
-                    type: "string"
-                    title: "Id"
-                    description: "Id do documento."
-                    maxLength: 35
-                  revisao:
-                    type: "integer"
-                    format: "int32"
-                    title: "Revisão"
-                    description: "Revisão do documento."
-                  txid:
-                    type: "string"
-                    maxLength: 35
-                    title: "TransactionID que transita na PACS008"
-                    ## TODO: verificar o pattern
-                  valorFinal:
-                    type: "string"
-                    title: "Valor final"
-                    description: "Valor final do documento."
-                    pattern: "/^\\d*(\\.\\d*)?$/"
-                    minLength: 1
-                    maxLength: 13
+                $ref: "#/components/schemas/Retorno"
+              examples:
+                retorno1:
+                  $ref: "#/components/examples/retorno1"
+  '/documento/{txid}':
+    parameters:
+      - name: "txid"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/TxId"
+    put:
+      tags:
+      - "Config"
+      summary: Alterar Payload
+      description: |-
+          Altera um payload JSON que representa um QR/Link dinâmico.
+      requestBody:
+        $ref: "#/components/requestBodies/DocumentoBody"
+      responses:
+        "200":
+          description: "Documento alterado. O campo <i>payloadURL</i> é igual ao de criação. A revisão deve ser incrementada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Retorno"
+              examples:
+                retorno1:
+                  $ref: "#/components/examples/retorno2"
 
 components:
+  examples:
+    corpo1:
+      summary: "Exemplo 1"
+      value:
+        calendario:
+          dataVencimento: "2020-12-31"
+          recebivelAposVencimento: "true"
+        pagador:
+          cpf: "123.456.789-09"
+          nome: "Francisco da Silva"
+        valor:
+          original: "123.45"
+        chave: "12345-123456789-123456"
+        solicitacaoPagador: "Cobrança dos serviços prestados."
+        infoAdicionais:
+          - nome: "Campo 1"
+            valor: "Informação Adicional1 do PSP-Recebedor"
+          - nome: "Campo 2"
+            valor: "Informação Adicional2 do PSP-Recebedor"
+    corpo2:
+      summary: "Exemplo 2"
+      value:
+        calendario:
+          expiracao: "2020-08-12T17:35:00Z"
+        pagador:
+          cnpj: "12.345.678/0001-95"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "37000.00"
+        chave: "ABCDE-123456789-ABCDEF"
+        solicitacaoPagador: "Serviço realizado."
+        infoAdicionais:
+          - nome: "Campo 1"
+            valor: "Informação Adicional1 do PSP-Recebedor"
+          - nome: "Campo 2"
+            valor: "Informação Adicional2 do PSP-Recebedor"
+    corpo3:
+      summary: "Exemplo 3"
+      value:
+        valor:
+          original: "0.12"
+        chave: "00001-123456789-000001"
+    retorno1:
+      summary: "Exemplo 1"
+      value:
+        idDocumento: "P456L"
+        revisao: 0
+        payloadURL: "https://pix.example.com/qr/123"
+        txid: "ABCDEF-0123456789-GHIJKLM"
+        valorFinal: "123.45"
+    retorno2:
+      summary: "Exemplo 1"
+      value:
+        idDocumento: "P456L"
+        revisao: 1
+        payloadURL: "https://pix.example.com/qr/123"
+        txid: "ABCDEF-0123456789-GHIJKLM"
+        valorFinal: "567.89"
+  requestBodies:
+    DocumentoBody:
+      description: "Dados para geração do documento."
+      required: true
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Documento"
+          examples:
+            exemplo1:
+              $ref: "#/components/examples/corpo1"
+            exemplo2:
+              $ref: "#/components/examples/corpo2"
+            exemplo3:
+              $ref: "#/components/examples/corpo3"
   schemas:
     PessoaFisica:
       type: "object"
@@ -129,17 +202,12 @@ components:
           type: "string"
           format: "date-time"
           title: "Timestamp de expiração do documento"
-          description: "Timestamp que indica o momento a partir do qual o QR Dinâmico não será mais considerado válido. Respeita o formato definido na RFC 3339."
-          example: "2020-04-01T18:00:00.000-0300"
-        recebivelAposVencimento:
-          type: "boolean"
-          default: false
-          title: "Recebível após vencimento"
-          description: "Trata-se de um campo booleano, ou uma flag. A semântica dessa flag é definir se essa cobrança pode ser paga após o vencimento ou após a expiração. Quando seu valor for true, significa que a cobrança pode ser paga após o vencimento. Quando esse campo não estiver presente, assume-se o valor false, ou seja, a cobrança não pode ser paga após o vencimento."
+          description: "Timestamp que indica o momento a partir do qual o QR Dinâmico não será mais considerado válido. Respeita o formato definido na RFC 3339. Segue o UTC."
+          example: "2020-04-01T18:00:00Z"
     DataDeVencimento:
       type: "object"
       properties:
-        dataDeVenciemnto:
+        dataDeVencimento:
           type: "string"
           format: "date"
           title: "Data de vencimento do documento"
@@ -150,6 +218,9 @@ components:
           default: false
           title: "Recebível após vencimento"
           description: "Trata-se de um campo booleano, ou uma flag. A semântica dessa flag é definir se essa cobrança pode ser paga após o vencimento ou após a expiração. Quando seu valor for true, significa que a cobrança pode ser paga após o vencimento. Quando esse campo não estiver presente, assume-se o valor false, ou seja, a cobrança não pode ser paga após o vencimento."
+    Valor:
+      type: "string"
+      pattern: "\\d{1,10}\\.\\d{2}"
     Documento:
       type: "object"
       required: ["valor", "chave"]
@@ -167,33 +238,25 @@ components:
           required: ["original"]
           properties:
             original:
-              type: "string"
-              title: "Valor"
-              description: "Valor original do documento."
-              pattern: "/^\\d*(\\.\\d*)?$/"
-              minLength: 1
-              maxLength: 13
+              allOf:
+                - $ref: '#/components/schemas/Valor'
+                - title: "Valor"
+                  description: "Valor original do documento."
             juros:
-              type: "string"
-              title: "Juros"
-              description: "Juros aplicados à cobrança."
-              pattern: "/^\\d*(\\.\\d*)?$/"
-              minLength: 1
-              maxLength: 13
+              allOf:
+                - $ref: '#/components/schemas/Valor'
+                - title: "Juros"
+                  description: "Juros aplicados à cobrança."
             multa:
-              type: "string"
-              title: "Multa"
-              description: "Multa aplicada à cobrança."
-              pattern: "/^\\d*(\\.\\d*)?$/"
-              minLength: 1
-              maxLength: 13
+              allOf:
+                - $ref: '#/components/schemas/Valor'
+                - title: "Multa"
+                  description: "Multa aplicada à cobrança."
             desconto:
-              type: "string"
-              title: "Desconto"
-              description: "Descontos ou abatimentos aplicados à cobrança."
-              pattern: "/^\\d*(\\.\\d*)?$/"
-              minLength: 1
-              maxLength: 13
+              allOf:
+                - $ref: '#/components/schemas/Valor'
+                - title: "Desconto"
+                  description: "Descontos ou abatimentos aplicados à cobrança."
             permiteAlteracao:
               type: "boolean"
               title: "Permite alteração"
@@ -202,7 +265,7 @@ components:
         chave:
           type: "string"
           title: "DICT"
-          description: "Chave DICT do recebedor."
+          description: "Chave DICT do recebedor. A chave deve fazer parte de um conjunto previamente acordado de chaves e a mesma deve ser validada a cada chamada."
           maxLength: 77
         solicitacaoPagador:
           type: "string"
@@ -223,4 +286,32 @@ components:
                 type: "string"
                 title: "Valor"
                 maxLength: 200
-
+    TxId:
+      type: "string"
+      title: "Id da transação"
+      description: "TransactionID que transita na PACS008."
+      pattern: "[A-Z0-9-]{1,35}"
+    Retorno:
+      type: "object"
+      properties:
+        idDocumento:
+          type: "string"
+          title: "Id"
+          description: "Id do documento."
+          maxLength: 35
+        revisao:
+          type: "integer"
+          format: "int32"
+          title: "Revisão"
+          description: "Revisão do documento."
+        payloadURL:
+          type: "string"
+          title: "URL do payload"
+          description: "URL para recuperação do payload JSON pela app do usuário pagador."
+        txid:
+          $ref: "#/components/schemas/TxId"
+        valorFinal:
+          allOf:
+            - $ref: '#/components/schemas/Valor'
+            - title: "Valor final"
+              description: "Valor final do documento."
