@@ -26,7 +26,7 @@ info:
     Mudanças compatíveis não geram nova versão da API.
     Clientes devem estar preparados para lidar com essas mudanças sem quebrar.
     Mudanças incompatíveis geram nova versão da API.
-
+    
 servers:
   - url: https://pix.example.com/api/v1/
     description: Servidor de Produção
@@ -42,11 +42,11 @@ paths:
 ########################################################################################################################
 ## DOCUMENTO
 ########################################################################################################################
-  '/documento/':
+  "/documento/":
     post:
       tags:
       - "Config"
-      summary: Criar Payload
+      summary: "Criar documento."
       description: |-
           Cria um novo payload JSON representando um QR/Link dinâmico.
       requestBody:
@@ -62,21 +62,110 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Retorno"
+                $ref: "#/components/schemas/DocumentoGerado"
               examples:
                 retorno1:
                   $ref: "#/components/examples/retorno1"
-  '/documento/{txid}':
+    get:
+      parameters:
+        - name: "inicio"
+          in: "query"
+          schema:
+            type: "string"
+            format: "date-time"
+            title: "Data de Início"
+            description: "Filtra os documentos cuja data de criação seja maior ou igual que a data de início. Respeita RFC 3339."
+        - name: "fim"
+          in: "query"
+          schema:
+            type: "string"
+            format: "date-time"
+            title: "Data de Fim"
+            description: "Filtra os documentos cuja data de criação seja menor ou igual que a data de fim. Se a data de fim não for informada ou for informada uma data no futuro, o PSP assumirá a data e hora atuais como a data de fim. Respeita RFC 3339."
+        - name: "cpf"
+          in: "query"
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CPF"
+              - description: "Filtro pelo CPF do pagador. Não pode ser utilizado ao mesmo tempo que o CNPJ."
+        - name: "cnpj"
+          in: "query"
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CNPJ"
+              - description: "Filtro pelo CNPJ do pagador. Não pode ser utilizado ao mesmo tempo que o CPF."
+        - name: "url"
+          in: "query"
+          schema:
+            type: "string"
+            title: "URL do payload"
+            description: "Filtro pela URL do payload JSON."
+        - name: "paginacao.pagina"
+          in: "query"
+          schema:
+            type: "integer"
+            format: "int32"
+            title: "Página"
+            description: "Página a ser retornada pela consulta. Se não for informada, o PSP assumirá que será 0."
+            minimum: 0
+            default: 0
+        - name: "paginacao.tamanho"
+          in: "query"
+          schema:
+            type: "integer"
+            format: "int32"
+            title: "Tamanho da Página"
+            description: "Quantidade máxima de registros retornados em cada página. Apenas a última página pode conter uma quantidade menor de registros."
+            minimum: 1
+            maximum: 1000
+            default: 100
+      tags:
+      - "Config"
+      summary: "Recuperar lista de documentos."
+      description: |-
+          Rcupera uma lista de payloads JSON.
+      responses:
+        "200":
+          description: "Lista dos documentos."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DocumentosConsultados"
+              examples:
+                getDocumentos1:
+                  $ref: "#/components/examples/getDocumentos1"
+                getDocumentos2:
+                  $ref: "#/components/examples/getDocumentos2"
+
+  "/documento/{txid}":
     parameters:
       - name: "txid"
         in: "path"
         required: true
         schema:
           $ref: "#/components/schemas/TxId"
+    get:
+      tags:
+      - "Config"
+      summary: "Recuperar documento."
+      description: |-
+          Rcupera um payload JSON que representa um QR/Link dinâmico.
+      responses:
+        "200":
+          description: "Dados do Documento."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DocumentoCompleto"
+              examples:
+                retorno3:
+                  $ref: "#/components/examples/retorno3"
+                retorno4:
+                  $ref: "#/components/examples/retorno4"
     put:
       tags:
       - "Config"
-      summary: Alterar Payload
+      summary: "Alterar documento."
       description: |-
           Altera um payload JSON que representa um QR/Link dinâmico.
       requestBody:
@@ -87,10 +176,57 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Retorno"
+                $ref: "#/components/schemas/DocumentoGerado"
               examples:
                 retorno1:
                   $ref: "#/components/examples/retorno2"
+    delete:
+      tags:
+      - "Config"
+      summary: "Apagar documento."
+      description: |-
+          Apaga um payload JSON que representa um QR/Link dinâmico.
+      responses:
+        "204":
+          description: "Documento apagado."
+          
+  "/documento/{txid}/devolucao/{id}":
+    parameters:
+      - name: "txid"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/TxId"
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/DevolucaoId"
+    put:
+      tags:
+      - "Config"
+      summary: "Solicitar uma devolução."
+      description: |-
+          Solicita a devolução total ou parcial de um recebimento.
+      requestBody:
+        description: "Dados para pedido de devolução."
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                valor:
+                  allOf:
+                    - $ref: "#/components/schemas/Valor"
+                    - description: "Valor solicitado para devolução. A soma dos valores de todas as devolucões não podem ultrapassar o valor total do documento."
+            example:
+              valor: "7.89"
+      responses:
+        "204":
+          description: "Devolução solicitada. Novas requisições para o mesmo ID e mesmo valor não surtem efeito."
+        "409":
+          description: "Este erro é retornado se for feita uma requisição para um ID que já existe, mas com valor diferente do informado. Não é possível alterar o valor de uma devolução."
 
 components:
   examples:
@@ -101,7 +237,7 @@ components:
           dataVencimento: "2020-12-31"
           recebivelAposVencimento: "true"
         pagador:
-          cpf: "123.456.789-09"
+          cpf: "12345678909"
           nome: "Francisco da Silva"
         valor:
           original: "123.45"
@@ -118,7 +254,7 @@ components:
         calendario:
           expiracao: "2020-08-12T17:35:00Z"
         pagador:
-          cnpj: "12.345.678/0001-95"
+          cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
         valor:
           original: "37000.00"
@@ -138,19 +274,78 @@ components:
     retorno1:
       summary: "Exemplo 1"
       value:
-        idDocumento: "P456L"
-        revisao: 0
+        idDocumento:
+          id: "P456L"
+          revisao: 0
         payloadURL: "https://pix.example.com/qr/123"
         txid: "ABCDEF-0123456789-GHIJKLM"
-        valorFinal: "123.45"
+        dataCriacao: "2020-04-01T18:30:00Z"
+        valor:
+          final: "123.45"
     retorno2:
       summary: "Exemplo 1"
       value:
-        idDocumento: "P456L"
-        revisao: 1
+        idDocumento:
+          id: "P456L"
+          revisao: 1
         payloadURL: "https://pix.example.com/qr/123"
         txid: "ABCDEF-0123456789-GHIJKLM"
-        valorFinal: "567.89"
+        dataCriacao: "2020-04-02T09:15:00Z"
+        valor:
+          final: "567.89"
+    retorno3:
+      summary: "Exemplo 1"
+      value:
+        allOf:
+          - status: "pago"
+          - $ref: "#/components/examples/corpo1/value"
+          - $ref: "#/components/examples/retorno1/value"
+          - devolucoes:
+            - id: 12
+              valor: "3.45"
+              status: "devolvido"
+            - id: 13
+              valor: "120.00"
+              status: "pendente"
+    retorno4:
+      summary: "Exemplo 2"
+      value:
+        allOf:
+          - status: "a_pagar"
+          - $ref: "#/components/examples/corpo2/value"
+          - $ref: "#/components/examples/retorno2/value"
+          - valor:
+              multa: "123.45"
+              desconto: "23.45"
+              final: "37100.00"
+    getDocumentos1:
+      summary: "Exemplo 1"
+      value:
+        parametros:
+          inicio: "2020-04-01T00:00:00Z"
+          fim: "2020-04-02T10:00:00Z"
+          paginacao:
+            pagina: 0
+            tamanho: 100
+            quantidade: 1
+        documentos:
+          - allOf:
+            - $ref: "#/components/examples/retorno4/value"
+          - allOf:
+            - $ref: "#/components/examples/retorno3/value"
+    getDocumentos2:
+      summary: "Exemplo 2"
+      value:
+        parametros:
+          inicio: "2020-04-01T00:00:00Z"
+          fim: "2020-04-01T23:59:59Z"
+          paginacao:
+            pagina: 0
+            tamanho: 100
+            quantidade: 1
+        documentos:
+          - allOf:
+            - $ref: "#/components/examples/retorno3/value"
   requestBodies:
     DocumentoBody:
       description: "Dados para geração do documento."
@@ -158,7 +353,10 @@ components:
       content:
         "application/json":
           schema:
-            $ref: "#/components/schemas/Documento"
+            allOf:
+              - $ref: "#/components/schemas/DocumentoSolicitado"
+              - title: "Documento"
+              - required: ["valor", "chave"]
           examples:
             exemplo1:
               $ref: "#/components/examples/corpo1"
@@ -167,15 +365,58 @@ components:
             exemplo3:
               $ref: "#/components/examples/corpo3"
   schemas:
+    PayloadId:
+      type: "object"
+      title: "Id do Payload"
+      description: "Identificador de um documento."
+      properties:
+        id:
+          type: "string"
+          title: "Id"
+          description: "Id do documento. Seu formato é facultado ao PSP."
+          maxLength: 35
+        revisao:
+          type: "integer"
+          format: "int32"
+          title: "Revisão"
+          description: "Revisão do documento. Sempre começa em zero. Sempre varia em acréscimos de 1."
+    TxId:
+      type: "string"
+      title: "Id da Transação"
+      description: "TransactionID que transita na PACS008."
+      pattern: "[A-Z0-9-]{1,35}"
+    DevolucaoId:
+      type: "string"
+      title: "Id da Devolução"
+      description: "Id gerado pelo cliente para representar unicamente uma devolução."
+      pattern: "[A-Z0-9-]{1,35}"
+    StatusDocumento:
+      type: "string"
+      enum:
+        - "a_pagar"
+        - "pago"
+        - "a_devolver"
+        - "completamente_devolvido"
+        - "parcialmente_devolvido"
+        - "removido_pelo_usuario_recebedor"
+        - "removido_pelo_psp"
+    CPF:
+      type: "string"
+      title: "CPF"
+      pattern: "/^\\d{11}$/"
+    CNPJ:
+      type: "string"
+      title: "CNPJ"
+      pattern: "/^\\d{14}$/"
     PessoaFisica:
       type: "object"
       required: ["cpf", "nome"]
+      title: "Pessoa Física"
       properties:
         cpf:
-          type: "string"
-          title: "CPF"
-          description: "CPF do devedor ou “sacado”."
-          pattern: "/^\\d{3}\\.\\d{3}\\.\\d{3}\\-\\d{2}$/"
+          allOf:
+            - $ref: "#/components/schemas/CPF"
+            - description: "CPF do devedor ou “sacado”."
         nome:
           type: "string"
           title: "Nome"
@@ -184,12 +425,12 @@ components:
     PessoaJuridica:
       type: "object"
       required: ["cnpj", "nome"]
+      title: "Pessoa Jurídica"
       properties:
         cnpj:
-          type: "string"
-          title: "CPF"
-          description: "CNPJ do devedor ou “sacado”."
-          pattern: "/^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}$/"
+          allOf:
+            - $ref: "#/components/schemas/CNPJ"
+            - description: "CNPJ do devedor ou “sacado”."
         nome:
           type: "string"
           title: "Nome"
@@ -197,15 +438,17 @@ components:
           maxLength: 200
     Expiracao:
       type: "object"
+      title: "Expiração"
       properties:
         expiracao:
           type: "string"
           format: "date-time"
           title: "Timestamp de expiração do documento"
-          description: "Timestamp que indica o momento a partir do qual o QR Dinâmico não será mais considerado válido. Respeita o formato definido na RFC 3339. Segue o UTC."
+          description: "Timestamp que indica o momento a partir do qual o QR Dinâmico não será mais considerado válido. Respeita RFC 3339."
           example: "2020-04-01T18:00:00Z"
     DataDeVencimento:
       type: "object"
+      title: "Data de Vencimento"
       properties:
         dataDeVencimento:
           type: "string"
@@ -221,9 +464,9 @@ components:
     Valor:
       type: "string"
       pattern: "\\d{1,10}\\.\\d{2}"
-    Documento:
+    DocumentoSolicitado:
       type: "object"
-      required: ["valor", "chave"]
+      title: "Documento Solicitado"
       properties:        
         calendario:
           oneOf:
@@ -239,22 +482,22 @@ components:
           properties:
             original:
               allOf:
-                - $ref: '#/components/schemas/Valor'
+                - $ref: "#/components/schemas/Valor"
                 - title: "Valor"
                   description: "Valor original do documento."
             juros:
               allOf:
-                - $ref: '#/components/schemas/Valor'
+                - $ref: "#/components/schemas/Valor"
                 - title: "Juros"
                   description: "Juros aplicados à cobrança."
             multa:
               allOf:
-                - $ref: '#/components/schemas/Valor'
+                - $ref: "#/components/schemas/Valor"
                 - title: "Multa"
                   description: "Multa aplicada à cobrança."
             desconto:
               allOf:
-                - $ref: '#/components/schemas/Valor'
+                - $ref: "#/components/schemas/Valor"
                 - title: "Desconto"
                   description: "Descontos ou abatimentos aplicados à cobrança."
             permiteAlteracao:
@@ -274,6 +517,9 @@ components:
           maxLength: 140
         infoAdicionais:
           type: "array"
+          title: "Informações adicionais"
+          description: "Cada respectiva informação adicional contida na lista (nome e valor) deve ser apresentada ao pagador."
+          maximum: 50
           items:
             type: "object"
             required: ["nome", "valor"]
@@ -281,37 +527,125 @@ components:
               nome:
                 type: "string"
                 title: "Nome"
+                description: "Nome do campo."
                 maxLength: 50
               valor:
                 type: "string"
                 title: "Valor"
+                description: "Dados do campo."
                 maxLength: 200
-    TxId:
-      type: "string"
-      title: "Id da transação"
-      description: "TransactionID que transita na PACS008."
-      pattern: "[A-Z0-9-]{1,35}"
-    Retorno:
+    DocumentoGerado:
       type: "object"
+      title: "Documento Gerado"
       properties:
         idDocumento:
-          type: "string"
-          title: "Id"
-          description: "Id do documento."
-          maxLength: 35
-        revisao:
-          type: "integer"
-          format: "int32"
-          title: "Revisão"
-          description: "Revisão do documento."
+          $ref: "#/components/schemas/PayloadId"
         payloadURL:
           type: "string"
           title: "URL do payload"
           description: "URL para recuperação do payload JSON pela app do usuário pagador."
         txid:
           $ref: "#/components/schemas/TxId"
-        valorFinal:
+        dataCriacao:
+          type: "string"
+          format: "date-time"
+          title: "Data de Criação"
+          description: "Data e hora em que o documento foi criado no PSP. Respeita RFC 3339."
+        valor:
+          type: "object"
+          properties:
+            final:
+              allOf:
+                - $ref: "#/components/schemas/Valor"
+                - title: "Valor final"
+                  description: "Valor final do documento."
+    DocumentoCompleto:
+      allOf:
+        - $ref: "#/components/schemas/DocumentoSolicitado"
+        - $ref: "#/components/schemas/DocumentoGerado"
+        - type: "object"
+          title: "Documento"
+          properties:
+            status:
+              $ref: "#/components/schemas/StatusDocumento"
+            devolucoes:
+              type: "array"
+              title: "Devoluções"
+              items:
+                type: "object"
+                title: "Devolução"
+                properties:
+                  id:
+                    $ref: "#/components/schemas/DevolucaoId"
+                  valor:
+                    allOf:
+                      - $ref: "#/components/schemas/Valor"
+                      - description: "Valor a devolver."
+                  status:
+                    type: "string"
+                    title: "Status"
+                    description: "Status da devolução."
+                    enum: ["pendente", "devolvido"]
+    ParametrosConsulta:
+      type: "object"
+      title: "Parâmetros de Consulta"
+      description: "Parâmetros utilizados para a realização de uma consulta de documentos."
+      required: ["fim", "paginacao"]
+      properties:
+        inicio:
+          type: "string"
+          format: "date-time"
+          title: "Data de Início"
+          description: "Data inicial utilizada na consulta. Respeita RFC 3339."
+          example: "2020-04-01T00:00:00Z"
+        fim:
+          type: "string"
+          format: "date-time"
+          title: "Data de Fim"
+          description: "Data de fim utilizada na consulta. Respeita RFC 3339."
+          example: "2020-04-01T17:00:00Z"
+        cpf:
           allOf:
-            - $ref: '#/components/schemas/Valor'
-            - title: "Valor final"
-              description: "Valor final do documento."
+            - $ref: "#/components/schemas/CPF"
+            - description: "Filtro pelo CPF do pagador. Não pode ser utilizado ao mesmo tempo que o CNPJ."
+        cnpj:
+          allOf:
+            - $ref: "#/components/schemas/CNPJ"
+            - description: "Filtro pelo CNPJ do pagador. Não pode ser utilizado ao mesmo tempo que o CPF."
+        url:
+          type: "string"
+          title: "URL do payload"
+          description: "Filtro pela URL do payload JSON."
+        paginacao:
+          type: "object"
+          title: "Paginação"
+          required: ["pagina", "tamanho", "quantidade"]
+          properties:
+            pagina:
+              type: "integer"
+              title: "Página"
+              description: "Número da página recuperada."
+              minimum: 0
+            tamanho:
+              type: "integer"
+              title: "Tamanho"
+              description: "Quantidade de registros retornado na página."
+              minimum: 1
+            quantidade:
+              type: "integer"
+              title: "Quantidade"
+              description: "Quantidade de páginas disponíveis para consulta."
+              minimum: 0
+    DocumentosConsultados:
+      type: "object"
+      title: "Documentos Consultados"
+      properties:
+        parametros:
+          $ref: "#/components/schemas/ParametrosConsulta"
+        documentos:
+          type: "array"
+          title: "Lista de Documentos"
+          items:
+            allOf:
+              - $ref: "#/components/schemas/DocumentoCompleto"
+              - required: ["status", "txid", "idDocumento"]
