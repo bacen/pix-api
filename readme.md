@@ -2,9 +2,9 @@
 
 # Especificação da API Pix
 
-* Este repositório reune as especificações funcionais em formato OpenAPI 3.0 referentes à API Pix.
+* Este repositório define as especificações funcionais em formato OpenAPI 3.0 referentes à API Pix.
 
-* Os aspectos de segurança da API Pix transcendem o escopo deste repositório. Maiores detalhes sobre segurança podem ser encontrados no Manual de Segurança do Pix. 
+* Os aspectos de segurança da API Pix transcendem o escopo deste repositório. Maiores detalhes sobre segurança podem ser encontrados no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/comunicacaodados)__.
 
 # Release Corrente: 2.0.0
 
