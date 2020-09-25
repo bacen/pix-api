@@ -345,7 +345,7 @@ paths:
               Em termos de funcionalidade, o fragmento que interessa ao pagador é o `payload`, que apresenta estrutura conforme especificada pelo `schema` do presente endpoint, contendo detalhes concernentes à cobrança.
 
           content:
-            "application/jose":
+            "application/json":
               schema:
                 $ref: "#/components/schemas/CobPayload"
               examples:
