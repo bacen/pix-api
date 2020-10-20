@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui.
 
+## [2.1.0-rc.1]
+
+### Correções
+
+- corrigido exemplo JWS da tag cobPayload
+
 ## [2.1.0-rc.0] 
 
 ### Novidades
