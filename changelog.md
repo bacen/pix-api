@@ -6,12 +6,11 @@ Mudanças relevantes na API Pix serão documentadas aqui.
 
 ### Novidades
 
-- Endpoint para criação de "Locations"; os locations, denotados por `fdqnPSPRecebedor/pixEndpoint/pix
-UrlAccessToken`, podem ser utilizados para exibir cobranças, de acordo com a vontade do usuário recebedor, mas apenas uma por vez.  O location em `PUT /cob/{txid}` é um objeto que pode ser atribuído pelo usuário recebedor.
+- Endpoint para criação de "Locations"; os locations, denotados por `fdqnPSPRecebedor/pixEndpoint/pixUrlAccessToken`, podem ser utilizados para exibir cobranças, de acordo com a vontade do usuário recebedor, mas apenas uma por vez. O location em `PUT /cob/{txid}` é um objeto que pode ser atribuído pelo usuário recebedor.
 - A cobrança agora suporta o conceito de "Vencimento", juntamente com as funcionalidades correlatas: juros, multa, descontos, abatimentos e afins.
 - O formato do txid foi revisado: o tamanho do txid do estático é diferente do tamanho do txid dinâmico.
 
-### Consertos
+### Correções
 
 - Endpoints que criam recursos deveriam retornar 201 created. [#85](https://github.com/bacen/pix-api/issues/85)
 - Removidas menções ao o endpoint /refresh. [#48](https://github.com/bacen/pix-api/issues/48)
