@@ -150,8 +150,7 @@ paths:
         - name: "locationPresente"
           in: "query"
           schema:
-            type: "string"
-            format: "boolean"
+            type: "boolean"
         - name: "status"
           in: "query"
           schema:
@@ -240,8 +239,7 @@ paths:
         - name: "txIdPresente"
           in: "query"
           schema:
-            type: "string"
-            format: "boolean"
+            type: "boolean"
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -354,8 +352,7 @@ paths:
         - name: "txIdPresente"
           in: "query"
           schema:
-            type: "string"
-            format: "boolean"
+            type: "boolean"
         - name: "cpf"
           in: "query"
           schema:
@@ -882,9 +879,10 @@ components:
           inicio: "2020-04-01T00:00:00Z"
           fim: "2020-04-01T23:59:59Z"
           paginacao:
-            pagina: 0
-            tamanho: 100
-            quantidade: 3
+            paginaAtual: 0
+            itensPorPagina: 100
+            quantidadeDePaginas: 1
+            quantidadeTotalDeItens: 3
         loc:
           - allOf:
             - $ref: '#/components/examples/payloadLocationResponse1/value'
@@ -1257,7 +1255,7 @@ components:
       type: "object"
       title: "Cobrança Solicitada"
       description: "Dados enviados para criação ou alteração da cobrança via API Pix"
-      required: ["valor", "chave", "calendario", "expiracao", "dataDeVencimento"]
+      required: ["valor", "chave", "calendario"]
       allOf:
         - type: "object"
           properties:
@@ -1297,8 +1295,8 @@ components:
               type: "string"
               title: "Status da Cobrança"
               enum: 
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"      
-        - $ref: "#/components/schemas/CobBase"   
+                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
+        - $ref: "#/components/schemas/CobBase"
     CobGerada:
       type: "object"
       title: "Cobrança Gerada"
@@ -1338,12 +1336,11 @@ components:
         - $ref: "#/components/schemas/CobBase"  
     CobCompleta:
       title: "Cobrança Completa"
+      required: ["status"]
       allOf:
         - $ref: "#/components/schemas/CobGerada"
         - $ref: "#/components/schemas/CobSolicitada"
         - type: "object"
-          title: "Cob"
-          required: ["status"]
           properties:
             pix:
               type: "array"
@@ -1358,8 +1355,8 @@ components:
               enum: 
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
+                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDO_PELO_PSP"
     CobPayload:
       type: "object"
       title: "Payload JSON da cobrança"
@@ -1453,8 +1450,7 @@ components:
           pattern: "/^\\d{14}$/"
           description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         locationPresente:
-          type: "string"
-          format: "boolean"
+          type: "boolean"
           description: "Filtro pela existência de location vinculada."
         status:
           type: "string"
@@ -1574,8 +1570,7 @@ components:
           description: "Data de fim utilizada na consulta. Respeita RFC 3339."
           example: "2020-04-01T17:00:00Z"
         txIdPresente:
-          type: "string"
-          format: "boolean"
+          type: "boolean"
           description: "Filtro pela existência de txid."
         paginacao:
           $ref: "#/components/schemas/Paginacao"   
@@ -1595,7 +1590,7 @@ components:
     ParametrosConsultaPix:
       type: "object"
       title: "Parâmetros de Consulta Pix"
-      description: "Parâmetros utilizados para a realização de uma consulta de cobranças."
+      description: "Parâmetros utilizados para a realização de uma consulta de Pix."
       required: ["inicio", "fim", "paginacao"]
       properties:
         inicio:
@@ -1613,8 +1608,7 @@ components:
         txid:
           $ref: "#/components/schemas/TxId"
         txIdPresente:
-          type: "string"
-          format: "boolean"
+          type: "boolean"
           description: "Filtro pela existência de txid."
         paginacao:
           $ref: "#/components/schemas/Paginacao"              

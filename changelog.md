@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui.
 
+## [2.1.0-rc.2]
+
+### Correções
+
+- corrigido array _required_ de CobSolicitada [#100](https://github.com/bacen/pix-api/issues/100)
+
 ## [2.1.0-rc.1]
 
 ### Correções
