@@ -2,7 +2,7 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui.
 
-## [2.1.0] 
+## [2.1.0-rc.0] 
 
 ### Novidades
 
