@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui.
 
+## [2.1.0-rc.3]
+
+### Correções
+
+- removido txid opcional no response do endpoint `POST /loc` [#104](https://github.com/bacen/pix-api/issues/104),[#106](https://github.com/bacen/pix-api/issues/106)
+
 ## [2.1.0-rc.2]
 
 ### Correções

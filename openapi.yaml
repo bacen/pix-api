@@ -199,7 +199,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/CobGerada"
+                $ref: "#/components/schemas/CobLocDesvinculada"
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse4"
@@ -280,7 +280,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/PayloadLocation"
+                $ref: "#/components/schemas/PayloadLocationCompleta"
               examples:
                 getPayloadLocation1:
                   $ref: "#/components/examples/payloadLocationResponse1"
@@ -1334,6 +1334,37 @@ components:
                 - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
                 - "REMOVIDO_PELO_PSP"  
         - $ref: "#/components/schemas/CobBase"  
+    CobLocDesvinculada:
+      type: "object"
+      title: "Cobrança Desvinculada da Location"
+      description: "Dados da cobrança via API Pix após a location desvinculada."
+      required: ["location", "txid", "calendario","revisao", "status","valor", "chave"]
+      allOf:
+        - type: "object"
+          properties:
+            calendario:
+              title: "Calendário"
+              description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
+              allOf:
+                - $ref: "#/components/schemas/CobCriacao"
+              oneOf:
+                - $ref: "#/components/schemas/CobExpiracao"
+                - $ref: "#/components/schemas/CobDataDeVencimento"
+            txid:
+              $ref: "#/components/schemas/TxId"
+            revisao:
+              $ref: "#/components/schemas/Revisao"
+        - type: "object"
+          properties:
+            status:
+              type: "string"
+              title: "Status da Cobrança"
+              enum: 
+                - "ATIVA"
+                - "CONCLUIDA"
+                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
+                - "REMOVIDO_PELO_PSP"  
+        - $ref: "#/components/schemas/CobBase"  
     CobCompleta:
       title: "Cobrança Completa"
       required: ["status"]
@@ -1397,6 +1428,28 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/PayloadLocationId"
+        location:
+          type: "string"
+          title: "Localização do payload"
+          description: "Localização do Payload a ser informada na criação da cobrança."
+          maxLength: 77
+          format: uri
+          example: "pix.example.com/qr/2353c790-eefb-11ea-adc1-0242ac120002"
+          readOnly: true
+        criacao:
+          type: "string"
+          format: "date-time"
+          title: "Data de Criação"
+          description: "Data e hora em que a location foi criada. Respeita RFC 3339."
+          readOnly: true
+    PayloadLocationCompleta:
+      type: "object"
+      title: "Location do Payload Completa"
+      description: "Identificador da localização do payload completo."
+      required: ["id", "location", "criacao"]
+      properties:
+        id:
+          $ref: "#/components/schemas/PayloadLocationId"
         txid:
           $ref: "#/components/schemas/TxId"
         location:
@@ -1411,7 +1464,7 @@ components:
           type: "string"
           format: "date-time"
           title: "Data de Criação"
-          description: "Data e hora em que o location foi criado. Respeita RFC 3339."
+          description: "Data e hora em que a location foi criada. Respeita RFC 3339."
           readOnly: true
     PayloadLocationCob:
       type: "object"
@@ -1586,7 +1639,7 @@ components:
           title: "Lista de locations cadastradas"
           items:
             allOf:
-              - $ref: "#/components/schemas/PayloadLocation"
+              - $ref: "#/components/schemas/PayloadLocationCompleta"
     ParametrosConsultaPix:
       type: "object"
       title: "Parâmetros de Consulta Pix"
