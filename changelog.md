@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui.
 
+## [2.1.0-rc.4]
+
+### Correções
+
+- removido endpoint `DELETE /cob/{txid}/loc`, uma vez que o endpoint PATCH cobre a situação. [#108](https://github.com/bacen/pix-api/issues/108)
+
 ## [2.1.0-rc.3]
 
 ### Correções

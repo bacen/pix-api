@@ -178,31 +178,6 @@ paths:
                   $ref: "#/components/examples/getCobs1"
                 getCobs2:
                   $ref: "#/components/examples/getCobs2"
-  "/cob/{txid}/loc":
-    parameters:
-      - name: "txid"
-        in: "path"
-        required: true
-        schema:
-          $ref: "#/components/schemas/TxId"
-    delete:
-      tags:
-      - Cob
-      summary: "Desvincular uma location de uma cobrança."
-      description: |
-        Endpoint para desvinculo da location da cobrança.
-      security:
-        - OAuth2: [cob.write]
-      responses:
-        "200":
-          description: "Location desvinculada da cobrança."
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/CobLocDesvinculada"
-              examples:
-                retorno1:
-                  $ref: "#/components/examples/cobResponse4"
   "/loc":
     post:
       tags:
@@ -810,22 +785,6 @@ components:
           original: "567.89"
         chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
         solicitacaoPagador: "Informar cartão fidelidade"
-    cobResponse4:
-      summary: "Exemplo de cobrança revisada 1"
-      value:
-        calendario:
-          criacao: "2020-09-09T20:15:00.358Z"
-          expiracao: "3600"
-        txid: "7978c0c97ea847e78e8849634473c1f1"
-        revisao: 1
-        status: "ATIVA"
-        devedor:
-          cnpj: "12345678000195"
-          nome: "Empresa de Serviços SA"
-        valor:
-          original: "567.89"
-        chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
-        solicitacaoPagador: "Informar cartão fidelidade"
     getCobs1:
       summary: "Exemplo de retorno da consulta de cobranças 1"
       value:
@@ -1323,37 +1282,6 @@ components:
               required: ["txid"]
               allOf:
                 - $ref: "#/components/schemas/PayloadLocation"
-        - type: "object"
-          properties:
-            status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum: 
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
-        - $ref: "#/components/schemas/CobBase"  
-    CobLocDesvinculada:
-      type: "object"
-      title: "Cobrança Desvinculada da Location"
-      description: "Dados da cobrança via API Pix após a location desvinculada."
-      required: ["location", "txid", "calendario","revisao", "status","valor", "chave"]
-      allOf:
-        - type: "object"
-          properties:
-            calendario:
-              title: "Calendário"
-              description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
-              allOf:
-                - $ref: "#/components/schemas/CobCriacao"
-              oneOf:
-                - $ref: "#/components/schemas/CobExpiracao"
-                - $ref: "#/components/schemas/CobDataDeVencimento"
-            txid:
-              $ref: "#/components/schemas/TxId"
-            revisao:
-              $ref: "#/components/schemas/Revisao"
         - type: "object"
           properties:
             status:
