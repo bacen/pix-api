@@ -823,7 +823,7 @@ paths:
       - "Webhook"
       summary: "Consultar webhooks cadastrados."
       security:
-        - OAuth2: [payloadlocation.read]  
+        - OAuth2: [webhook.read]
       description: "Endpoint para consultar webhooks cadastrados"
       responses:
         "200":
