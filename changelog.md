@@ -1,6 +1,23 @@
 # Changelog
 
-Mudanças relevantes na API Pix serão documentadas aqui.
+Mudanças relevantes na API Pix serão documentadas aqui neste documento.
+
+## [2.1.0-rc.5]
+
+### Adicionado
+
+- A API agora apresenta Endpoints para gerenciamento de _Cobranças com Vencimento_
+- Cobranças com vencimento dispõem de seu próprio endpoint
+- A API agora apresenta Endpoints para gerenciamento de Lotes de _Cobranças com Vencimento_
+- Adicionado um endpoint para criação de cobrança imediata com txid criado pelo PSP recebedor
+- Adicionados Endpoints para o gerenciamento de _Locations_, habilitando o caso de uso "Reuso de Locations".
+- Adicionado campo para descrição complementar do status da devolucão [#148](https://github.com/bacen/pix-api/issues/148)
+
+### Correções
+
+- removido o objeto __opcional__ pix.pagador [#153](https://github.com/bacen/pix-api/issues/153)
+- os webhooks agora são associados a uma chave pix [#120](https://github.com/bacen/pix-api/issues/120)
+- os endereços dos endpoints agora apresentam corretamente o fragmento `v2` [#3](https://github.com/bacen/pix-api/issues/3)
 
 ## [2.1.0-rc.4]
 
