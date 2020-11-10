@@ -2,7 +2,14 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
-## [2.1.0-rc.5]
+## [2.1.1]
+
+### Corrigido:
+
+- Readme: adiciona menção ao Manual de Padrões para iniciação do Pix.
+- [#168](https://github.com/bacen/pix-api/issues/168): corrige descrição do endpoint webhook.
+
+## [2.1.0-rc.5, 2.1.1]
 
 ### Adicionado
 
