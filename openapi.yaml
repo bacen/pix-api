@@ -763,7 +763,7 @@ paths:
       summary: Configurar o Webhook Pix.
       description: |
         Endpoint para configuração do serviço de notificações acerca de Pix recebidos.
-        Somente Pix associados a um txid serão notificados. O Webhook é único por client ID.
+        Somente Pix associados a um txid serão notificados.
       security:
         - OAuth2: [webhook.write]
       requestBody:
