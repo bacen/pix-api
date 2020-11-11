@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.1.2]
+
+- Readme: corrige informações sobre os Manuais
+- [#172](https://github.com/bacen/pix-api/issues/172): corrige campos de cobv.devedor na exibição do Payload JSON que não estavam aderentes com o Manual de Iniciação
+- [#171](https://github.com/bacen/pix-api/issues/171): corrige descrição do campo cobsv[n].criacao
+
 ## [2.1.1]
 
 ### Corrigido:
