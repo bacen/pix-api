@@ -1252,10 +1252,6 @@ components:
           dataDeVencimento: "2020-12-31"
           validadeAposVencimento: 30
         devedor:
-          logradouro: "Alameda Santos, Numero 10, Bairro Braz"
-          cidade: "Diadema"
-          uf: "SP"
-          cep: "70800100"
           cnpj: "56989000019533"
           nome: "Empresa de Alimentos SA"
         recebedor:
@@ -2279,7 +2275,7 @@ components:
                 type: "string"
                 format: "date-time"
                 title: "Data de Criação"
-                description: "Data e hora em que a location foi criada. Respeita RFC 3339."
+                description: "Data e hora em que a cobrança foi criada. Respeita RFC 3339."
                 readOnly: true
     LotesCobVConsultados:
       title: "Lote de cobranças com" 
@@ -2310,7 +2306,13 @@ components:
                 - $ref: "#/components/schemas/CobCriacao"
                 - $ref: "#/components/schemas/CobApresentacao"
                 - $ref: "#/components/schemas/CobDataDeVencimento"
-        - $ref: "#/components/schemas/DadosDevedor"
+        - type: "object"
+          properties:
+            devedor:
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              oneOf:
+                - $ref: "#/components/schemas/PessoaFisica"
+                - $ref: "#/components/schemas/PessoaJuridica"
         - $ref: "#/components/schemas/DadosRecebedor"
         - type: "object"
           properties:
