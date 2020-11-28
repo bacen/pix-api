@@ -1,4 +1,4 @@
-[![https://img.shields.io/badge/OpenAPI-valid-brightgreen.svg](https://img.shields.io/badge/OpenAPI-valid-brightgreen.svg)](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/bacen/pix-api/master/openapi.yaml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![https://img.shields.io/badge/OpenAPI-valid-brightgreen.svg](https://img.shields.io/badge/OpenAPI-valid-brightgreen.svg)](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/bacen/pix-api/main/openapi.yaml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 # [Especificação da API Pix](https://bacen.github.io/pix-api/index.html)
 
@@ -8,7 +8,7 @@
 
 # Link para visualização da API Pix
 
-O branch `master` da API pode ser visualizado __[aqui](https://bacen.github.io/pix-api/index.html)__
+O branch `main` da API pode ser visualizado __[aqui](https://bacen.github.io/pix-api/index.html)__
 
 # Release Corrente: 2.1.2
 
