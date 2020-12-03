@@ -2,6 +2,26 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.2.0-rc.0]
+
+### Adicionado:
+
+- A API Pix agora estabelece uma série de erros padronizados seguindo a [RFC 7807](https://tools.ietf.org/html/rfc7807) reunidos na seção 
+"Tratamento de erros". Procuramos ser exaustivos com relação aos possíveis erros semânticos.
+- Adicionado o endpoint `PATCH /lotecobv/{id}`. Este endpoint pode ser utilizado quando a intenção do 
+usuário recebedor for alterar cobranças específicas dentro do conjunto de cobranças criadas no lote em 
+questão. O endpoint `PUT /lotecobv/{id}` também pode ser utilizado para alterar cobranças, mas deve
+ser atribuído na requisição o array exatamente como especificado na requisição originária, o que torna 
+este endpoint ineficiente no caso em que quer se alterar uma cobrança específica ou poucas dentro de um 
+array com grande quantidade de cobranças.
+
+- Incorporadas melhorias de redação em alguns endpoints específicos.
+
+### Corrigido:
+
+- adiciona o atributo `problema` no array `cobsv` no response do endpoint `GET /lotecobv/{id}`
+- corrige os status `REMOVIDA_*`, que erroneamente vieram como `REMOVIDO_*` no branch 2.1.X. [#222](https://github.com/bacen/pix-api/issues/222)
+
 ## [2.1.2]
 
 - Readme: corrige informações sobre os Manuais
