@@ -1,33 +1,466 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.1.2"
+  version: "2.2.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
   contact:
-    name: Suporte TI BCB
-    email: suporte.ti@bcb.gov.br
-    url: https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos
-  description: |- 
-    A API Pix padroniza serviços oferecidos pelo PSP recebedor no contexto do arranjo Pix, como criação de cobrança,
-    verificação de Pix recebidos, devolução e conciliação. Os serviços expostos pelo PSP recebedor permitem ao usuário
-    recebedor estabelecer integração de sua automação com os serviços Pix do PSP.
+    name: Suporte PIX BCB
+    email: suporte.pix@bcb.gov.br
+    url: https://www.bcb.gov.br/estabilidadefinanceira/pix
+  description: |-
+    A API Pix padroniza serviços oferecidos pelo PSP recebedor no contexto do arranjo Pix,
+    como criação de cobrança, verificação de Pix recebidos, devolução e consultas.
+    Os serviços expostos pelo PSP recebedor permitem ao usuário recebedor estabelecer integração
+    de sua automação com os serviços Pix do PSP.
 
     # Evolução da API Pix
-    As seguintes mudanças são esperadas e consideradas retro-compatíveis (_backwards-compatibility_):
-    
+
+    A API Pix busca respeitar __[SemVer](https://semver.org/lang/pt-BR/)__. Nesse sentido,
+    mudanças compatíveis não devem gerar nova versão _major_.
+
+    A versão da API é composta por 4 elementos: _major_, _minor_, _patch_ e _release candidate_.
+    A versão `v[x]`que consta no path da URL é o elemento _major_ da versão da API.
+    A evolução da versão se dá seguinte forma:
+
+      - Major: alterações incompatíveis, com quebra de contrato (v1.0.0 → v2.0.0)
+      - Minor: alterações compatíveis, sem quebra de contrato (v1.1.0 → v1.2.0)
+      - Patch: bugfixes, esclarecimentos às especificações, sem alterações funcionais (v1.1.1 → v1.1.2)
+      - Release candidate: versões de pré-lançamento de qualquer patch futuro, minor ou major (v1.0.0-rc.1 → v1.0.0-rc.22)
+
+    Alterações sem quebra de contrato e esclarecimentos às especificações podem ocorrer a qualquer momento.
+    Clientes devem estar preparados para lidar com essas mudanças sem quebrar.
+
+    As seguintes mudanças são esperadas e consideradas retrocompatíveis:
+
     - Adição de novos recursos na API Pix.
     - Adição de novos parâmetros opcionais a cobranças.
     - Adição de novos campos em respostas da API Pix.
     - Alteração da ordem de campos.
     - Adição de novos elementos em enumerações
 
-    Mudanças compatíveis não geram nova versão da API Pix.
-    Clientes devem estar preparados para lidar com essas mudanças sem quebrar.
-    
-    Mudanças incompatíveis geram nova versão da API Pix.
-    
+
+    # Tratamento de erros
+
+    A API Pix retorna códigos de status HTTP para indicar sucesso ou falhas das
+    requisições.
+
+    Códigos `2xx` indicam sucesso. Códigos `4xx` indicam falhas causadas pelas
+    informações enviadas pelo cliente ou pelo estado atual das entidades. Códigos `5xx`
+    indicam problemas no serviço no lado da API Pix.
+
+    As respostas de erro incluem no corpo detalhes do erro seguindo o
+    _schema_ da [RFC 7807](https://tools.ietf.org/html/rfc7807).
+
+    O campo `type` identifica o tipo de erro e na API Pix segue o padrão:
+
+    `https://pix.bcb.gov.br/api/v2/error/<TipoErro>`
+
+    O padrão acima listado, referente ao campo `type`, não consiste, necessariamente, em uma
+    URL que apresentará uma página web válida, ou um endpoint válido, embora possa, futuramente,
+    ser exatamente o caso. O objetivo primário é apenas e tão somente identificar o tipo de erro.
+
+    Abaixo estão listados os tipos de erro e possíveis violações da API Pix.
+
+    ## Gerais
+
+    Esta seção reúne erros que poderiam ser retornados por quaisquer endpoints listados na API Pix.
+
+    ### `RequisicaoInvalida`
+
+      * __Significado__: Requisição inválida.
+      * __HTTP Status Code__: [400 Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+
+    ### `AcessoNegado`
+
+      * __Significado__: Requisição de participante autenticado que viola alguma regra de autorização.
+      * __HTTP Status Code__: [403 Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3).
+
+    ### `NaoEncontrado`
+
+      * __Significado__: Entidade não encontrada.
+      * __HTTP Status Code__: [404 Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+
+    ### `PermanentementeRemovido`
+
+      * __Significado__: Indica que a entidade existia, mas foi permanentemente removida.
+      * __HTTP Status Code__: [410 Gone](https://tools.ietf.org/html/rfc7231#section-6.5.9).
+
+    ### `ErroInternoDoServidor`
+
+      * __Significado__: Condição inesperada ao processar requisição.
+      * __HTTP Status Code__: [500 Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1).
+
+    ### `ServicoIndisponivel`
+
+      * __Significado__: Serviço não está disponível no momento. Serviço solicitado pode estar em manutenção ou fora da janela de funcionamento.
+      * __HTTP Status Code__: [503 Service Unavailable](https://tools.ietf.org/html/rfc7231#section-6.6.4).
+
+    ### `IndisponibilidadePorTempoEsgotado`
+
+      * __Significado__: Indica que o serviço demorou além do esperado para retornar.
+      * __HTTP Status Code__: [504 Gateway Timeout](https://tools.ietf.org/html/rfc7231#section-6.6.5).
+
+    ## Tag CobPayload
+
+    Esta seção reúne erros retornados pelos endpoints organizados sob a tag `CobPayload`.
+    Estes erros indicam problemas na tentativa de recuperação, via _location_, do Payload JSON que representa a cobrança.
+
+    ### `CobPayloadNaoEncontrado`
+
+    * __Significado__: a cobrança em questão não foi encontrada para a location requisitada.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4) ou [410](https://tools.ietf.org/html/rfc7231#section-6.5.9).
+    * __endpoints__: `GET /pixUrlAcessToken`, `GET /cobv/pixUrlAcessToken`.
+
+    Se a presente location exibia uma cobrança, mas não a exibirá mais de maneira permanentemente,
+    pode-se aplicar o HTTP status code [410](https://tools.ietf.org/html/rfc7231#section-6.5.9). Se a presente location não
+    está exibindo nenhuma cobrança, pode-se utilizar o HTTP status code [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+
+    Uma cobrança pode estar "expirada" (`calendario.expiracao`), "vencida", "Concluida",
+    entre outros estados em que não poderia ser efetivamente paga. Nesses casos, é uma liberalidade
+    do PSP recebedor retornar o presente código de erro ou optar por servir o payload de qualquer maneira,
+    objetivando fornecer uma informação adicional ao usuário pagador final a respeito da cobrança.
+
+    ### `CobPayloadOperacaoInvalida`
+
+    * __Significado__: a cobrança existe, mas a requisição é inválida.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /cobv/pixUrlAcessToken`.
+
+    __Violações__:
+      - `codMun` não respeita o schema.
+      - `codMun` não é um código válido segundo a __[tabela de municípios do IBGE](https://www.ibge.gov.br/explica/codigos-dos-municipios.php)__.
+      - `DPP` não respeita o schema.
+      - `DPP` anterior ao momento presente.
+      - `DPP` superior à validade da cobrança em função dos parâmetros `calendario.dataDeVencimento`
+      e `calendario.validadeAposVencimento`. Exemplo: `dataDeVencimento` => 2020-12-25,
+      `validadeAposVencimento` => 10, `DPP` => 2021-01-05. Neste exemplo, o parâmetro `DPP` é
+      inválido considerando o contexto apresentado porque é uma data em que a cobrança
+      não poderá ser paga. A cobrança, neste exemplo, não será considerada válida
+      a partir da data 2021-01-05.
+
+    ## Tag Cob
+
+    Esta seção reúne erros retornados pelos endpoints organizados sob a tag `Cob`.
+    Esses erros indicam problemas no gerenciamento de uma cobrança para pagamento imediato.
+
+    ### `CobNaoEncontrado`
+
+    * __Significado__: Cobrança não encontrada para o txid informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `[GET|PATCH] /cob/{txid}`.
+
+    ### `CobOperacaoInvalida`
+
+    * __Significado__: a requisição que busca alterar ou criar uma cobrança para pagamento imediato
+    não respeita o schema ou está semanticamente errada.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `[POST|PUT|PATCH] /cob/{txid}`.
+
+    __Violações__ para os endpoints `PUT|PATCH /cob/{txid}`:
+      - O campo cob.calendario.expiracao é igual ou menor que zero.
+      - O campo cob.valor.original não respeita o _schema_.
+      - O campo cob.valor.original é zero.
+      - O objeto cob.devedor não respeita o _schema_.
+      - O campo cob.chave não respeita o _schema_.
+      - O campo cob.chave corresponde a uma conta que não pertence a este usuário recebedor.
+      - O campo solicitacaoPagador não respeita o _schema_.
+      - O objeto infoAdicionais não respeita o _schema.
+      - O location referenciado por loc.id inexiste.
+      - O location referenciado por loc.id já está sendo utilizado por outra cobrança.
+      - O location referenciado por cob.loc.id apresenta tipo "cobv" (deveria ser "cob").
+
+    __Violações__ específicas para o endpoint `PUT /cob/{txid}`:
+      - A cobrança já existe, não está no status ATIVA, e a presente requisição busca alterá-la.
+
+    __Violações__ específicas para o endpoint `PATCH /cob/{txid}`:
+      - A cobrança não está ATIVA, e a presente requisição busca alterá-la.
+      - A cobrança está ATIVA, e a presente requisição propõe alterar
+      seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
+      (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
+      alterações que não serão aproveitadas).
+      - o campo cob.status não respeita o _schema_.
+
+    ### `CobConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de cobranças para pagamento imediato
+    não respeitam o schema ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /cob` e `GET /cob/{txid}`.
+
+    __Violações__ específicas para o endpoint `GET /cob`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+
+    __Violações__ específicas para o endpoint `GET /cob/{txid}`:
+      - o parâmetro `revisao` corresponde a uma revisão inexistente para a cobrança
+      apontada pelo parâmetro `txid`.
+
+    ## Tag CobV
+
+    Esta seção reúne erros retornados pelos endpoints organizados sob a tag `CobV`.
+    Esses erros indicam problemas no gerenciamento de uma cobrança com vencimento.
+
+    ### `CobVNaoEncontrada`
+
+    * __Significado__: Cobrança com vencimento não encontrada para o txid informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `[GET|PATCH] /cobv/{txid}`.
+
+    ### `CobVOperacaoInvalida`
+
+    * __Significado__: a requisição que busca alterar ou criar uma cobrança com vencimento
+    não respeita o schema ou está semanticamente errada.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `[PUT|PATCH] /cobv/{txid}`.
+
+    __Violações__ para os endpoints `PUT|PATCH /cobv/{txid}`:
+      - Este `txid` está associado a um lote e no referido lote, o status desta cobrança está atribuído como
+      "EM_PROCESSAMENTO" ou "NEGADA".
+      - O campo `cobv.calendario.dataDeVencimento` é anterior à data de criação da cobrança.
+      - O campo `cobv.calendario.validadeAposVencimento` é menor do que zero.
+      - O objeto `cobv.devedor` não respeita o schema.
+      - O objeto `cobv.devedor` não respeita o _schema_.
+      - O campo `cobv.chave` não respeita o _schema_.
+      - O campo `cobv.chave` corresponde a uma conta que não pertence a este usuário recebedor.
+      - O campo `solicitacaoPagador` não respeita o _schema_.
+      - O objeto `infoAdicionais` não respeita o _schema.
+      - O location referenciado por `cobv.loc.id` inexiste.
+      - O location referenciado por `cobv.loc.id` já está sendo utilizado por outra cobrança.
+      - O location referenciado por `cobv.loc.id` apresenta tipo "cob" (deveria ser "cobv").
+      - O campo `cobv.valor.original` não respeita o _schema_.
+      - O campo `cobv.valor.original` apresenta o valor `zero`.
+      - O objeto `cobv.valor.multa` não respeita o _schema_.
+      - O objeto `cobv.valor.juros` não respeita o _schema_.
+      - O objeto `cobv.valor.abatimento` não respeita o _schema_.
+      - O objeto `cobv.valor.desconto` não respeita o _schema_.
+      - O objeto `cobv.valor.abatimento` representa um valor maior ou igual ao valor da
+      cobrança original ou maior ou igual a 100%.
+      - O objeto `cobv.valor.desconto` apresenta algum elemento de desconto que representa um valor maior ou
+      igual ao valor da cobrança original ou maior ou igual a 100%.
+      - O objeto `cobv.valor.desconto` apresenta algum elemento cuja data seja posterior à data de vencimento
+      representada por `calendario.dataDeVencimento`.
+      - O objeto `cobv.valor.desconto` apresenta modalidade no valor `1` ou `2`,
+      porém `cobv.valor.desconto.valorPerc` encontra-se preenchido
+      - O objeto `cobv.valor.desconto` apresenta modalidade no valor `1` ou `2`, porém
+      o array `cobv.valor.desconto.descontoDataFixa` está vazio ou nulo.
+      - O objeto `cobv.valor.desconto` apresenta modalidade nos valores de `3` a `6`, porém
+      o elemento `cobv.valor.desconto.valorPerc` não está preenchido.
+      - O objeto `cobv.valor.desconto` apresenta modalidade nos valores de `3` a `6`, porém
+      o elemento `cobv.valor.desconto.descontoDataFixa` está preenchido ou não nulo.
+
+
+
+    __Violações__ específicas para o endpoint `PUT /cobv/{txid}`:
+      - A cobrança já existe, não está ATIVA, e a presente requisição busca alterá-la
+
+    __Violações__ específicas para o endpoint `PATCH /cobv/{txid}`:
+      - A cobrança não está ATIVA, e a presente requisição busca alterá-la
+      - A cobrança está ATIVA, e a presente requisição propõe alterar
+      seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
+      (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
+      alterações que não serão aproveitadas).
+      - o campo cob.status não respeita o _schema_.
+
+    ### `CobVConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de cobranças com vencimento não respeitam o schema
+    ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /cobv` e `GET /cobv/{txid}`.
+
+    __Violações__ específicas para o endpoint `GET /cobv`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+      - o parâmetro `loteCobVId` não corresponde a um lote existente.
+
+    __Violações__ específicas para o endpoint `GET /cobv/{txid}`:
+      - o parâmetro `revisao` corresponde a uma revisão inexistente para a cobrança
+      apontada pelo parâmetro `txid`.
+
+    ## Tag LoteCobV
+    Esta seção reúne erros referentes a endpoints que tratam do gerenciamento de lotes de cobrança.
+
+    ### `LoteCobVNaoEncontrado`
+    * __Significado__: Lote não encontrado para o `id` informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `[GET|PATCH] /lotecobv/{id}`.
+
+    ### `LoteCobVOperacaoInvalida`
+    * __Significado__: a requisição que busca alterar ou criar um lote de cobranças com vencimento
+    não respeita o schema ou está semanticamente errada.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `[PUT|PATCH] /lotecobv/{txid}`.
+
+    __Violações__ para os endpoints `PUT|PATCH /lotecobv/{txid}`:
+      - O campo loteCobV.descricao não respeita o schema.
+      - O objeto loteCobV.cobsV não respeita o schema.
+
+    __Violações__ para o endpoint `PUT /lotecobv/{txid}`:
+      - a presente requisição tenta criar um conjunto de cobranças dentre as quais pelo menos
+      uma cobrança já encontra-se criada (via endpoint `PUT /cobv/{txid}`).
+      Uma cobrança, uma vez criada via `PUT /cobv/{txid}`, não pode ser associada a um lote posteriormente.
+      - a presente requisição busca alterar um lote já existente, mas contém um array de cobranças
+      que não referência exatamente as mesmas cobranças referenciadas pela requisição original que criou
+      o lote. Uma vez criado um lote, não se pode remover ou adicionar cobranças a este lote.
+
+    __Violações__ para o endpoint `PATCH /lotecobv/{txid}`:
+      - a presente requisição busca alterar um lote já existente e contém, no `array`
+      de cobranças representado por `cobsv`, uma cobrança não existente no array de cobranças
+      atribuído pela requisição original que criou o lote.
+      Uma vez criado um lote, não se pode remover ou adicionar cobranças a este lote.
+
+    __Violações__ para os endpoints `GET /lotecobv/{txid}`:
+      - __observação__: para cada elemento do array `cobsv`, retornado por este endpoint, caso a cobrança esteja em
+      status "NEGADA", o atributo `problema` deste elemento deve ser preenchido respeitando
+      o [schema](https://tools.ietf.org/html/rfc7807) referenciado pela API Pix.
+      - o preenchimento do atributo `problema`, conforme descrito acima, segue o mesmo regramento dos
+      erros especificados para os endpoints `[PUT/PATCH /cobv/{txid}]`, de maneira a possibilitar, ao
+      usuário recebedor, entender qual foi a violação cometida ao se tentar criar
+      a cobrança referenciada por este elemento do array `cobsv`.
+
+    ### `LoteCobVConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de lotes de cobrança com vencimento
+    não respeitam o schema ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /lotecobv` e `GET /lotecobv/{id}`.
+
+    __Violações__ específicas para o endpoint `GET /lotecobv`:
+      - algum dos parâmetros informados para a consulta não respeitam o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+
+    __Violações__ específicas para o endpoint `GET /lotecobv/{id}`:
+      - {id} não identifica um lote existente
+
+    ## Tag PayloadLocation
+    Esta seção reúne erros referentes a endpoints que tratam do gerenciamento de _locations_.
+
+    ### `PayloadLocationNaoEncontrado`
+    * __Significado__: _Location_ não encontrada para o `id` informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `[GET|PATCH] /loc/{id}`, `DELETE /loc/{id}/txid`.
+
+    ### `PayloadLocationOperacaoInvalida`
+
+    * __Significado__: a presente requisição busca criar uma location sem respeitar o schema estabelecido.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `POST /loc`.
+
+    __Violações__ para o endpoint `POST /loc`:
+      - o campo tipoCob não respeita o _schema_.
+
+    ### `PayloadLocationConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de _locations_ não respeitam
+    o schema ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /loc` e `GET /loc/{id}`.
+
+    __Violações__ específicas para o endpoint `GET /loc`:
+      - algum dos parâmetros informados para a consulta não respeitam o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+
+    __Violações__ específicas para o endpoint `GET /loc/{id}`:
+      - {id} não identifica uma _location_ existente
+
+    ## Tag Pix
+
+    Reúne erros em endpoints de gestão de Pix recebidos e solicitação de devoluções.
+
+    ### `PixNaoEncontrado`
+
+    * __Significado__: pix não encontrada para o `e2eid` informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `GET /pix/{e2eid}`
+
+    ### `PixDevolucaoNaoEncontrada`
+
+    * __Significado__: devolução representada por {id} não encontrada para o `e2eid` informado.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `GET /pix/{e2eid}/devolucao/{id}`
+
+    ### `PixConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de pix recebidos não respeitam o schema
+    ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /pix`.
+
+    __Violações__ específicas para o endpoint `GET /pix`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+
+    ### `PixDevolucaoInvalida`
+
+    * __Significado__: a presente requisição de devolução não respeita o schema ou não faz sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `PUT /pix/{e2eid}/devolucao/{id}`.
+
+    __Violações__ específicas para o endpoint `PUT /pix/{e2eid}/devolucao/{id}`:
+      - O campo devolucao.valor não respeita o schema
+      - A presente requisição de devolução, em conjunto com as demais prévias devoluções,
+      se aplicável, excederia o valor do pix originário.
+
+    ## Tag Webhook
+    Reúne erros dos endpoints que tratam do gerenciamente dos Webhooks da API Pix.
+
+    ### `WebhookOperacaoInvalida`
+    * __Significado__: a presente requisição busca criar um webhook sem respeitar o schema ou,
+    ainda, apresenta semântica inválida.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `PUT /webhook/{chave}`.
+
+    __Violações__ para o endpoint `PUT /webhook/{chave}`:
+      - o parâmetro {chave} não corresponde a uma chave DICT válida.
+      - o parâmetro {chave} não corresponde a uma chave DICT pertencente a este usuário recebedor.
+      - Campo webhook.webhookUrl não respeita o schema.
+
+    ### `WebhookNaoEncontrado`
+
+    * __Significado__: o webhook denotado por {chave} não encontra-se estabelecido.
+    * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
+    * __endpoints__: `GET /webhook/{chave}`,  `DELETE /webhook/{chave}`
+
+    ### `WebhookConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de webhooks ativados não respeitam o schema
+    ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /webhook`.
+
+    __Violações__ específicas para o endpoint `GET /webhook`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
+
 servers:
   - url: https://pix.example.com/api/v2/
     description: Servidor de Produção
@@ -36,39 +469,44 @@ servers:
 
 tags:
   - name: CobPayload
-    x-displayName: Payload JSON que representa uma Cobrança imediata.
+    x-displayName: Reúne endpoints (locations) que retornam o  Payload JSON que representa uma Cobrança
     description: |-
-      Endpoint (location) utilizado pelo usuário devedor para recuperar o payload JSON que representa uma cobrança.
+      Reúne endpoints (locations) utilizados pelo software do PSP pagador para recuperar o payload JSON que representa uma cobrança.
+
+      Os endpoints listados nesta Tag apresentam requisitos de autenticação e autorização diferenciados em relação aos outros endpoints listados na presente API.
+
+      São endpoints __abertos__ para que qualquer cliente da internet possa se conectar. Cada _location_ é uma _[url de capacidade](https://www.w3.org/TR/capability-urls/)_, funcionalidade implementada via o fragmento `pixurlAcessToken`.
+      Para mais informações, consultar o [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
   - name: Cob
-    x-displayName: Gerenciamento de cobranças imediatas
-    description: |- 
-      Reune endpoints destinados a lidar com gerenciamento de cobranças imediatas.
+    x-displayName: Gerenciamento de cobranças para pagamento imediato
+    description: |-
+      Reúne endpoints destinados a lidar com gerenciamento de cobranças imediatas.
   - name: CobV
     x-displayName: Gerenciamento de cobranças com vencimento
-    description: |- 
-      Reune endpoints destinados a lidar com gerenciamento de cobranças com vencimento.
+    description: |-
+      Reúne endpoints destinados a lidar com gerenciamento de cobranças com vencimento.
   - name: LoteCobV
     x-displayName: Gerenciamento de cobranças com vencimento em lote
-    description: |- 
-      Reune endpoints destinados a lidar com gerenciamento de cobranças com vencimento em lote.
+    description: |-
+      Reúne endpoints destinados a lidar com gerenciamento de cobranças com vencimento em lote.
   - name: PayloadLocation
     x-displayName: Configuração de locations para payloads
-    description: |- 
-      Reune endpoints destinados a lidar com configuração e remoção de locations para uso dos payloads
+    description: |-
+      Reúne endpoints destinados a lidar com configuração e remoção de locations para uso dos payloads
   - name: Pix
     x-displayName: Gerenciamento de Pix recebidos
-    description: |- 
-      Reune endpoints destinados a lidar com  gerenciamento de Pix recebidos.
+    description: |-
+      reúne endpoints destinados a lidar com  gerenciamento de Pix recebidos.
   - name: Webhook
     x-displayName: Gerenciamento de notificações
-    description: |- 
-      Reune endpoints para gerenciamento de notificações por parte do PSP recebedor ao usuário recebedor.
+    description: |-
+      Reúne endpoints para gerenciamento de notificações por parte do PSP recebedor ao usuário recebedor.
 
 paths:
-  "/cob/{txid}":
+  /cob/{txid}:
     parameters:
-      - name: "txid"
-        in: "path"
+      - name: txid
+        in: path
         required: true
         schema:
           $ref: "#/components/schemas/TxId"
@@ -92,6 +530,21 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse1"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaCobExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     patch:
       tags:
       - "Cob"
@@ -110,6 +563,21 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse3"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/OperacaoInvalidaCobExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
       - name: "revisao"
@@ -121,7 +589,7 @@ paths:
       - "Cob"
       summary: "Consultar cobrança imediata."
       security:
-        - OAuth2: [cob.read]  
+        - OAuth2: [cob.read]
       description: |-
           Endpoint para consultar uma cobrança através de um determinado txid.
       responses:
@@ -136,6 +604,12 @@ paths:
                   $ref: "#/components/examples/cobResponse1"
                 retorno2:
                   $ref: "#/components/examples/cobResponse2"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/cob":
     post:
       tags:
@@ -157,6 +631,19 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse1"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaCobExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
         - $ref: "#/components/parameters/inicio"
@@ -206,6 +693,10 @@ paths:
                   $ref: "#/components/examples/getCobs1"
                 getCobs2:
                   $ref: "#/components/examples/getCobs2"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/cobv/{txid}":
     parameters:
       - name: "txid"
@@ -233,6 +724,21 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse4"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaCobVExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     patch:
       tags:
       - "CobV"
@@ -251,6 +757,21 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse4"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/OperacaoInvalidaCobVExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
       - name: "revisao"
@@ -275,6 +796,12 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse4"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/cobv":
     get:
       parameters:
@@ -330,6 +857,10 @@ paths:
               examples:
                 getCobs1:
                   $ref: "#/components/examples/getCobsV1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/lotecobv/{id}":
     parameters:
       - name: "id"
@@ -341,20 +872,94 @@ paths:
     put:
       tags:
       - "LoteCobV"
-      summary: "Criar lote de cobranças com vencimento."
+      summary: "Criar/Alterar lote de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.write]
       description: |-
-          Endpoint para criar um lote de cobranças com vencimento. 
+          Endpoint utilizado para criar ou alterar um lote de cobranças com vencimento.
+
+          Para o caso de uso de alteração de cobranças, o array a ser atribuído na requisicão
+          deve ser composto pelas exatas cobranças que constaram no array atribuído na requisição
+          originária.
+
+          Não se pode utilizar este endpoint para _alterar_ um lote de cobranças com vencimento
+          agregando ou removendo cobranças já existentes dentro do conjunto de cobranças
+          criadas na requisição originária do lote.
+
+          Em outras palavras, se originalmente criou-se um lote, por exemplo, com as cobranças
+          [`a`, `b` e `c`], não se pode _alterar_ esse conjunto de cobranças original que o
+          lote representa para [`a`, `b`, `c`, `d`], ou para [`a`, `b`].
+          Por outro lado, pode-se alterar, _em lote_ as cobranças [`a`, `b`, `c`],
+          conforme originalmente constam na requisição originária do lote.
+
+          Uma cobrança com status "EM_PROCESSAMENTO" ou "NEGADA" não _existe_ de fato, portanto
+          não será listada em `GET /cobv` ou `GET /cobv/{txid}`.
+
+          É um erro tentar alterar uma cobrança via `[PUT|PATCH /cobv/{txid}]` se este `txid`
+          consta em um lote e está associado ao status "NEGADA" ou "EM_PROCESSAMENTO".
+
+          É válido alterar uma cobrança com status "CRIADA" via `[PUT/PATCH /cobv/{txid}]`.
+
+          Uma cobrança "NEGADA" só pode ser alterada via `[PUT|PATCH] /lotecobv/{txid}`.
+          Uma cobrança "EM_PROCESSAMENTO" não pode ser alterada de nenhuma maneira.
       requestBody:
         $ref: "#/components/requestBodies/LoteCobVBody"
       responses:
         "202":
           description: "Lote de cobranças com vencimento solicitado para criação."
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaLoteCobVExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+    patch:
+      tags:
+      - "LoteCobV"
+      summary: "Utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento."
+      security:
+        - OAuth2: [lotecobv.write]
+      description: |-
+          Endpoint utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento. 
+
+          A diferença deste endpoint para o endpoint PUT correlato é que este endpoint admite um array
+          `cobsv` com menos cobranças do que o array atribuído na requisição originária do lote.
+
+          Não se pode, entretando, utilizar esse endpoint para agregar ou remover cobranças conforme
+          constam na requisição originária do lote.
+      requestBody:
+        $ref: "#/components/requestBodies/LoteCobVBodyRevisado"
+      responses:
+        "202":
+          description: "Lote de cobranças com vencimento revisado."
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/OperacaoInvalidaCobVExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       tags:
       - "LoteCobV"
-      summary: "Consultar lote de cobranças com vencimento."
+      summary: "Consultar um lote específico de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.read]
       description: |-
@@ -369,6 +974,12 @@ paths:
               examples:
                 exemplo1:
                   $ref: "#/components/examples/loteCobVResponse1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/lotecobv":
     get:
       parameters:
@@ -378,11 +989,11 @@ paths:
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
       - "LoteCobV"
-      summary: "Consultar lista de lotes de cobranças com vencimento."
+      summary: "Consultar lotes de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.read]
       description: |-
-          Endpoint para consultar lista de lotes de cobranças com vencimento. 
+          Endpoint para consultar lista de lotes de cobranças com vencimento.
       responses:
         "200":
           description: "Lotes de cobranças com vencimento."
@@ -393,6 +1004,10 @@ paths:
               examples:
                 exemplo1:
                   $ref: "#/components/examples/getLotesCobsV"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/loc":
     post:
       tags:
@@ -424,6 +1039,19 @@ paths:
                   $ref: "#/components/examples/payloadLocationResponse5"
                 getPayloadLocation2:
                   $ref: "#/components/examples/payloadLocationResponse6"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaLocationExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters: 
         - $ref: "#/components/parameters/inicio"
@@ -457,6 +1085,10 @@ paths:
               examples:
                 getCobs1:
                   $ref: "#/components/examples/getPayloadLocation1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/loc/{id}":
     parameters:
       - name: "id"
@@ -487,6 +1119,12 @@ paths:
                   $ref: "#/components/examples/payloadLocationResponse2"
                 getPayloadLocation3:
                   $ref: "#/components/examples/payloadLocationResponse3"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/loc/{id}/txid":
     parameters:
       - name: "id"
@@ -498,14 +1136,19 @@ paths:
     delete:
       tags:
       - PayloadLocation
-      summary: "Desvincular um txid de uma location."
+      summary: "Desvincular uma cobrança de uma location."
       description: |
-        Endpoint para desvinculo de um txid de uma location
+        Endpoint utilizado para desvincular uma cobrança de uma location.
+
+        Se executado com sucesso, a entidade `loc` não apresentará mais um txid,
+        se apresentava anteriormente à chamada. Adicionalmente, a entidade `cob` ou `cobv` associada ao
+        txid desvinculado também passará a não mais apresentar um _location_. Esta operação
+        não altera o `status` da `cob` ou `cobv` em questão.
       security:
         - OAuth2: [payloadlocation.write]
       responses:
         "200":
-          description: "txid desvinculado."
+          description: "cobrança representada pelo txid informado desvinculada com sucesso."
           content:
             "application/json":
               schema:
@@ -513,6 +1156,12 @@ paths:
               examples:
                 getPayloadLocation1:
                   $ref: "#/components/examples/payloadLocationResponse4"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/pix/{e2eid}":
     parameters:
       - name: "e2eid"
@@ -539,6 +1188,12 @@ paths:
                   $ref: "#/components/examples/pixResponse1"
                 retorno2:
                   $ref: "#/components/examples/pixResponse2"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/pix":
     get:
       parameters: 
@@ -588,6 +1243,10 @@ paths:
               examples:
                 getCobs1:
                   $ref: "#/components/examples/getPix1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/pix/{e2eid}/devolucao/{id}":
     parameters:
       - name: "e2eid"
@@ -620,6 +1279,21 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/devolucaoResponse1"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaDevolucaoExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     get:
       tags:
       - "Pix"
@@ -639,6 +1313,12 @@ paths:
                   $ref: "#/components/examples/devolucaoResponse1"
                 retorno2:
                   $ref: "#/components/examples/devolucaoResponse2"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/{pixUrlAcessToken}":
     parameters:
       - name: "pixUrlAcessToken"
@@ -687,6 +1367,19 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobPayload1"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaCobPayloadExample1"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/cobv/{pixUrlAcessToken}":
     parameters:
       - name: "pixUrlAcessToken"
@@ -697,18 +1390,20 @@ paths:
       - name: "codMun"
         in: "query"
         description: |
-            Código baseado na Tabela de Códigos de Municípios do IBGE que apresenta a lista dos municípios brasileiros associados a um código composto de 7 dígitos, sendo os dois primeiros referentes ao código da Unidade da Federação.
+            Código baseado na Tabela de Códigos de Municípios do __[IBGE](https://www.ibge.gov.br/explica/codigos-dos-municipios.php)__ que apresenta a lista dos municípios brasileiros associados a um código composto de 7 dígitos, sendo os dois primeiros referentes ao código da Unidade da Federação.
         schema:
           type: "string"
-          title: "Código do município"  
+          pattern: "/^\\d{7}$/"
+          title: "Código do município"
       - name: "DPP"
         in: "query"
-        description: "Data de pagamento pretendida"
+        description: "Data de pagamento pretendida. Trata-se de uma data, no formato `yyyy-mm-dd`, segundo ISO 8601."
         schema:
           type: "string"
           format: "date"
+          example: "2021-04-01"
     get:
-      tags: 
+      tags:
         - "CobPayload"
       servers:
         - url: https://{fdqnPSPRecebedor}/{endpointOpcional}/v2
@@ -748,6 +1443,19 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobPayload2"
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaCobPayloadExample1"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/webhook/{chave}":
     parameters:
       - name: "chave"
@@ -771,6 +1479,21 @@ paths:
       responses:
         "200":
           description: Webhook para notificações acerca de Pix recebidos associados a um txid.
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problema'
+              examples:
+                exemplo1:
+                  $ref: "#/components/examples/RequisicaoInvalidaWebhookExample1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
       callbacks:   
         listaPix:   
           "{$request.body#/webhookUrl}/pix":
@@ -786,9 +1509,9 @@ paths:
     get:
       tags: 
       - Webhook
-      summary: "Exibir informações acerca do Webook Pix."
+      summary: "Exibir informações acerca do Webhook Pix."
       description: | 
-        Endpoint para recuperação de informações sobre o webhook pix.
+        Endpoint para recuperação de informações sobre o Webhook Pix.
       security:
         - OAuth2: [webhook.read]  
       responses:
@@ -801,17 +1524,33 @@ paths:
               examples:
                 exemplo1:
                   $ref: "#/components/examples/webhookResponse1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
     delete:
       tags:
       - Webhook
       summary: "Cancelar o webhook Pix."
       description: |
-        Endpoint para cancelamento do webhook.
+        Endpoint para cancelamento do webhook. Não é a única forma pela qual um webhook pode ser
+        removido.
+
+        O PSP recebedor está livre para remover unilateralmente um webhook que esteja associado
+        a uma chave que não pertence mais a este usuário recebedor.
       security:
         - OAuth2: [webhook.write]
       responses:
         "204":
           description: "Webhook para notificações Pix foi cancelado."
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
   "/webhook":
     get:
       parameters: 
@@ -824,7 +1563,7 @@ paths:
       summary: "Consultar webhooks cadastrados."
       security:
         - OAuth2: [webhook.read]
-      description: "Endpoint para consultar webhooks cadastrados"
+      description: "Endpoint para consultar Webhooks cadastrados"
       responses:
         "200":
           description: "lista dos locations cadastrados de acordo com o critério de busca."
@@ -835,6 +1574,10 @@ paths:
               examples:
                 getCobs1:
                   $ref: "#/components/examples/getWebhook1"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
 components:
   securitySchemes:
     OAuth2:
@@ -863,7 +1606,7 @@ components:
           dataDeVencimento: "2020-12-31"
           validadeAposVencimento: 30
         loc:
-          id: '789'
+          id: 789
         devedor:
           logradouro: "Alameda Souza, Numero 80, Bairro Braz"
           cidade: "Recife"
@@ -890,7 +1633,7 @@ components:
       summary: "Exemplo de criação de cobrança imediata 1"
       value:
         calendario:
-          expiracao: "3600"
+          expiracao: 3600
         devedor:
           cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
@@ -907,7 +1650,7 @@ components:
       summary: "Exemplo de revisão de cobrança 1"
       value:
         loc:
-          id: '7768'
+          id: 7768
         devedor:
           cpf: "12345678909"
           nome: "Francisco da Silva"
@@ -923,9 +1666,9 @@ components:
     cobBody5:
       summary: "Exemplo de revisão de cobrança 3"
       value:
-        status: REMOVIDO_PELO_USUARIO_RECEBEDOR
+        status: REMOVIDA_PELO_USUARIO_RECEBEDOR
     loteCobVBody1:
-      summary: "Exemplo de criação lote de cobranças com vencimento 1"
+      summary: "Exemplo de criação de lote de cobranças com vencimento 1"
       value:
         descricao:  "Cobranças dos alunos do turno vespertino"
         cobsv:
@@ -934,7 +1677,7 @@ components:
               validadeAposVencimento: 30
             txid: "fb2761260e554ad593c7226beb5cb650"
             loc:
-              id: "789"
+              id: 789
             devedor:
               logradouro: "Alameda Souza, Numero 80, Bairro Braz"
               cidade: "Recife"
@@ -951,7 +1694,7 @@ components:
               validadeAposVencimento: 30
             txid: "7978c0c97ea847e78e8849634473c1f1"
             loc:
-              id: "57221"
+              id: 57221
             devedor:
               logradouro: "Rua 15, Numero 1, Bairro Campo Grande"
               cidade: "Recife"
@@ -963,16 +1706,30 @@ components:
               original: "100.00"
             chave: "7c084cd4-54af-4172-a516-a7d1a12b75cc"
             solicitacaoPagador: "Informar matrícula"
+    loteCobVBodyRevisado1:
+      summary: "Exemplo de revisão de lote de cobranças com vencimento 1"
+      value:
+        cobsv:
+          - calendario:
+              dataDeVencimento: "2020-01-10"
+            txid: "fb2761260e554ad593c7226beb5cb650"
+            valor:
+              original: "110.00"
+          - calendario:
+              dataDeVencimento: "2020-01-10"
+            txid: "7978c0c97ea847e78e8849634473c1f1"
+            valor:
+              original: "110.00"
     cobResponse1:
       summary: "Exemplo de cobrança imediata 1"
       value:
         calendario:
           criacao: "2020-09-09T20:15:00.358Z"
-          expiracao: "3600"
+          expiracao: 3600
         txid: "7978c0c97ea847e78e8849634473c1f1"
         revisao: 0
         loc:
-          id: "789"
+          id: 789
           location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cob"
         location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
@@ -989,11 +1746,11 @@ components:
       value:
         calendario:
           criacao: "2020-09-09T20:15:00.358Z"
-          expiracao: "3600"
+          expiracao: 3600
         txid: "655dfdb1a4514b8fbb58254b958913fb"
         revisao: 1
         loc:
-          id: "789"
+          id: 567
           location: "pix.example.com/qr/v2/1dd7f893a58e417287028dc33e21a403"
         location: "pix.example.com/qr/v2/1dd7f893a58e417287028dc33e21a403"
         status: "CONCLUIDA"
@@ -1022,11 +1779,11 @@ components:
       value:
         calendario:
           criacao: "2020-09-09T20:15:00.358Z"
-          expiracao: "3600"
+          expiracao: 3600
         txid: "7978c0c97ea847e78e8849634473c1f1"
         revisao: 1
         loc:
-          id: "789"
+          id: 789
           location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cob"
         location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
@@ -1048,7 +1805,7 @@ components:
         txid: "7978c0c97ea847e78e8849634473c1f1"
         revisao: 0
         loc:
-          id: "789"
+          id: 789
           location: "pix.example.com/qr/v2/cobv/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cobv"
         status: "ATIVA"
@@ -1078,10 +1835,17 @@ components:
         cobsv:
           - criacao: "2020-11-01T20:15:00.358Z"
             txid: "fb2761260e554ad593c7226beb5cb650"
-            status: "CRIADO"
-          - criacao: "2020-11-01T20:15:00.358Z"
-            txid: "7978c0c97ea847e78e8849634473c1f1"
-            status: "CRIADO"
+            status: "CRIADA"
+          - txid: "7978c0c97ea847e78e8849634473c1f1"
+            status: "NEGADA"
+            problema:
+              type: https://pix.bcb.gov.br/api/v2/error/CobVOperacaoInvalida
+              title: "Cobrança inválida."
+              status: 400
+              detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o schema ou está semanticamente errada."
+              violacoes:
+              - razao: "O objeto cobv.devedor não respeita o schema."
+                propriedade: "cobv.devedor"
     loteCobVResponse2:
       summary: "Exemplo de lote de cobranças com vencimento 2"
       value:
@@ -1090,10 +1854,10 @@ components:
         cobsv:
           - criacao: "2020-11-17T20:00:00.358Z"
             txid: "06601eaa3822423fbe897f613b983e01"
-            status: "CRIADO"
+            status: "CRIADA"
           - criacao: "2020-11-17T20:00:00.358Z"
             txid: "4e07059760d54cf493de6e7f1fbfad9a"
-            status: "CRIADO"
+            status: "CRIADA"
     payloadLocationBody1:
       summary: "Exemplo de Payload Location 1"
       value:
@@ -1105,7 +1869,7 @@ components:
     payloadLocationResponse1:
       summary: "Exemplo de Payload Location 1"
       value:
-        id: "7716"
+        id: 7716
         txid: "fda9460fe04e4f129b72863ae57ee22f"
         location: "pix.example.com/qr/v2/cobv/2353c790eefb11eaadc10242ac120002"
         tipoCob: "cobv"
@@ -1113,7 +1877,7 @@ components:
     payloadLocationResponse2:
       summary: "Exemplo de Payload Location 2"
       value:
-        id: "856"
+        id: 856
         txid: "31e08604f9ce459bb59672332af8d672"
         location: "pix.example.com/qr/v2/cobv/39c9f435c6324867aa1dec1260e1127c"
         tipoCob: "cobv"
@@ -1121,29 +1885,29 @@ components:
     payloadLocationResponse3:
       summary: "Exemplo de Payload Location 3"
       value:
-        id: "2316"
+        id: 2316
         txid: "eb9d87f36fca4c92b7d5ec48e2ee3853"
-        location: "pix.example.com/v2/qr/a8534e273ecb47d3ac30613104544466"        
+        location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"        
         tipoCob: "cob"
         criacao: "2020-05-31T19:39:54.013Z"
     payloadLocationResponse4:
       summary: "Exemplo de Payload Location 3"
       value:
-        id: "2316"
+        id: 2316
         location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"        
         tipoCob: "cob"
         criacao: "2020-05-31T19:39:54.013Z"
     payloadLocationResponse5:
       summary: "Exemplo de Payload Location 1"
       value:
-        id: "7716"
+        id: 7716
         location: "pix.example.com/qr/v2/2353c790eefb11eaadc10242ac120002"
         tipoCob: "cob"
         criacao: "2020-03-11T21:19:51.013Z"
     payloadLocationResponse6:
       summary: "Exemplo de Payload Location 2"
       value:
-        id: "856"
+        id: 856
         location: "pix.example.com/qr/v2/cobv/39c9f435c6324867aa1dec1260e1127c"
         tipoCob: "cobv"
         criacao: "2020-02-10T19:22:52.013Z"
@@ -1232,9 +1996,9 @@ components:
         calendario:
           criacao: "2020-09-15T19:39:54.013Z"
           apresentacao: "2020-04-01T18:00:00Z"
-          expiracao: "3600"
+          expiracao: 3600
         txid: "fc9a4366ff3d4964b5dbc6c91a8722d3"
-        revisao: "3"
+        revisao: 3
         status: "ATIVA"
         valor:
           original: "500.00"
@@ -1262,7 +2026,7 @@ components:
           cnpj: "58900633120711"
           nome: "Empresa de Abastecimento SA"
         txid: "fc9a4366ff3d4964b5dbc6c91a8722d3"
-        revisao: "3"
+        revisao: 3
         status: "ATIVA"
         valor:
           original: "123.45"
@@ -1382,6 +2146,101 @@ components:
         webhooks:
           - allOf:
             - $ref: '#/components/examples/webhookResponse1/value'
+    RequisicaoInvalidaCobExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobOperacaoInvalida
+        title: "Cobrança inválida."
+        status: 400
+        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o schema ou está semanticamente errada."
+        violacoes:
+        - razao: "O campo cob.valor.original não respeita o schema."
+          propriedade: "cob.valor.original"
+    OperacaoInvalidaCobExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobOperacaoInvalida
+        title: "Operação inválida."
+        status: 400
+        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o schema ou está semanticamente errada."
+    RequisicaoInvalidaCobVExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobVOperacaoInvalida
+        title: "Cobrança inválida."
+        status: 400
+        detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o schema ou está semanticamente errada."
+        violacoes:
+        - razao: "O objeto cobv.devedor não respeita o schema."
+          propriedade: "cobv.devedor"
+    OperacaoInvalidaCobVExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobVOperacaoInvalida
+        title: "Operação inválida."
+        status: 400
+        detail: "Cobrança não encontra-se mais com o status ATIVA, somente cobranças ativas podem ser revisadas."
+    RequisicaoInvalidaCobPayloadExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobPayloadNaoEncontrado
+        title: "Cobrança não encontrada."
+        status: 404
+        detal: "A cobrança em questão não foi encontrada para a location requisitada."
+    RequisicaoInvalidaLoteCobVExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/LoteCobVOperacaoInvalida
+        title: "Lote de cobranças inválido."
+        status: 400
+        detail: "A requisição que busca alterar ou criar um lote de cobranças com vencimento não respeita o schema ou está semanticamente errada."
+        violacoes:
+        - razao: "O objeto loteCobV.cobsV não respeita o schema."
+          propriedade: "loteCobV.cobsV"
+        - razao: "O campo loteCobV.descricao não respeita o schema."
+          propriedade: "loteCobV.descricao"
+    RequisicaoInvalidaDevolucaoExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/PixDevolucaoInvalida
+        title: "Devolução inválida."
+        status: 400
+        detail: "A presente requisição de devolução não respeita o schema ou não faz sentido semanticamente."
+    RequisicaoInvalidaWebhookExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/WebhookOperacaoInvalida
+        title: "Webhook inválido."
+        status: 400
+        detail: "A presente requisição busca criar um webhook sem respeitar o schema ou, ainda, com sentido semanticamente inválido."
+    RequisicaoInvalidaLocationExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/PayloadLocationOperacaoInvalida
+        title: "PayloadLocation inválido."
+        status: 400
+        detail: "A presente requisição busca criar uma location sem respeitar o schema estabelecido."
+    AcessoNegadoExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/AcessoNegado
+        title: "Acesso Negado"
+        status: 403
+        detail: "Requisição de participante autenticado que viola alguma regra de autorização."
+    NaoEncontradoExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/NaoEncontrado
+        title: "Não Encontrado"
+        status: 404
+        detail: "Entidade não encontrada."
+    ServicoIndisponivelExample1:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/ServicoIndisponivel
+        title: "Serviço Indisponível"
+        status: 503
+        detail: "Serviço não está disponível no momento. Serviço solicitado pode estar em manutenção ou fora da janela de funcionamento."     
   requestBodies:
     CobBody:
       description: "Dados para geração da cobrança imediata."
@@ -1427,6 +2286,29 @@ components:
           examples:
             exemplo1:
               $ref: "#/components/examples/loteCobVBody1"
+    LoteCobVBodyRevisado:
+      description: "Dados para geração de lote de cobranças com vencimento."
+      required: true
+      content:
+        "application/json":
+          schema:
+            properties:
+              descricao:
+                type: "string"
+                title: "Descrição do lote"
+              cobsv:
+                type: "array"
+                items:
+                  allOf:
+                    - type: "object"
+                      required: ["txid"]
+                      properties:
+                        txid:
+                          $ref: "#/components/schemas/TxId"
+                    - $ref: "#/components/schemas/CobVRevisada"
+          examples:
+            exemplo1:
+              $ref: "#/components/examples/loteCobVBodyRevisado1"
     CobBodyRevisada:
       description: "Dados para geração da cobrança."
       required: true
@@ -1724,7 +2606,7 @@ components:
     CobVValor:
       type: "object"
       title: "Valor da cobrança com vencimento"
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “0.00”, “1.00”, “123.99”, “123456789.23"
+      description: "Valores monetários."
       properties:
         original:
           type: "string"
@@ -1848,7 +2730,7 @@ components:
     CobValor:
       type: "object"
       title: "Valor da cobrança imediata"
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “0.00”, “1.00”, “123.99”, “123456789.23"
+      description: "valores monetários referentes à cobrança."
       properties:
         original:
           type: "string"
@@ -1859,7 +2741,7 @@ components:
       type: "object"
       title: "Valor da cobrança imediata retornada pelo payload"
       required: ["original"]
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “0.00”, “1.00”, “123.99”, “123456789.23"
+      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
       properties:
         original:
           type: "string"
@@ -1870,7 +2752,7 @@ components:
       type: "object"
       title: "Valor da cobrança com vencimento calculada retornada pelo payload"
       required: ["final"]
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “0.00”, “1.00”, “123.99”, “123456789.23"
+      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
       properties:
         original:
           type: "string"
@@ -2035,8 +2917,8 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
+              enum:
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
           properties:
             valor:
@@ -2065,8 +2947,8 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
+              enum:
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
           properties:
             valor:
@@ -2122,8 +3004,8 @@ components:
               enum: 
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
         - type: "object"
           properties:
             valor:
@@ -2162,11 +3044,11 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
         - type: "object"
           properties:
             valor:
@@ -2212,11 +3094,11 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDO_PELO_PSP"
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
     CobCompleta:
       title: "Cobrança imediata completa"
       required: ["status"]
@@ -2228,11 +3110,11 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDO_PELO_PSP"
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
         - type: "object"
           properties:
             pix:
@@ -2241,7 +3123,7 @@ components:
               items:
                 $ref: "#/components/schemas/Pix"
     LoteCobVConsultado:
-      title: "Lote de cobranças com vencimento" 
+      title: "Lote de cobranças com vencimento"
       type: "object"
       required: ["id","descricao","criacao","cobsv"]
       properties:
@@ -2260,17 +3142,19 @@ components:
           type: "array"
           items:
             type: "object"
-            required: ["txid","status","criacao"]
+            required: ["txid","status"]
             properties:
               txid:
                 $ref: "#/components/schemas/TxId"
               status:
                 type: "string"
-                title: "Status da Cobrança"
-                enum: 
+                title: "Status da requisição de criação da cobrança no contexto de criação via lote"
+                enum:
                   - "EM_PROCESSAMENTO"
                   - "CRIADA"
                   - "NEGADA"
+              problema:
+                $ref: "#/components/schemas/Problema"
               criacao:
                 type: "string"
                 format: "date-time"
@@ -2328,13 +3212,13 @@ components:
               enum: 
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
         - type: "object"
           properties:
             valor:
               $ref: "#/components/schemas/CobVPayloadValor"
-        - $ref: "#/components/schemas/CobBase" 
+        - $ref: "#/components/schemas/CobBase"
     CobPayload:
       type: "object"
       title: "Payload JSON da cobrança imediata"
@@ -2370,8 +3254,8 @@ components:
               enum: 
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDO_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDO_PELO_PSP"  
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"  
+                - "REMOVIDA_PELO_PSP"  
         - type: "object"
           properties:
             valor:
@@ -2641,6 +3525,11 @@ components:
         txIdPresente:
           type: "boolean"
           description: "Filtro pela existência de txid."
+        tipoCob:
+          type: "string"
+          enum:
+            - "cob"
+            - "cobv"
         paginacao:
           $ref: "#/components/schemas/Paginacao"   
     PayloadLocationConsultadas:
@@ -2679,6 +3568,17 @@ components:
         txIdPresente:
           type: "boolean"
           description: "Filtro pela existência de txid."
+        devolucaoPresente:
+          type: "boolean"
+          description: "Filtro pela existência de devolução."
+        cpf:
+          type: "string"
+          pattern: "/^\\d{11}$/"
+          description: "CPF"
+        cnpj:
+          type: "string"
+          pattern: "/^\\d{14}$/"
+          description: "CNPJ"
         paginacao:
           $ref: "#/components/schemas/Paginacao"        
     ParametrosConsultaWebhooks:
@@ -2752,6 +3652,52 @@ components:
           title: "Quantidade total de itens"
           description: "Quantidade total de itens disponíveis de acordo com os parâmetros informados."
           minimum: 0 
+    Violacao:
+      type: "object"
+      title: "Violações"
+      properties:
+        razao:
+          type: "string"
+          title: "Descrição do erro"
+          description: "Descrição do erro"
+          example: "Valor da cobrança não pode ser 0.00"
+        propriedade:
+          type: "string"
+          title: "Nome da propriedade"
+          description: "Nome da propriedade"
+          example: "cob.chave"
+        valor:
+          type: "string"
+          title: "Valor da propriedade"
+          description: "Valor da propriedade"
+          example: "061996671234"
+    Problema:
+      type: object
+      required: ["type","title","status"]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: "URI de referência que identifica o tipo de problema. De acordo com a RFC 7807."
+          example: 'https://pix.bcb.gov.br/api/v2/error/NaoEncontrado'
+        title:
+          type: string
+          description: "Descrição resumida do problema."
+          example: Not found
+        status:
+          type: integer
+          description: "Código HTTP do status retornado."
+          example: 404
+        detail:
+          type: string
+          description: "Descrição completa do problema."
+        correlationId:
+          type: string
+          description: Identificador de correlação do problema para fins de suporte
+        violacoes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violacao"
   parameters:
     inicio:
       in: "query"
@@ -2794,3 +3740,37 @@ components:
         maximum: 1000
         default: 100
         description: "Quantidade máxima de registros retornados em cada página. Apenas a última página pode conter uma quantidade menor de registros."
+  responses:
+    RequisicaoInvalida:
+      description: "Problemas na requisição."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problema'
+    NaoEncontrado:
+      description: "Recurso solicitado não foi encontrado."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problema'
+          examples:
+            exemplo1:
+              $ref: "#/components/examples/NaoEncontradoExample1"
+    AcessoNegado:
+      description: "Requisição de participante autenticado que viola alguma regra de autorização."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problema'
+          examples:
+            exemplo1:
+              $ref: "#/components/examples/AcessoNegadoExample1"
+    ServicoIndisponivel:
+      description: "Serviço não está disponível no momento. Serviço solicitado pode estar em manutenção ou fora da janela de funcionamento."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problema'
+          examples:
+            exemplo1:
+              $ref: "#/components/examples/ServicoIndisponivelExample1"
