@@ -102,6 +102,7 @@ info:
       * __Significado__: Indica que o serviço demorou além do esperado para retornar.
       * __HTTP Status Code__: [504 Gateway Timeout](https://tools.ietf.org/html/rfc7231#section-6.6.5).
 
+
     ## Tag CobPayload
 
     Esta seção reúne erros retornados pelos endpoints organizados sob a tag `CobPayload`.
@@ -309,11 +310,12 @@ info:
 
     __Violações__ para o endpoint `PUT /lotecobv/{txid}`:
       - a presente requisição tenta criar um conjunto de cobranças dentre as quais pelo menos
-      uma cobrança já encontra-se criada (via endpoint `PUT /cobv/{txid}`).
-      Uma cobrança, uma vez criada via `PUT /cobv/{txid}`, não pode ser associada a um lote posteriormente.
-      - a presente requisição busca alterar um lote já existente, mas contém um array de cobranças
-      que não referência exatamente as mesmas cobranças referenciadas pela requisição original que criou
-      o lote. Uma vez criado um lote, não se pode remover ou adicionar cobranças a este lote.
+      uma cobrança já encontra-se criada.
+      - a presente requisição busca alterar um lote já existente, entretanto contém um array de
+      solicitações de alteração de cobranças que não referencia exatamente as mesmas cobranças
+      referenciadas pela requisição original que criou o lote.
+      Uma vez criado um lote, não se pode remover ou adicionar solicitações de
+      criação ou alteração de cobranças a este lote.
 
     __Violações__ para o endpoint `PATCH /lotecobv/{txid}`:
       - a presente requisição busca alterar um lote já existente e contém, no `array`
@@ -322,7 +324,7 @@ info:
       Uma vez criado um lote, não se pode remover ou adicionar cobranças a este lote.
 
     __Violações__ para os endpoints `GET /lotecobv/{txid}`:
-      - __observação__: para cada elemento do array `cobsv`, retornado por este endpoint, caso a cobrança esteja em
+      - __observação__: para cada elemento do array `cobsv`, retornado por este endpoint, caso a requisição de criação de cobrança esteja em
       status "NEGADA", o atributo `problema` deste elemento deve ser preenchido respeitando
       o [schema](https://tools.ietf.org/html/rfc7807) referenciado pela API Pix.
       - o preenchimento do atributo `problema`, conforme descrito acima, segue o mesmo regramento dos
@@ -879,8 +881,8 @@ paths:
           Endpoint utilizado para criar ou alterar um lote de cobranças com vencimento.
 
           Para o caso de uso de alteração de cobranças, o array a ser atribuído na requisicão
-          deve ser composto pelas exatas cobranças que constaram no array atribuído na requisição
-          originária.
+          deve ser composto pelas exatas requisições de criação de cobranças que
+          constaram no array atribuído na requisição originária.
 
           Não se pode utilizar este endpoint para _alterar_ um lote de cobranças com vencimento
           agregando ou removendo cobranças já existentes dentro do conjunto de cobranças
@@ -892,16 +894,16 @@ paths:
           Por outro lado, pode-se alterar, _em lote_ as cobranças [`a`, `b`, `c`],
           conforme originalmente constam na requisição originária do lote.
 
-          Uma cobrança com status "EM_PROCESSAMENTO" ou "NEGADA" não _existe_ de fato, portanto
-          não será listada em `GET /cobv` ou `GET /cobv/{txid}`.
+          Uma solicitação de __criação__ de cobrança com status "EM_PROCESSAMENTO" ou "NEGADA"
+          está associada a uma cobrança não _existe_ de fato, portanto não será
+          listada em `GET /cobv` ou `GET /cobv/{txid}`.
 
-          É um erro tentar alterar uma cobrança via `[PUT|PATCH /cobv/{txid}]` se este `txid`
-          consta em um lote e está associado ao status "NEGADA" ou "EM_PROCESSAMENTO".
+          Uma cobrança, uma vez criada via `PUT /cobv/{txid}`,
+          não pode ser associada a um lote posteriormente.
 
-          É válido alterar uma cobrança com status "CRIADA" via `[PUT/PATCH /cobv/{txid}]`.
+          Uma cobrança, uma vez criada via `PUT /lotecobv/{id}`,
+          não pode ser associada a um novo lote posteriormente.
 
-          Uma cobrança "NEGADA" só pode ser alterada via `[PUT|PATCH] /lotecobv/{txid}`.
-          Uma cobrança "EM_PROCESSAMENTO" não pode ser alterada de nenhuma maneira.
       requestBody:
         $ref: "#/components/requestBodies/LoteCobVBody"
       responses:
@@ -932,10 +934,10 @@ paths:
           Endpoint utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento. 
 
           A diferença deste endpoint para o endpoint PUT correlato é que este endpoint admite um array
-          `cobsv` com menos cobranças do que o array atribuído na requisição originária do lote.
+          `cobsv` com menos solicitações de criação ou alteração de cobranças do que o array atribuído na requisição originária do lote.
 
-          Não se pode, entretando, utilizar esse endpoint para agregar ou remover cobranças conforme
-          constam na requisição originária do lote.
+          Não se pode, entretanto, utilizar esse endpoint para agregar ou remover solicitações de
+          alteração ou criação de cobranças conforme constam na requisição originária do lote.
       requestBody:
         $ref: "#/components/requestBodies/LoteCobVBodyRevisado"
       responses:
@@ -3123,7 +3125,7 @@ components:
               items:
                 $ref: "#/components/schemas/Pix"
     LoteCobVConsultado:
-      title: "Lote de cobranças com vencimento"
+      title: "Lote de solicitações de alteração ou criação de cobranças com vencimento"
       type: "object"
       required: ["id","descricao","criacao","cobsv"]
       properties:
@@ -3148,7 +3150,7 @@ components:
                 $ref: "#/components/schemas/TxId"
               status:
                 type: "string"
-                title: "Status da requisição de criação da cobrança no contexto de criação via lote"
+                title: "Status da solicitação de criação/alteração da cobrança no contexto de criação via lote"
                 enum:
                   - "EM_PROCESSAMENTO"
                   - "CRIADA"
@@ -3162,7 +3164,7 @@ components:
                 description: "Data e hora em que a cobrança foi criada. Respeita RFC 3339."
                 readOnly: true
     LotesCobVConsultados:
-      title: "Lote de cobranças com" 
+      title: "Lotes de solicitações de cobranças com vencimento"
       type: "object"
       required: ["parametros", "lotes"]
       properties:
@@ -3170,7 +3172,7 @@ components:
           $ref: "#/components/schemas/ParametrosConsultaLote"
         lotes:
           type: "array"
-          title: "Lotes de cobranças com vencimento"
+          title: "Lotes de solicitações de criação/alteração de cobranças com vencimento"
           items:
             allOf:
               - $ref: "#/components/schemas/LoteCobVConsultado"
