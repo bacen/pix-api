@@ -2188,7 +2188,7 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/CobPayloadNaoEncontrado
         title: "Cobrança não encontrada."
         status: 404
-        detal: "A cobrança em questão não foi encontrada para a location requisitada."
+        detail: "A cobrança em questão não foi encontrada para a location requisitada."
     RequisicaoInvalidaLoteCobVExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
