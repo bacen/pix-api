@@ -112,7 +112,7 @@ info:
 
     * __Significado__: a cobrança em questão não foi encontrada para a location requisitada.
     * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4) ou [410](https://tools.ietf.org/html/rfc7231#section-6.5.9).
-    * __endpoints__: `GET /pixUrlAcessToken`, `GET /cobv/pixUrlAcessToken`.
+    * __endpoints__: `GET /pixUrlAccessToken`, `GET /cobv/pixUrlAccessToken`.
 
     Se a presente location exibia uma cobrança, mas não a exibirá mais de maneira permanentemente,
     pode-se aplicar o HTTP status code [410](https://tools.ietf.org/html/rfc7231#section-6.5.9). Se a presente location não
@@ -127,7 +127,7 @@ info:
 
     * __Significado__: a cobrança existe, mas a requisição é inválida.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `GET /cobv/pixUrlAcessToken`.
+    * __endpoints__: `GET /cobv/pixUrlAccessToken`.
 
     __Violações__:
       - `codMun` não respeita o schema.
@@ -477,7 +477,7 @@ tags:
 
       Os endpoints listados nesta Tag apresentam requisitos de autenticação e autorização diferenciados em relação aos outros endpoints listados na presente API.
 
-      São endpoints __abertos__ para que qualquer cliente da internet possa se conectar. Cada _location_ é uma _[url de capacidade](https://www.w3.org/TR/capability-urls/)_, funcionalidade implementada via o fragmento `pixurlAcessToken`.
+      São endpoints __abertos__ para que qualquer cliente da internet possa se conectar. Cada _location_ é uma _[url de capacidade](https://www.w3.org/TR/capability-urls/)_, funcionalidade implementada via o fragmento `pixurlAccessToken`.
       Para mais informações, consultar o [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
   - name: Cob
     x-displayName: Gerenciamento de cobranças para pagamento imediato
@@ -1321,9 +1321,9 @@ paths:
           $ref: "#/components/responses/NaoEncontrado"
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
-  "/{pixUrlAcessToken}":
+  "/{pixUrlAccessToken}":
     parameters:
-      - name: "pixUrlAcessToken"
+      - name: "pixUrlAccessToken"
         in: "path"
         required: true
         schema:
@@ -1382,9 +1382,9 @@ paths:
           $ref: "#/components/responses/NaoEncontrado"
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
-  "/cobv/{pixUrlAcessToken}":
+  "/cobv/{pixUrlAccessToken}":
     parameters:
-      - name: "pixUrlAcessToken"
+      - name: "pixUrlAccessToken"
         in: "path"
         required: true
         schema:
