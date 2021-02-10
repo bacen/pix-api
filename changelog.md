@@ -2,6 +2,35 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.2.1]
+
+### Corrigido:
+
+* Os campos no objeto "devedor" no request do endpoint `PUT /cobv/{txid}` passam a ser opcionais.
+Nem sempre o usuário recebedor tem a posse de todas as informações que constavam como obrigatórias.
+* [[#307](https://github.com/bacen/pix-api/issues/307)]: Detalhada a semântica do campo `validadeAposVencimento`. Passa a apresentar redação 
+detalhando o que ocorre em casos de exceção em que o vencimento da cobrança seja um final de semana 
+ou um feriado juntamente com a atribuição de um valor pequeno para `validadeAposVencimento`. 
+* [[#269](https://github.com/bacen/pix-api/issues/269)]. A regex do txid, na parte concernente ao tamanho, nos endpoints /pix e no callback webhook, 
+estava errada. Corrigida de `{26,35}` para `{1,35}` porque pode haver a presença de pagamentos de QRs
+estáticos nesses locais. 
+* [[#270](https://github.com/bacen/pix-api/issues/270)]: O id do objeto `location` estava especificado como `int32`. De fato, apenas cerca de 2 bilhões
+de possibilidades pode acabar muito rápido para grandes emissores de cobranças. Entendemos que o identificador do objeto `lotecobv`
+se encaixa na mesma situação. Nesse sentido, alteramos de `int32` para `int64`, 
+o que não deve causar maiores problemas no momento. 
+* [[#249](github.com/bacen/pix-api/issues/249)], [[#250](github.com/bacen/pix-api/issues/250)]: Com a entrada do campo "chave" como identificador do webhook, toda a parte referente à paginação 
+em GET /webhook perde a razão de existir. Nesse sentido, os parâmetros de busca "inicio" e "fim" passam 
+a ser opcionais. O objeto de paginação "parametros", também torna-se opcional. 
+* [[#239](github.com/bacen/pix-api/issues/239)]: Conforme relatado nesta discussão, entendemos que 
+seria interessante, tanto sob o aspecto de segurança quanto sob o aspecto de funcionalidade, que o 
+objeto pix agregue o atributo "chave", opcional.
+* [[#241](https://github.com/bacen/pix-api/issues/241)]: Acrescentamos detalhes em relação à questão do acionamento do webhook por parte do PSP recebedor. 
+* [[#294](https://github.com/bacen/pix-api/issues/294)]: Erro de ortografia. Na documentação, onde se lê `pixUrlAcessToken` deveria estar escrito `pixUrlAccessToken`. 
+* [[#273](https://github.com/bacen/pix-api/issues/273)]: O texto do response 202 do endpoint `PATCH lotecobv/{id}` estava erroneamente induzindo o 
+leitor a pensar que o lote já estava revisado quando, na verdade, estaria apenas em processamento 
+* [[#273](https://github.com/bacen/pix-api/issues/273)]: Na lista de violações em lotecobv, havia indicações do endpoint `/lotecobv/{txid}`, o que inexiste. O correto é `/lotecobv/{id}`. 
+* [[#316](https://github.com/bacen/pix-api/issues/316)]: Duas violações específicas foram removidas por questões de performance. 
+
 ## [2.2.0-rc.0]
 
 ### Adicionado:
