@@ -103,7 +103,8 @@ info:
       * __HTTP Status Code__: [504 Gateway Timeout](https://tools.ietf.org/html/rfc7231#section-6.6.5).
 
 
-    ## Tag CobPayload
+    
+    ## Tag  CobPayload 
 
     Esta seção reúne erros retornados pelos endpoints organizados sob a tag `CobPayload`.
     Estes erros indicam problemas na tentativa de recuperação, via _location_, do Payload JSON que representa a cobrança.
@@ -112,7 +113,7 @@ info:
 
     * __Significado__: a cobrança em questão não foi encontrada para a location requisitada.
     * __HTTP Status Code__: [404](https://tools.ietf.org/html/rfc7231#section-6.5.4) ou [410](https://tools.ietf.org/html/rfc7231#section-6.5.9).
-    * __endpoints__: `GET /pixUrlAcessToken`, `GET /cobv/pixUrlAcessToken`.
+    * __endpoints__: `GET /{pixUrlAccessToken}`, `GET /cobv/{pixUrlAccessToken}`.
 
     Se a presente location exibia uma cobrança, mas não a exibirá mais de maneira permanentemente,
     pode-se aplicar o HTTP status code [410](https://tools.ietf.org/html/rfc7231#section-6.5.9). Se a presente location não
@@ -127,7 +128,7 @@ info:
 
     * __Significado__: a cobrança existe, mas a requisição é inválida.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `GET /cobv/pixUrlAcessToken`.
+    * __endpoints__: `GET /cobv/{pixUrlAccessToken}`.
 
     __Violações__:
       - `codMun` não respeita o schema.
@@ -197,7 +198,6 @@ info:
       - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
 
     __Violações__ específicas para o endpoint `GET /cob/{txid}`:
       - o parâmetro `revisao` corresponde a uma revisão inexistente para a cobrança
@@ -283,8 +283,6 @@ info:
       - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
-      - o parâmetro `loteCobVId` não corresponde a um lote existente.
 
     __Violações__ específicas para o endpoint `GET /cobv/{txid}`:
       - o parâmetro `revisao` corresponde a uma revisão inexistente para a cobrança
@@ -302,13 +300,13 @@ info:
     * __Significado__: a requisição que busca alterar ou criar um lote de cobranças com vencimento
     não respeita o schema ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `[PUT|PATCH] /lotecobv/{txid}`.
+    * __endpoints__: `[PUT|PATCH] /lotecobv/{id}`.
 
-    __Violações__ para os endpoints `PUT|PATCH /lotecobv/{txid}`:
+    __Violações__ para os endpoints `PUT|PATCH /lotecobv/{id}`:
       - O campo loteCobV.descricao não respeita o schema.
       - O objeto loteCobV.cobsV não respeita o schema.
 
-    __Violações__ para o endpoint `PUT /lotecobv/{txid}`:
+    __Violações__ para o endpoint `PUT /lotecobv/{id}`:
       - a presente requisição tenta criar um conjunto de cobranças dentre as quais pelo menos
       uma cobrança já encontra-se criada.
       - a presente requisição busca alterar um lote já existente, entretanto contém um array de
@@ -317,13 +315,13 @@ info:
       Uma vez criado um lote, não se pode remover ou adicionar solicitações de
       criação ou alteração de cobranças a este lote.
 
-    __Violações__ para o endpoint `PATCH /lotecobv/{txid}`:
+    __Violações__ para o endpoint `PATCH /lotecobv/{id}`:
       - a presente requisição busca alterar um lote já existente e contém, no `array`
       de cobranças representado por `cobsv`, uma cobrança não existente no array de cobranças
       atribuído pela requisição original que criou o lote.
       Uma vez criado um lote, não se pode remover ou adicionar cobranças a este lote.
 
-    __Violações__ para os endpoints `GET /lotecobv/{txid}`:
+    __Violações__ para os endpoints `GET /lotecobv/{id}`:
       - __observação__: para cada elemento do array `cobsv`, retornado por este endpoint, caso a requisição de criação de cobrança esteja em
       status "NEGADA", o atributo `problema` deste elemento deve ser preenchido respeitando
       o [schema](https://tools.ietf.org/html/rfc7807) referenciado pela API Pix.
@@ -345,7 +343,6 @@ info:
       representado pelo parâmetro `inicio`.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
 
     __Violações__ específicas para o endpoint `GET /lotecobv/{id}`:
       - {id} não identifica um lote existente
@@ -380,7 +377,6 @@ info:
       representado pelo parâmetro `inicio`.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
 
     __Violações__ específicas para o endpoint `GET /loc/{id}`:
       - {id} não identifica uma _location_ existente
@@ -415,7 +411,6 @@ info:
       - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
 
     ### `PixDevolucaoInvalida`
 
@@ -461,7 +456,6 @@ info:
       representado pelo parâmetro `inicio`.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-      - o parâmetro `paginacao.paginaAtual` indica uma página fora dos limites da atual consulta.
 
 servers:
   - url: https://pix.example.com/api/v2/
@@ -477,7 +471,7 @@ tags:
 
       Os endpoints listados nesta Tag apresentam requisitos de autenticação e autorização diferenciados em relação aos outros endpoints listados na presente API.
 
-      São endpoints __abertos__ para que qualquer cliente da internet possa se conectar. Cada _location_ é uma _[url de capacidade](https://www.w3.org/TR/capability-urls/)_, funcionalidade implementada via o fragmento `pixurlAcessToken`.
+      São endpoints __abertos__ para que qualquer cliente da internet possa se conectar. Cada _location_ é uma _[url de capacidade](https://www.w3.org/TR/capability-urls/)_, funcionalidade implementada via o fragmento `{pixUrlAccessToken}`.
       Para mais informações, consultar o [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
   - name: Cob
     x-displayName: Gerenciamento de cobranças para pagamento imediato
@@ -648,8 +642,16 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+        - in: "query"
+          name: "inicio"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - name: "cpf"
           in: "query"
           schema:
@@ -807,8 +809,16 @@ paths:
   "/cobv":
     get:
       parameters:
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+        - in: "query"
+          name: "inicio"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - name: "cpf"
           in: "query"
           schema:
@@ -942,7 +952,7 @@ paths:
         $ref: "#/components/requestBodies/LoteCobVBodyRevisado"
       responses:
         "202":
-          description: "Lote de cobranças com vencimento revisado."
+          description: "Solicitação de revisão do Lote de cobranças encaminhada para processamento."
         "400":
           description: "Requisição com formato inválido."
           content:
@@ -985,8 +995,16 @@ paths:
   "/lotecobv":
     get:
       parameters:
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+        - in: "query"
+          name: "inicio"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -1056,8 +1074,16 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters: 
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+        - in: "query"
+          name: "inicio"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - name: "txIdPresente"
           in: "query"
           schema:
@@ -1199,12 +1225,22 @@ paths:
   "/pix":
     get:
       parameters: 
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+        - in: "query"
+          name: "inicio"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: true
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - name: "txid"
           in: "query"
           schema:
-            $ref: "#/components/schemas/TxId"
+            allOf:
+              - $ref: "#/components/schemas/TxId"
+              - pattern: "[a-zA-Z0-9]{1,35}"
         - name: "txIdPresente"
           in: "query"
           schema:
@@ -1321,9 +1357,9 @@ paths:
           $ref: "#/components/responses/NaoEncontrado"
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
-  "/{pixUrlAcessToken}":
+  "/{pixUrlAccessToken}":
     parameters:
-      - name: "pixUrlAcessToken"
+      - name: "pixUrlAccessToken"
         in: "path"
         required: true
         schema:
@@ -1382,9 +1418,9 @@ paths:
           $ref: "#/components/responses/NaoEncontrado"
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
-  "/cobv/{pixUrlAcessToken}":
+  "/cobv/{pixUrlAccessToken}":
     parameters:
-      - name: "pixUrlAcessToken"
+      - name: "pixUrlAccessToken"
         in: "path"
         required: true
         schema:
@@ -1555,9 +1591,17 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
   "/webhook":
     get:
-      parameters: 
-        - $ref: "#/components/parameters/inicio"
-        - $ref: "#/components/parameters/fim"
+      parameters:
+        - in: "query"
+          name: "inicio"
+          required: false
+          schema:
+            $ref:  "#/components/schemas/Inicio"
+        - in: "query"
+          name: "fim"
+          required: false
+          schema:
+            $ref:  "#/components/schemas/Fim"
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -2034,7 +2078,7 @@ components:
           original: "123.45"
           multa: "15.00"
           juros: "2.00"
-          final: "140,45"
+          final: "140.45"
         chave: "7407c9c8-f78b-11ea-adc1-0242ac120002"
         solicitacaoPagador: "Informar cartao fidelidade"
         infoAdicionais:
@@ -2188,7 +2232,7 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/CobPayloadNaoEncontrado
         title: "Cobrança não encontrada."
         status: 404
-        detal: "A cobrança em questão não foi encontrada para a location requisitada."
+        detail: "A cobrança em questão não foi encontrada para a location requisitada."
     RequisicaoInvalidaLoteCobVExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -2391,7 +2435,7 @@ components:
       description: |
           # Identificador da transação
 
-          O campo txid, obrigatório, determina o identificador da transação.
+          O campo txid determina o identificador da transação.
           O objetivo desse campo é ser um elemento que possibilite ao PSP do recebedor apresentar ao usuário recebedor a funcionalidade de conciliação de pagamentos.
 
           Na pacs.008, é referenciado como `TransactionIdentification <txId>` ou `idConciliacaoRecebedor`.
@@ -2421,7 +2465,7 @@ components:
       pattern: "[a-zA-Z0-9]{1,35}"
     PayloadLocationId:
       type: "integer"
-      format: "int32"
+      format: "int64"
       title: "Id da location"
       description: "Identificador da location a ser informada na criação da cobrança ."
       readOnly: true
@@ -2463,7 +2507,6 @@ components:
           maxLength: 200
     DadosComplementaresPessoa:
       type: "object"
-      required: ["logradouro", "cidade", "uf", "cep"]
       properties:
         logradouro:
           type: "string"
@@ -2487,7 +2530,6 @@ components:
           maxLength: 8
     DadosDevedor:
       type: "object"
-      required: ["logradouro", "cidade", "uf", "cep"]
       properties:
         devedor:
           description: "O objeto devedor organiza as informações sobre o devedor da cobrança."
@@ -2521,6 +2563,7 @@ components:
                       description: "Nome fantasia."
                       maxLength: 200
           allOf:
+            - required: ["logradouro", "cidade", "uf", "cep"]
             - $ref: "#/components/schemas/DadosComplementaresPessoa"    
     WebhookSolicitado:
       type: "object"
@@ -2546,7 +2589,7 @@ components:
           description: |
             # Formato do campo chave
 
-            * O campo chave, obrigatório, determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
+            * O campo chave determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
             * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
             * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
           maxLength: 77
@@ -2583,8 +2626,85 @@ components:
           type: "integer"
           format: "int32"
           title: "Validade após vencimento"
-          description: "Trata-se da quantidade de dias corridos após o vencimento em que a cobrança poderá ser paga. Caso vencido este período e a cobrança não tenha sido paga, esta continuará ATIVA."
-          default: "30"
+          description: |
+            Trata-se da quantidade de dias corridos após calendario.dataDeVencimento,
+            em que a cobrança poderá ser paga.
+
+            Aplica-se este campo sobre o vencimento original da cobrança acrescentando-se o
+            número de dias corridos nos quais a cobrança ainda poderá ser paga, após vencida.
+            Este valor não se sobrepõe à possibilidade de pagamento em data posterior ao vencimento
+            original por [força de lei](http://www.planalto.gov.br/ccivil_03/LEIS/L7089.htm).
+            Nesse sentido, um vencimento determinado para um dia não útil deverá ser acatado
+            no primeiro dia útil subsequente mesmo que exceda o número de dias definido neste campo.
+
+            Para ilustrar o funcionamento, seguem alguns exemplos:
+
+            Exemplo A:
+
+            ```txt
+            dataDeVencimento: 2020-10-20, terça-feira.
+            validadeAposVencimento: 4
+
+            Tenta-se pagar no dia 2020-10-23, sexta: aceito.
+            Tenta-se pagar no dia 2020-10-24, sábado: aceito.
+            Tenta-se pagar no dia 2020-10-25, domingo: negado.
+            ```
+
+            Exemplo B:
+
+            ```txt
+            dataDeVencimento: 2020-12-25, sexta-feira, feriado.
+            validadeAposVencimento: 0
+
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-26, sábado: aceito.
+            Tenta-se pagar no dia 2020-12-27, domingo: aceito.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
+            Tenta-se pagar no dia 2020-12-29, terça: negado.
+            ```
+
+            Exemplo C:
+
+            ```txt
+            dataDeVencimento: 2020-12-25, sexta-feira, feriado.
+            validadeAposVencimento: 1
+
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-26, sábado: aceito.
+            Tenta-se pagar no dia 2020-12-27, domingo: aceito.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
+            Tenta-se pagar no dia 2020-12-29, terça: negado.
+            ```
+
+            Exemplo D:
+
+            ```txt
+            dataDeVencimento: 2020-12-25, sexta-feira, feriado.
+            validadeAposVencimento: 3
+
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-26, sábado: aceito.
+            Tenta-se pagar no dia 2020-12-27, domingo: aceito.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
+            Tenta-se pagar no dia 2020-12-29, terça: negado.
+            ```
+
+            Exemplo E:
+
+
+            ```txt
+            dataDeVencimento: 2020-12-25, sexta-feira, feriado.
+            validadeAposVencimento: 4
+
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-26, sábado: aceito.
+            Tenta-se pagar no dia 2020-12-27, domingo: aceito.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
+            Tenta-se pagar no dia 2020-12-29, terça: aceito.
+            Tenta-se pagar no dia 2020-12-30, quarta: negado.
+            ```
+
+          default: 30
     CobApresentacao:
       type: "object"
       title: "Apresentação"
@@ -2797,7 +2917,7 @@ components:
           description: |
             # Formato do campo chave
 
-            * O campo chave, obrigatório, determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
+            * O campo chave determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
             * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
             * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
           maxLength: 77
@@ -2838,13 +2958,6 @@ components:
               description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
               allOf:
                 - $ref: "#/components/schemas/CobExpiracao"
-        - type: "object"
-          properties:
-            devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
-              oneOf:
-                - $ref: "#/components/schemas/PessoaFisica"
-                - $ref: "#/components/schemas/PessoaJuridica"
         - type: "object"
           properties:
             devedor:
@@ -3065,6 +3178,7 @@ components:
       properties:
         id:
           type: "integer"
+          format: "int64"
           title: "Id do lote"
         descricao:
           type: "string"
@@ -3090,7 +3204,14 @@ components:
               type: "array"
               title: "Pix recebidos"
               items:
-                $ref: "#/components/schemas/Pix"
+                allOf:
+                 - $ref: "#/components/schemas/Pix"
+                 - type: "object" 
+                   properties:
+                     txid:
+                       allOf:
+                         - $ref: "#/components/schemas/TxId"
+                         - pattern: "[a-zA-Z0-9]{26,35}"
         - type: "object"
           properties:
             status:
@@ -3123,7 +3244,14 @@ components:
               type: "array"
               title: "Pix recebidos"
               items:
-                $ref: "#/components/schemas/Pix"
+                allOf:
+                 - $ref: "#/components/schemas/Pix"
+                 - type: "object" 
+                   properties:
+                     txid:
+                       allOf:
+                         - $ref: "#/components/schemas/TxId"
+                         - pattern: "[a-zA-Z0-9]{26,35}"
     LoteCobVConsultado:
       title: "Lote de solicitações de alteração ou criação de cobranças com vencimento"
       type: "object"
@@ -3131,6 +3259,7 @@ components:
       properties:
         id:
           type: "integer"
+          format: "int64"
           title: "Id do lote"
         descricao:
           type: "string"
@@ -3344,7 +3473,7 @@ components:
     ParametrosConsultaCob:
       type: "object"
       title: "Parâmetros de Consulta de Cobrança"
-      description: "Parâmetros utilizados para a realização de uma consulta de cobranças."
+      description: "[DEPRECADO] Parâmetros utilizados para a realização de uma consulta de cobranças."
       required: ["inicio", "fim", "paginacao"]
       properties:
         inicio:
@@ -3434,12 +3563,24 @@ components:
         endToEndId:
           $ref: "#/components/schemas/EndToEndId"
         txid:
-          $ref: "#/components/schemas/TxId"
+          allOf:
+            - $ref: "#/components/schemas/TxId"
+            - pattern: "[a-zA-Z0-9]{1,35}"
         valor:
           type: "string"
           title: "Valor do Pix."
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor do Pix."
+        chave:
+          type: "string"
+          title: "Chave DICT do recebedor"
+          description: |
+            # Formato do campo chave
+
+            * Campo chave do recebedor conforme atribuído na respectiva PACS008.
+            * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
+            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
+          maxLength: 77
         horario:
           type: "string"
           format: "date-time"
@@ -3566,7 +3707,9 @@ components:
           description: "Data de fim utilizada na consulta. Respeita RFC 3339."
           example: "2020-12-01T17:00:00Z"
         txid:
-          $ref: "#/components/schemas/TxId"
+          allOf:
+            - $ref: "#/components/schemas/TxId"
+            - pattern: "[a-zA-Z0-9]{1,35}"
         txIdPresente:
           type: "boolean"
           description: "Filtro pela existência de txid."
@@ -3587,7 +3730,6 @@ components:
       type: "object"
       title: "Parâmetros de Consulta de Webhooks"
       description: "Parâmetros utilizados para a realização de uma consulta de Webhooks."
-      required: ["inicio", "fim", "paginacao"]
       properties:
         inicio:
           type: "string"
@@ -3619,7 +3761,7 @@ components:
     WebhooksConsultados:
       type: "object"
       title: "Webhooks Consultados"
-      required: ["parametros","webhooks"]
+      required: ["webhooks"]
       properties:
         parametros:
           $ref: "#/components/schemas/ParametrosConsultaWebhooks"
@@ -3700,25 +3842,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Violacao"
-  parameters:
-    inicio:
-      in: "query"
-      name: "inicio"
-      required: true
-      schema:
+    Inicio:
+      type: "string"
+      format: "date-time"
+      title: "Data de início"
+      description: "Filtra os registros cuja data de criação seja maior ou igual que a data de início. Respeita RFC 3339."
+    Fim:
         type: "string"
         format: "date-time"
-        title: "Data de início"
-        description: "Filtra os registros cuja data de criação seja maior ou igual que a data de início. Respeita RFC 3339."
-    fim:
-      in: "query"
-      name: "fim"
-      required: true
-      schema:
-        type: "string"
-        format: "date-time"
-        title: "Data de início"
+        title: "Data de fim"
         description: "Filtra os registros cuja data de criação seja menor ou igual que a data de fim. Respeita RFC 3339."
+  parameters:
     paginaAtual:
       in: "query"
       name: "paginacao.paginaAtual"
