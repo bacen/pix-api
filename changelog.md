@@ -11,6 +11,9 @@ Nem sempre o usuário recebedor tem a posse de todas as informações que consta
 * [[#307](https://github.com/bacen/pix-api/issues/307)]: Detalhada a semântica do campo `validadeAposVencimento`. Passa a apresentar redação 
 detalhando o que ocorre em casos de exceção em que o vencimento da cobrança seja um final de semana 
 ou um feriado juntamente com a atribuição de um valor pequeno para `validadeAposVencimento`. 
+* O campo `validadeAposVencimento` estava constando como `required`, o que estava incorreto. 
+Quando não preenchido, o PSP recebedor assume o valor deste campo como 30, então não há motivos para 
+o campo ser obrigatório.
 * [[#269](https://github.com/bacen/pix-api/issues/269)]. A regex do txid, na parte concernente ao tamanho, nos endpoints /pix e no callback webhook, 
 estava errada. Corrigida de `{26,35}` para `{1,35}` porque pode haver a presença de pagamentos de QRs
 estáticos nesses locais. 

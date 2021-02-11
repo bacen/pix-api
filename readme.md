@@ -10,9 +10,9 @@
 
 O branch `master` da API pode ser visualizado __[aqui](https://bacen.github.io/pix-api/index.html)__
 
-# Release Corrente: 2.2.0
+# Release Corrente: 2.2.1
 
-* A release corrente da API Pix pode ser encontrada neste __[link](https://github.com/bacen/pix-api/releases/tag/2.2.0)__.
+* A release corrente da API Pix pode ser encontrada neste __[link](https://github.com/bacen/pix-api/releases/tag/2.2.1)__.
 
 
 

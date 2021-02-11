@@ -1532,12 +1532,27 @@ paths:
           $ref: "#/components/responses/NaoEncontrado"
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
-      callbacks:   
-        listaPix:   
+      callbacks:
+        listaPix:
           "{$request.body#/webhookUrl}/pix":
             post:
               description: |
-                Esse serviço está protegido por uma camada de autenticação mTLS.
+                 O callback deve ser acionado sempre que um ou mais Pix associados a um txid forem recebidos
+                 pelo usuário recebedor e desde que a chave associada ao Pix em questão esteja
+                 associada a um webhook cadastrado.
+                 
+                 O callback também deve ser acionado sempre que uma devolução associada a um Pix
+                 associado a um txid seja liquidada.
+                
+                 O SLA específico a ser definido no contexto dos acionamento dos callbacks fica a
+                 cargo de cada PSP recebedor. Orienta-se, no entanto, que o SLA seja definido dentro
+                 de um limite razoável tendo em vista que a expectativa é que o callback seja um aviso "on-line" da
+                 ocorrência do pagamento.
+                
+                 No contexto da estratégia específica de SLA de cada PSP recebedor, é possível agrupar
+                 Pix associados a uma mesma chave para economizar acionamentos múltiplos.
+                 Este serviço está protegido por uma camada de autenticação mTLS. Para maiores detalhes,
+                 verificar o [Manual de padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
               security: []
               requestBody:
                 $ref: "#/components/requestBodies/WebhookPixBody"
@@ -2614,7 +2629,7 @@ components:
     CobDataDeVencimento:
       type: "object"
       title: "Data de Vencimento"
-      required: ["dataDeVencimento","validadeAposVencimento"]
+      required: ["dataDeVencimento"]
       properties:
         dataDeVencimento:
           type: "string"
