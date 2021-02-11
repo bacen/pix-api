@@ -2614,7 +2614,7 @@ components:
     CobDataDeVencimento:
       type: "object"
       title: "Data de Vencimento"
-      required: ["dataDeVencimento","validadeAposVencimento"]
+      required: ["dataDeVencimento"]
       properties:
         dataDeVencimento:
           type: "string"
