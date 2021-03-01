@@ -2,6 +2,14 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.2.2]
+
+[[#331](https://github.com/bacen/pix-api/issues/331)]: O campo `validadeAposVencimento` estava constando como `opcional`, na resposta da criação da cobrança, um efeito colateral da correção correlata ocorrida na release 2.2.1.
+
+[[#334](https://github.com/bacen/pix-api/issues/334)]: adicionados detalhes a respeito da manipulação da revisão da cobrança em cenário de alteração do _location_.
+
+[[#342](https://github.com/bacen/pix-api/issues/342)]: removidos trechos duplicados na seção de tratamento de erros.
+
 ## [2.2.1]
 
 ### Corrigido:
