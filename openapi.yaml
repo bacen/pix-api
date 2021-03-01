@@ -344,9 +344,6 @@ info:
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
 
-    __Violações__ específicas para o endpoint `GET /lotecobv/{id}`:
-      - {id} não identifica um lote existente
-
     ## Tag PayloadLocation
     Esta seção reúne erros referentes a endpoints que tratam do gerenciamento de _locations_.
 
@@ -377,9 +374,6 @@ info:
       representado pelo parâmetro `inicio`.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
-
-    __Violações__ específicas para o endpoint `GET /loc/{id}`:
-      - {id} não identifica uma _location_ existente
 
     ## Tag Pix
 
@@ -2488,7 +2482,20 @@ components:
       type: "integer"
       format: "int32"
       title: "Revisão"
-      description: "Revisão da cobrança. Sempre começa em zero. Sempre varia em acréscimos de 1."
+      description: |
+        # O campo `revisao`
+
+        Denota a revisão da cobrança.  Sempre começa em zero. Sempre varia em acréscimos de 1.
+
+        O incremento em uma cobrança deve ocorrer sempre que um objeto da cobrança em questão for alterado.
+        O campo `loc` é uma exceção a esta regra.
+
+        Se em uma determinada alteração em uma cobrança, o único campo alterado for o campo `loc`,
+        então esta operação não incrementa a revisão da cobrança.
+
+        O campo `loc` não ocasiona uma alteração na cobrança em si.
+        Não é necessário armazenar histórico das alterações do campo `loc` para uma determinada cobrança.
+        Para os outros campos da cobrança, registra-se histórico.
       readOnly: true
     PessoaFisica:
       type: "object"
@@ -3152,6 +3159,7 @@ components:
         - type: "object"
           properties:
             calendario:
+              required: ["validadeAposVencimento"]
               title: "Calendário"
               description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
               allOf:
@@ -3331,7 +3339,7 @@ components:
             calendario:
               title: "Calendário"
               description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
-              required: ["criacao", "apresentacao"]
+              required: ["criacao", "apresentacao","validadeAposVencimento"]
               allOf:
                 - $ref: "#/components/schemas/CobCriacao"
                 - $ref: "#/components/schemas/CobApresentacao"
