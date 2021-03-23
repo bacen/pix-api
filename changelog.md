@@ -2,13 +2,27 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.3.0]
+* `modalidadeAlteracao` agora é um campo opcional do objeto `valor`
+no payload da cobrança imediata e nos endpoints de criação e revisão da cobrança imediata.
+Se apresentado como valor 1, significa que o usuário pagador pode alterar o valor da cobrança. 
+Em sua ausência, assume-se o valor 0, que significa que a cobrança não pode ser alterada.
+* Não é mais obrigatório que o fragmento de versão v2 esteja presente na _location_.
+Não há problema em manter o fragmento; este será considerado como parte integrante da _location_.
+* [[#348](https://github.com/bacen/pix-api/issues/348)]: corrige case do padrão de datas de `yyyy-mm-dd` -> `YYYY-MM-DD`.
+* [[#354](https://github.com/bacen/pix-api/issues/354)]: Aprimora a descrição do webhook detalhando 
+a ativação em caso de devolução de um pix. O callback deve ser ativado, também, no caso de serem atingidos 
+os status finais da devolução: "devolvido" e "não realizado".
+* [[#356](https://github.com/bacen/pix-api/issues/356)]: Adiciona dois cenários de erro para o endpoint
+`PUT /pix/{e2eid}/devolucao/{id}` na seção de tratamentos de erros.
+* [[#357](https://github.com/bacen/pix-api/issues/357)]: aprimora a descrição do campo "motivo" no retorno do endpoint 
+`​/pix​/{e2eid}​/devolucao​/{id}`.
+
 ## [2.2.2]
 
-[[#331](https://github.com/bacen/pix-api/issues/331)]: O campo `validadeAposVencimento` estava constando como `opcional`, na resposta da criação da cobrança, um efeito colateral da correção correlata ocorrida na release 2.2.1.
-
-[[#334](https://github.com/bacen/pix-api/issues/334)]: adicionados detalhes a respeito da manipulação da revisão da cobrança em cenário de alteração do _location_.
-
-[[#342](https://github.com/bacen/pix-api/issues/342)]: removidos trechos duplicados na seção de tratamento de erros.
+* [[#331](https://github.com/bacen/pix-api/issues/331)]: O campo `validadeAposVencimento` estava constando como `opcional`, na resposta da criação da cobrança, um efeito colateral da correção correlata ocorrida na release 2.2.1.
+* [[#334](https://github.com/bacen/pix-api/issues/334)]: adicionados detalhes a respeito da manipulação da revisão da cobrança em cenário de alteração do _location_.
+* [[#342](https://github.com/bacen/pix-api/issues/342)]: removidos trechos duplicados na seção de tratamento de erros.
 
 ## [2.2.1]
 
