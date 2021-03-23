@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.2.2"
+  version: "2.3.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -416,6 +416,10 @@ info:
       - O campo devolucao.valor não respeita o schema
       - A presente requisição de devolução, em conjunto com as demais prévias devoluções,
       se aplicável, excederia o valor do pix originário.
+      - A presente requisição de devolução apresenta um `{id}` já utilizado por outra requisição de
+      devolução para o `{e2eid}` em questão.
+      - A presente requisição de devolução viola a janela de tempo permitida para solicitações de devoluções
+      de um pix (hoje estabelecida como 90 dias desde a data de liquidação original do pix).
 
     ## Tag Webhook
     Reúne erros dos endpoints que tratam do gerenciamente dos Webhooks da API Pix.
@@ -452,9 +456,9 @@ info:
       - o parâmetro `paginacao.itensPorPagina` é negativo.
 
 servers:
-  - url: https://pix.example.com/api/v2/
+  - url: https://pix.example.com/api/
     description: Servidor de Produção
-  - url: https://pix-h.example.com/api/v2/
+  - url: https://pix-h.example.com/api/
     description: Servidor de Homologação
 
 tags:
@@ -1043,7 +1047,7 @@ paths:
                   format: "uri"
                   title: "Identificador da location criada."
                   description: "Identificador da location criada."
-                  example: "pix.example.com/api/v2/loc/1234567"
+                  example: "pix.example.com/api/loc/1234567"
           content:
             "application/json":
               schema:
@@ -1362,7 +1366,7 @@ paths:
       tags: 
         - "CobPayload"
       servers:
-        - url: https://{fdqnPSPRecebedor}/{endpointOpcional}/v2
+        - url: https://{fdqnPSPRecebedor}/{endpointOpcional}
           variables:
             fdqnPSPRecebedor:
               default: example.com
@@ -1429,7 +1433,7 @@ paths:
           title: "Código do município"
       - name: "DPP"
         in: "query"
-        description: "Data de pagamento pretendida. Trata-se de uma data, no formato `yyyy-mm-dd`, segundo ISO 8601."
+        description: "Data de pagamento pretendida. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601."
         schema:
           type: "string"
           format: "date"
@@ -1438,7 +1442,7 @@ paths:
       tags:
         - "CobPayload"
       servers:
-        - url: https://{fdqnPSPRecebedor}/{endpointOpcional}/v2
+        - url: https://{fdqnPSPRecebedor}/{endpointOpcional}
           variables:
             fdqnPSPRecebedor:
               default: example.com
@@ -1534,9 +1538,9 @@ paths:
                  O callback deve ser acionado sempre que um ou mais Pix associados a um txid forem recebidos
                  pelo usuário recebedor e desde que a chave associada ao Pix em questão esteja
                  associada a um webhook cadastrado.
-                 
+
                  O callback também deve ser acionado sempre que uma devolução associada a um Pix
-                 associado a um txid seja liquidada.
+                 associado a um txid atinja um status final: `DEVOLVIDO` ou `NAO_REALIZADO`.
                 
                  O SLA específico a ser definido no contexto dos acionamento dos callbacks fica a
                  cargo de cada PSP recebedor. Orienta-se, no entanto, que o SLA seja definido dentro
@@ -1694,6 +1698,7 @@ components:
           nome: "Empresa de Serviços SA"
         valor:
           original: "37.00"
+          modalidadeAlteracao: 1
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
         solicitacaoPagador: "Serviço realizado."
         infoAdicionais:
@@ -1785,15 +1790,16 @@ components:
         revisao: 0
         loc:
           id: 789
-          location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
+          location: "pix.example.com/qr/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cob"
-        location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
+        location: "pix.example.com/qr/9d36b84fc70b478fb95c12729b90ca25"
         status: "ATIVA"
         devedor:
           cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
         valor:
           original: "567.89"
+          modalidadeAlteracao: 1
         chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
         solicitacaoPagador: "Informar cartão fidelidade"
     cobResponse2:
@@ -1806,14 +1812,15 @@ components:
         revisao: 1
         loc:
           id: 567
-          location: "pix.example.com/qr/v2/1dd7f893a58e417287028dc33e21a403"
-        location: "pix.example.com/qr/v2/1dd7f893a58e417287028dc33e21a403"
+          location: "pix.example.com/qr/1dd7f893a58e417287028dc33e21a403"
+        location: "pix.example.com/qr/1dd7f893a58e417287028dc33e21a403"
         status: "CONCLUIDA"
         devedor:
           cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
         valor:
           original: "100.00"
+          modalidadeAlteracao: 0
         chave: "40a0932d-1918-4eee-845d-35a2da1690dc"
         solicitacaoPagador: "Informar cartão fidelidade"
         pix:
@@ -1839,15 +1846,16 @@ components:
         revisao: 1
         loc:
           id: 789
-          location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
+          location: "pix.example.com/qr/b1/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cob"
-        location: "pix.example.com/qr/v2/9d36b84fc70b478fb95c12729b90ca25"
+        location: "pix.example.com/qr/v1/9d36b84fc70b478fb95c12729b90ca25"
         status: "ATIVA"
         devedor:
           cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
         valor:
           original: "567.89"
+          modalidadeAlteracao: 0
         chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
         solicitacaoPagador: "Informar cartão fidelidade"
     cobResponse4:
@@ -1861,7 +1869,7 @@ components:
         revisao: 0
         loc:
           id: 789
-          location: "pix.example.com/qr/v2/cobv/9d36b84fc70b478fb95c12729b90ca25"
+          location: "pix.example.com/qr/c2/cobv/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cobv"
         status: "ATIVA"
         devedor:
@@ -1942,14 +1950,14 @@ components:
       value:
         id: 2316
         txid: "eb9d87f36fca4c92b7d5ec48e2ee3853"
-        location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"        
+        location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"
         tipoCob: "cob"
         criacao: "2020-05-31T19:39:54.013Z"
     payloadLocationResponse4:
       summary: "Exemplo de Payload Location 3"
       value:
         id: 2316
-        location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"        
+        location: "pix.example.com/qr/v2/a8534e273ecb47d3ac30613104544466"
         tipoCob: "cob"
         criacao: "2020-05-31T19:39:54.013Z"
     payloadLocationResponse5:
@@ -2057,6 +2065,7 @@ components:
         status: "ATIVA"
         valor:
           original: "500.00"
+          modalidadeAlteracao: 0
         chave: "7407c9c8-f78b-11ea-adc1-0242ac120002"
         solicitacaoPagador: "Informar cartao fidelidade"
         infoAdicionais:
@@ -2642,7 +2651,7 @@ components:
           type: "string"
           format: "date"
           title: "Data de vencimento da cobrança"
-          description: "Trata-se de uma data, no formato `yyyy-mm-dd`, segundo ISO 8601. É a data de vencimento da cobrança. A cobrança pode ser honrada até esse dia, inclusive, em qualquer horário do dia."
+          description: "Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. É a data de vencimento da cobrança. A cobrança pode ser honrada até esse dia, inclusive, em qualquer horário do dia."
           example: "2020-04-01"
         validadeAposVencimento:
           type: "integer"
@@ -2852,7 +2861,7 @@ components:
                       - properties:
                           data:
                             title: "Data limite para o desconto absoluto da cobrança"
-                            description: "Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par \"data e valorPerc\", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `yyyy-mm-dd`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor que a data de vencimento da cobrança."
+                            description: "Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par \"data e valorPerc\", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor que a data de vencimento da cobrança."
                             type: "string"
                             format: "date"
                             example: "2020-04-01"
@@ -2881,6 +2890,13 @@ components:
           title: "Valor"
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor original da cobrança."
+        modalidadeAlteracao:
+          type: "integer"
+          format: "int32"
+          minimum: 0
+          maximum: 1
+          title: "Modalidade de alteração"
+          description: "Trata-se de um campo que determina se o valor final do documento pode ser alterado pelo pagador. Na ausência desse campo, assume-se que não se pode alterar o valor do documento de cobrança, ou seja, assume-se o valor 0. Se o campo estiver presente e com valor 1, então está determinado que o valor final da cobrança pode ter seu valor alterado pelo pagador."
     CobPayloadValor:
       type: "object"
       title: "Valor da cobrança imediata retornada pelo payload"
@@ -2892,6 +2908,13 @@ components:
           title: "Valor"
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor original da cobrança."
+        modalidadeAlteracao:
+          type: "integer"
+          format: "int32"
+          minimum: 0
+          maximum: 1
+          title: "Modalidade de alteração"
+          description: "Trata-se de um campo que determina se o valor final do documento pode ser alterado pelo pagador. Na ausência desse campo, assume-se que não se pode alterar o valor do documento de cobrança, ou seja, assume-se o valor 0. Se o campo estiver presente e com valor 1, então está determinado que o valor final da cobrança pode ter seu valor alterado pelo pagador."
     CobVPayloadValor:
       type: "object"
       title: "Valor da cobrança com vencimento calculada retornada pelo payload"
@@ -3655,11 +3678,16 @@ components:
           type: "string"
           title: "Status"
           description: "Status da devolução."
-          enum: ["EM_PROCESSAMENTO", "DEVOLVIDO", "NAO_REALIZADO"]    
+          enum: ["EM_PROCESSAMENTO", "DEVOLVIDO", "NAO_REALIZADO"]
         motivo:
           type: "string"
           title: "Descrição do status."
-          description: "Descrição do status da devolução."
+          description: |
+            # Status da Devolução
+
+            Campo opcional que pode ser utilizado pelo PSP recebedor para detalhar os motivos
+            de a devolução ter atingido o status em questão.
+            Pode ser utilizado, por exemplo, para detalhar o motivo de a devolução não ter sido realizada.          
           maxLength: 140
     DevolucaoSolicitada:
       type: "object"
