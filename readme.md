@@ -8,7 +8,7 @@
 
 # Link para visualização da API Pix
 
-O branch `master` da API pode ser visualizado __[aqui](https://bacen.github.io/pix-api/index.html)__
+O branch `master` da API pode ser visualizado __[aqui](https://bacen.github.io/pix-api/index.html)__.
 
 # Release atual: 2.3.0
 
