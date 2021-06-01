@@ -2,6 +2,12 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.4.0-rc.0]
+* Inclusão do atributo `retirada` como campo opcional do objeto `valor` nos endpoints de consulta, criação e revisão da cobrança imediata. O campo pode ser preenchido com os atributos `saque` ou `troco` exclusivamente, detalhados pelos atributos `valor` e `modalidadeAlteracao`. Se apresentarem o campo `modalidadeAlteracao` como valor 1, significa que o usuário pagador pode alterar o valor do saque ou troco. 
+Em sua ausência, assume-se o valor 0, que significa que o valor do saque ou troco não pode ser alterado.
+* Inclusão do atributo `componentesValor` como campo opcional nos endpoints de consulta Pix para informações da composição do valor final do Pix, este será detalhado por um array de objetos compostos por `tipo` e `valor`.
+* Formatações gerais de referências a campos, objetos e schemas.
+
 ## [2.3.0]
 * `modalidadeAlteracao` agora é um campo opcional do objeto `valor`
 no payload da cobrança imediata e nos endpoints de criação e revisão da cobrança imediata.

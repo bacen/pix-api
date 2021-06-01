@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.3.0"
+  version: "2.4.0.rc-0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -103,7 +103,7 @@ info:
       * __HTTP Status Code__: [504 Gateway Timeout](https://tools.ietf.org/html/rfc7231#section-6.6.5).
 
 
-    
+
     ## Tag  CobPayload 
 
     Esta seção reúne erros retornados pelos endpoints organizados sob a tag `CobPayload`.
@@ -131,9 +131,9 @@ info:
     * __endpoints__: `GET /cobv/{pixUrlAccessToken}`.
 
     __Violações__:
-      - `codMun` não respeita o schema.
+      - `codMun` não respeita o _schema_.
       - `codMun` não é um código válido segundo a __[tabela de municípios do IBGE](https://www.ibge.gov.br/explica/codigos-dos-municipios.php)__.
-      - `DPP` não respeita o schema.
+      - `DPP` não respeita o _schema_.
       - `DPP` anterior ao momento presente.
       - `DPP` superior à validade da cobrança em função dos parâmetros `calendario.dataDeVencimento`
       e `calendario.validadeAposVencimento`. Exemplo: `dataDeVencimento` => 2020-12-25,
@@ -156,22 +156,22 @@ info:
     ### `CobOperacaoInvalida`
 
     * __Significado__: a requisição que busca alterar ou criar uma cobrança para pagamento imediato
-    não respeita o schema ou está semanticamente errada.
+    não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[POST|PUT|PATCH] /cob/{txid}`.
 
     __Violações__ para os endpoints `PUT|PATCH /cob/{txid}`:
-      - O campo cob.calendario.expiracao é igual ou menor que zero.
-      - O campo cob.valor.original não respeita o _schema_.
-      - O campo cob.valor.original é zero.
-      - O objeto cob.devedor não respeita o _schema_.
-      - O campo cob.chave não respeita o _schema_.
-      - O campo cob.chave corresponde a uma conta que não pertence a este usuário recebedor.
-      - O campo solicitacaoPagador não respeita o _schema_.
-      - O objeto infoAdicionais não respeita o _schema.
-      - O location referenciado por loc.id inexiste.
-      - O location referenciado por loc.id já está sendo utilizado por outra cobrança.
-      - O location referenciado por cob.loc.id apresenta tipo "cobv" (deveria ser "cob").
+      - O campo `cob.calendario.expiracao` é igual ou menor que `zero`.
+      - O campo `cob.valor.original` não respeita o _schema_.
+      - O campo `cob.valor.original` é `zero`.
+      - O objeto `cob.devedor` não respeita o _schema_.
+      - O campo `cob.chave` não respeita o _schema_.
+      - O campo `cob.chave` corresponde a uma conta que não pertence a este usuário recebedor.
+      - O campo `solicitacaoPagador` não respeita o _schema_.
+      - O objeto `infoAdicionais` não respeita o _schema_.
+      - O `location` referenciado por `loc.id` inexiste.
+      - O `location` referenciado por `loc.id` já está sendo utilizado por outra cobrança.
+      - O `location` referenciado por `cob.loc.id` apresenta tipo "cobv" (deveria ser "cob").
 
     __Violações__ específicas para o endpoint `PUT /cob/{txid}`:
       - A cobrança já existe, não está no status ATIVA, e a presente requisição busca alterá-la.
@@ -182,12 +182,12 @@ info:
       seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
       (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
       alterações que não serão aproveitadas).
-      - o campo cob.status não respeita o _schema_.
+      - o campo `cob.status` não respeita o _schema_.
 
     ### `CobConsultaInvalida`
 
     * __Significado__: os parâmetros de consulta à lista de cobranças para pagamento imediato
-    não respeitam o schema ou não fazem sentido semanticamente.
+    não respeitam o _schema_ ou não fazem sentido semanticamente.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `GET /cob` e `GET /cob/{txid}`.
 
@@ -217,7 +217,7 @@ info:
     ### `CobVOperacaoInvalida`
 
     * __Significado__: a requisição que busca alterar ou criar uma cobrança com vencimento
-    não respeita o schema ou está semanticamente errada.
+    não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[PUT|PATCH] /cobv/{txid}`.
 
@@ -226,12 +226,12 @@ info:
       "EM_PROCESSAMENTO" ou "NEGADA".
       - O campo `cobv.calendario.dataDeVencimento` é anterior à data de criação da cobrança.
       - O campo `cobv.calendario.validadeAposVencimento` é menor do que zero.
-      - O objeto `cobv.devedor` não respeita o schema.
+      - O objeto `cobv.devedor` não respeita o _schema_.
       - O objeto `cobv.devedor` não respeita o _schema_.
       - O campo `cobv.chave` não respeita o _schema_.
       - O campo `cobv.chave` corresponde a uma conta que não pertence a este usuário recebedor.
       - O campo `solicitacaoPagador` não respeita o _schema_.
-      - O objeto `infoAdicionais` não respeita o _schema.
+      - O objeto `infoAdicionais` não respeita o _schema_.
       - O location referenciado por `cobv.loc.id` inexiste.
       - O location referenciado por `cobv.loc.id` já está sendo utilizado por outra cobrança.
       - O location referenciado por `cobv.loc.id` apresenta tipo "cob" (deveria ser "cobv").
@@ -267,7 +267,7 @@ info:
       seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
       (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
       alterações que não serão aproveitadas).
-      - o campo cob.status não respeita o _schema_.
+      - o campo `cob.status` não respeita o _schema_.
 
     ### `CobVConsultaInvalida`
 
@@ -298,13 +298,13 @@ info:
 
     ### `LoteCobVOperacaoInvalida`
     * __Significado__: a requisição que busca alterar ou criar um lote de cobranças com vencimento
-    não respeita o schema ou está semanticamente errada.
+    não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[PUT|PATCH] /lotecobv/{id}`.
 
     __Violações__ para os endpoints `PUT|PATCH /lotecobv/{id}`:
-      - O campo loteCobV.descricao não respeita o schema.
-      - O objeto loteCobV.cobsV não respeita o schema.
+      - O campo `loteCobV.descricao` não respeita o _schema_.
+      - O objeto `loteCobV.cobsV` não respeita o _schema_.
 
     __Violações__ para o endpoint `PUT /lotecobv/{id}`:
       - a presente requisição tenta criar um conjunto de cobranças dentre as quais pelo menos
@@ -333,7 +333,7 @@ info:
     ### `LoteCobVConsultaInvalida`
 
     * __Significado__: os parâmetros de consulta à lista de lotes de cobrança com vencimento
-    não respeitam o schema ou não fazem sentido semanticamente.
+    não respeitam o _schema_ ou não fazem sentido semanticamente.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `GET /lotecobv` e `GET /lotecobv/{id}`.
 
@@ -354,17 +354,17 @@ info:
 
     ### `PayloadLocationOperacaoInvalida`
 
-    * __Significado__: a presente requisição busca criar uma location sem respeitar o schema estabelecido.
+    * __Significado__: a presente requisição busca criar uma location sem respeitar o _schema_ estabelecido.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `POST /loc`.
 
     __Violações__ para o endpoint `POST /loc`:
-      - o campo tipoCob não respeita o _schema_.
+      - o campo `tipoCob` não respeita o _schema_.
 
     ### `PayloadLocationConsultaInvalida`
 
     * __Significado__: os parâmetros de consulta à lista de _locations_ não respeitam
-    o schema ou não fazem sentido semanticamente.
+    o _schema_ ou não fazem sentido semanticamente.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `GET /loc` e `GET /loc/{id}`.
 
@@ -408,12 +408,12 @@ info:
 
     ### `PixDevolucaoInvalida`
 
-    * __Significado__: a presente requisição de devolução não respeita o schema ou não faz sentido semanticamente.
+    * __Significado__: a presente requisição de devolução não respeita o _schema_ ou não faz sentido semanticamente.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `PUT /pix/{e2eid}/devolucao/{id}`.
 
     __Violações__ específicas para o endpoint `PUT /pix/{e2eid}/devolucao/{id}`:
-      - O campo devolucao.valor não respeita o schema
+      - O campo `devolucao.valor` não respeita o _schema_.
       - A presente requisição de devolução, em conjunto com as demais prévias devoluções,
       se aplicável, excederia o valor do pix originário.
       - A presente requisição de devolução apresenta um `{id}` já utilizado por outra requisição de
@@ -422,10 +422,10 @@ info:
       de um pix (hoje estabelecida como 90 dias desde a data de liquidação original do pix).
 
     ## Tag Webhook
-    Reúne erros dos endpoints que tratam do gerenciamente dos Webhooks da API Pix.
+    Reúne erros dos endpoints que tratam do gerenciamento dos Webhooks da API Pix.
 
     ### `WebhookOperacaoInvalida`
-    * __Significado__: a presente requisição busca criar um webhook sem respeitar o schema ou,
+    * __Significado__: a presente requisição busca criar um webhook sem respeitar o _schema_ ou,
     ainda, apresenta semântica inválida.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `PUT /webhook/{chave}`.
@@ -433,7 +433,7 @@ info:
     __Violações__ para o endpoint `PUT /webhook/{chave}`:
       - o parâmetro {chave} não corresponde a uma chave DICT válida.
       - o parâmetro {chave} não corresponde a uma chave DICT pertencente a este usuário recebedor.
-      - Campo webhook.webhookUrl não respeita o schema.
+      - Campo webhook.webhookUrl não respeita o _schema_.
 
     ### `WebhookNaoEncontrado`
 
@@ -506,12 +506,12 @@ paths:
           $ref: "#/components/schemas/TxId"
     put:
       tags:
-      - "Cob"
+        - "Cob"
       summary: "Criar cobrança imediata."
       security:
         - OAuth2: [cob.write]
       description: |-
-          Endpoint para criar uma cobrança imediata.
+        Endpoint para criar uma cobrança imediata.
       requestBody:
         $ref: "#/components/requestBodies/CobBody"
       responses:
@@ -524,12 +524,18 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse1"
+                retorno2:
+                  $ref: "#/components/examples/cobResponse5"
+                retorno3:
+                  $ref: "#/components/examples/cobResponse6"
+                retorno4:
+                  $ref: "#/components/examples/cobResponse7"
         "400":
           description: "Requisição com formato inválido."
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaCobExample1"
@@ -541,10 +547,10 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     patch:
       tags:
-      - "Cob"
+        - "Cob"
       summary: "Revisar cobrança imediata."
       security:
-        - OAuth2: [cob.write]  
+        - OAuth2: [cob.write]
       requestBody:
         $ref: "#/components/requestBodies/CobBodyRevisada"
       responses:
@@ -562,7 +568,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/OperacaoInvalidaCobExample1"
@@ -574,18 +580,18 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
-      - name: "revisao"
-        in: "query"
-        required: false
-        schema:
-          $ref: "#/components/schemas/Revisao"
+        - name: "revisao"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/Revisao"
       tags:
-      - "Cob"
+        - "Cob"
       summary: "Consultar cobrança imediata."
       security:
         - OAuth2: [cob.read]
       description: |-
-          Endpoint para consultar uma cobrança através de um determinado txid.
+        Endpoint para consultar uma cobrança através de um determinado txid.
       responses:
         "200":
           description: "Dados da cobrança imediata."
@@ -598,6 +604,12 @@ paths:
                   $ref: "#/components/examples/cobResponse1"
                 retorno2:
                   $ref: "#/components/examples/cobResponse2"
+                retorno3:
+                  $ref: "#/components/examples/cobResponse5"
+                retorno4:
+                  $ref: "#/components/examples/cobResponse6"
+                retorno5:
+                  $ref: "#/components/examples/cobResponse7"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -607,12 +619,12 @@ paths:
   "/cob":
     post:
       tags:
-      - "Cob"
+        - "Cob"
       summary: "Criar cobrança imediata."
       security:
         - OAuth2: [cob.write]
       description: |-
-          Endpoint para criar uma cobrança imediata, neste caso, o txid deve ser definido pelo PSP.
+        Endpoint para criar uma cobrança imediata, neste caso, o txid deve ser definido pelo PSP.
       requestBody:
         $ref: "#/components/requestBodies/CobBody"
       responses:
@@ -625,12 +637,18 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobResponse1"
+                retorno2:
+                  $ref: "#/components/examples/cobResponse5"
+                retorno3:
+                  $ref: "#/components/examples/cobResponse6"
+                retorno4:
+                  $ref: "#/components/examples/cobResponse7"
         "400":
           description: "Requisição com formato inválido."
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaCobExample1"
@@ -644,12 +662,12 @@ paths:
           name: "inicio"
           required: true
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: true
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - name: "cpf"
           in: "query"
           schema:
@@ -677,12 +695,12 @@ paths:
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "Cob"
+        - "Cob"
       summary: "Consultar lista de cobranças imediatas."
       security:
-        - OAuth2: [cob.read]  
+        - OAuth2: [cob.read]
       description: |-
-          Endpoint para consultar cobranças imediatas através de parâmetros como início, fim, cpf, cnpj e status.
+        Endpoint para consultar cobranças imediatas através de parâmetros como início, fim, cpf, cnpj e status.
       responses:
         "200":
           description: "Lista de cobranças imediatas."
@@ -708,12 +726,12 @@ paths:
           $ref: "#/components/schemas/TxId"
     put:
       tags:
-      - "CobV"
+        - "CobV"
       summary: "Criar cobrança com vencimento."
       security:
         - OAuth2: [cobv.write]
       description: |-
-          Endpoint para criar uma cobrança com vencimento.
+        Endpoint para criar uma cobrança com vencimento.
       requestBody:
         $ref: "#/components/requestBodies/CobVBody"
       responses:
@@ -731,7 +749,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaCobVExample1"
@@ -743,10 +761,10 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     patch:
       tags:
-      - "CobV"
+        - "CobV"
       summary: "Revisar cobrança com vencimento."
       security:
-        - OAuth2: [cobv.write]  
+        - OAuth2: [cobv.write]
       requestBody:
         $ref: "#/components/requestBodies/CobVBodyRevisada"
       responses:
@@ -764,7 +782,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/OperacaoInvalidaCobVExample1"
@@ -776,18 +794,18 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       parameters:
-      - name: "revisao"
-        in: "query"
-        required: false
-        schema:
-          $ref: "#/components/schemas/Revisao"
+        - name: "revisao"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/Revisao"
       tags:
-      - "CobV"
+        - "CobV"
       summary: "Consultar cobrança com vencimento."
       security:
-        - OAuth2: [cobv.read]  
+        - OAuth2: [cobv.read]
       description: |-
-          Endpoint para consultar uma cobrança com vencimento através de um determinado txid.
+        Endpoint para consultar uma cobrança com vencimento através de um determinado txid.
       responses:
         "200":
           description: "Dados da cobrança com vencimento."
@@ -811,12 +829,12 @@ paths:
           name: "inicio"
           required: true
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: true
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - name: "cpf"
           in: "query"
           schema:
@@ -851,12 +869,12 @@ paths:
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "CobV"
+        - "CobV"
       summary: "Consultar lista de cobranças com vencimento."
       security:
-        - OAuth2: [cobv.read]  
+        - OAuth2: [cobv.read]
       description: |-
-          Endpoint para consultar cobranças com vencimento através de parâmetros como início, fim, cpf, cnpj e status.
+        Endpoint para consultar cobranças com vencimento através de parâmetros como início, fim, cpf, cnpj e status.
       responses:
         "200":
           description: "Lista de cobranças com vencimento."
@@ -881,36 +899,36 @@ paths:
           title: "Id do lote de cobranças com vencimento"
     put:
       tags:
-      - "LoteCobV"
+        - "LoteCobV"
       summary: "Criar/Alterar lote de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.write]
       description: |-
-          Endpoint utilizado para criar ou alterar um lote de cobranças com vencimento.
+        Endpoint utilizado para criar ou alterar um lote de cobranças com vencimento.
 
-          Para o caso de uso de alteração de cobranças, o array a ser atribuído na requisicão
-          deve ser composto pelas exatas requisições de criação de cobranças que
-          constaram no array atribuído na requisição originária.
+        Para o caso de uso de alteração de cobranças, o array a ser atribuído na requisicão
+        deve ser composto pelas exatas requisições de criação de cobranças que
+        constaram no array atribuído na requisição originária.
 
-          Não se pode utilizar este endpoint para _alterar_ um lote de cobranças com vencimento
-          agregando ou removendo cobranças já existentes dentro do conjunto de cobranças
-          criadas na requisição originária do lote.
+        Não se pode utilizar este endpoint para _alterar_ um lote de cobranças com vencimento
+        agregando ou removendo cobranças já existentes dentro do conjunto de cobranças
+        criadas na requisição originária do lote.
 
-          Em outras palavras, se originalmente criou-se um lote, por exemplo, com as cobranças
-          [`a`, `b` e `c`], não se pode _alterar_ esse conjunto de cobranças original que o
-          lote representa para [`a`, `b`, `c`, `d`], ou para [`a`, `b`].
-          Por outro lado, pode-se alterar, _em lote_ as cobranças [`a`, `b`, `c`],
-          conforme originalmente constam na requisição originária do lote.
+        Em outras palavras, se originalmente criou-se um lote, por exemplo, com as cobranças
+        [`a`, `b` e `c`], não se pode _alterar_ esse conjunto de cobranças original que o
+        lote representa para [`a`, `b`, `c`, `d`], ou para [`a`, `b`].
+        Por outro lado, pode-se alterar, _em lote_ as cobranças [`a`, `b`, `c`],
+        conforme originalmente constam na requisição originária do lote.
 
-          Uma solicitação de __criação__ de cobrança com status "EM_PROCESSAMENTO" ou "NEGADA"
-          está associada a uma cobrança não _existe_ de fato, portanto não será
-          listada em `GET /cobv` ou `GET /cobv/{txid}`.
+        Uma solicitação de __criação__ de cobrança com status "EM_PROCESSAMENTO" ou "NEGADA"
+        está associada a uma cobrança não _existe_ de fato, portanto não será
+        listada em `GET /cobv` ou `GET /cobv/{txid}`.
 
-          Uma cobrança, uma vez criada via `PUT /cobv/{txid}`,
-          não pode ser associada a um lote posteriormente.
+        Uma cobrança, uma vez criada via `PUT /cobv/{txid}`,
+        não pode ser associada a um lote posteriormente.
 
-          Uma cobrança, uma vez criada via `PUT /lotecobv/{id}`,
-          não pode ser associada a um novo lote posteriormente.
+        Uma cobrança, uma vez criada via `PUT /lotecobv/{id}`,
+        não pode ser associada a um novo lote posteriormente.
 
       requestBody:
         $ref: "#/components/requestBodies/LoteCobVBody"
@@ -922,7 +940,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaLoteCobVExample1"
@@ -934,18 +952,18 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     patch:
       tags:
-      - "LoteCobV"
+        - "LoteCobV"
       summary: "Utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.write]
       description: |-
-          Endpoint utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento. 
+        Endpoint utilizado para revisar cobranças específicas dentro de um lote de cobranças com vencimento. 
 
-          A diferença deste endpoint para o endpoint PUT correlato é que este endpoint admite um array
-          `cobsv` com menos solicitações de criação ou alteração de cobranças do que o array atribuído na requisição originária do lote.
+        A diferença deste endpoint para o endpoint PUT correlato é que este endpoint admite um array
+        `cobsv` com menos solicitações de criação ou alteração de cobranças do que o array atribuído na requisição originária do lote.
 
-          Não se pode, entretanto, utilizar esse endpoint para agregar ou remover solicitações de
-          alteração ou criação de cobranças conforme constam na requisição originária do lote.
+        Não se pode, entretanto, utilizar esse endpoint para agregar ou remover solicitações de
+        alteração ou criação de cobranças conforme constam na requisição originária do lote.
       requestBody:
         $ref: "#/components/requestBodies/LoteCobVBodyRevisado"
       responses:
@@ -956,7 +974,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/OperacaoInvalidaCobVExample1"
@@ -968,12 +986,12 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       tags:
-      - "LoteCobV"
+        - "LoteCobV"
       summary: "Consultar um lote específico de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.read]
       description: |-
-          Endpoint para consultar um lote de cobranças com vencimento. 
+        Endpoint para consultar um lote de cobranças com vencimento.
       responses:
         "200":
           description: "Lote de cobranças com vencimento."
@@ -997,21 +1015,21 @@ paths:
           name: "inicio"
           required: true
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: true
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "LoteCobV"
+        - "LoteCobV"
       summary: "Consultar lotes de cobranças com vencimento."
       security:
         - OAuth2: [lotecobv.read]
       description: |-
-          Endpoint para consultar lista de lotes de cobranças com vencimento.
+        Endpoint para consultar lista de lotes de cobranças com vencimento.
       responses:
         "200":
           description: "Lotes de cobranças com vencimento."
@@ -1029,25 +1047,25 @@ paths:
   "/loc":
     post:
       tags:
-      - "PayloadLocation"
+        - "PayloadLocation"
       summary: "Criar location do payload."
       security:
-        - OAuth2: [payloadlocation.write]  
+        - OAuth2: [payloadlocation.write]
       description: |-
-          Criar location do payload
+        Criar location do payload
       requestBody:
         $ref: "#/components/requestBodies/PayloadLocationBody"
       responses:
         "201":
           description: "Dados da location do Payload."
           headers:
-              location:
-                schema:
-                  type: "string"
-                  format: "uri"
-                  title: "Identificador da location criada."
-                  description: "Identificador da location criada."
-                  example: "pix.example.com/api/loc/1234567"
+            location:
+              schema:
+                type: "string"
+                format: "uri"
+                title: "Identificador da location criada."
+                description: "Identificador da location criada."
+                example: "pix.example.com/api/loc/1234567"
           content:
             "application/json":
               schema:
@@ -1062,7 +1080,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaLocationExample1"
@@ -1071,17 +1089,17 @@ paths:
         "503":
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
-      parameters: 
+      parameters:
         - in: "query"
           name: "inicio"
           required: true
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: true
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - name: "txIdPresente"
           in: "query"
           schema:
@@ -1096,10 +1114,10 @@ paths:
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "PayloadLocation"
+        - "PayloadLocation"
       summary: "Consultar locations cadastradas."
       security:
-        - OAuth2: [payloadlocation.read]  
+        - OAuth2: [payloadlocation.read]
       description: "Endpoint para consultar locations cadastradas"
       responses:
         "200":
@@ -1125,12 +1143,12 @@ paths:
           title: "Id da location cadastrada para servir um payload"
     get:
       tags:
-      - "PayloadLocation"
+        - "PayloadLocation"
       summary: "Recuperar location do payload."
       security:
-        - OAuth2: [payloadlocation.read]  
+        - OAuth2: [payloadlocation.read]
       description: |-
-          Recupera a location do payload
+        Recupera a location do payload
       responses:
         "200":
           description: "Dados da location do Payload."
@@ -1161,7 +1179,7 @@ paths:
           title: "Id da location cadastrada para servir um payload"
     delete:
       tags:
-      - PayloadLocation
+        - PayloadLocation
       summary: "Desvincular uma cobrança de uma location."
       description: |
         Endpoint utilizado para desvincular uma cobrança de uma location.
@@ -1197,10 +1215,10 @@ paths:
           $ref: "#/components/schemas/EndToEndId"
     get:
       tags:
-      - "Pix"
+        - "Pix"
       summary: "Consultar Pix."
       security:
-        - OAuth2: [pix.read]  
+        - OAuth2: [pix.read]
       description: "Endpoint para consultar um Pix através de um e2eid."
       responses:
         "200":
@@ -1214,6 +1232,8 @@ paths:
                   $ref: "#/components/examples/pixResponse1"
                 retorno2:
                   $ref: "#/components/examples/pixResponse2"
+                retorno3:
+                  $ref: "#/components/examples/pixResponse3"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -1222,17 +1242,17 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
   "/pix":
     get:
-      parameters: 
+      parameters:
         - in: "query"
           name: "inicio"
           required: true
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: true
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - name: "txid"
           in: "query"
           schema:
@@ -1264,10 +1284,10 @@ paths:
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "Pix"
+        - "Pix"
       summary: "Consultar Pix recebidos."
       security:
-        - OAuth2: [pix.read]  
+        - OAuth2: [pix.read]
       description: "Endpoint para consultar Pix recebidos"
       responses:
         "200":
@@ -1297,10 +1317,10 @@ paths:
           $ref: "#/components/schemas/DevolucaoId"
     put:
       tags:
-      - "Pix"
+        - "Pix"
       summary: "Solicitar devolução."
       security:
-        - OAuth2: [pix.write]  
+        - OAuth2: [pix.write]
       description: |
         Endpoint para solicitar uma devolução através de um e2eid do Pix e do ID da devolução. O motivo que será atribuído à PACS.004 será "Devolução solicitada pelo usuário recebedor do pagamento original" cuja sigla é "MD06" de acordo com a aba RTReason da PACS.004 que consta no Catálogo de Mensagens do Pix.
       requestBody:
@@ -1320,7 +1340,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaDevolucaoExample1"
@@ -1332,10 +1352,10 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     get:
       tags:
-      - "Pix"
+        - "Pix"
       summary: "Consultar devolução."
       security:
-        - OAuth2: [pix.read]  
+        - OAuth2: [pix.read]
       description: "Endpoint para consultar uma devolução através de um End To End ID do Pix e do ID da devolução"
       responses:
         "200":
@@ -1363,7 +1383,7 @@ paths:
         schema:
           type: "string"
     get:
-      tags: 
+      tags:
         - "CobPayload"
       servers:
         - url: https://{fdqnPSPRecebedor}/{endpointOpcional}
@@ -1373,28 +1393,28 @@ paths:
               description: Endpoint base para que os usuários devedores possam acessar o payload JSON que representa a cobrança imediata.
       summary: "Recuperar o payload JSON que representa a cobrança imediata."
       description: |
-          ## Endpoint (location) que serve um payload que representa uma cobrança imediata.
+        ## Endpoint (location) que serve um payload que representa uma cobrança imediata.
 
-          No momento que o usuário devedor efetua a leitura de um QR Code dinâmico gerado pelo recebedor, esta URL será acessada e seu conteúdo consiste em uma estrutura JWS.
-          As informações sobre a segurança no acesso às urls encontram-se no Manual de Segurança do Pix disponível em nesse __[link](https://www.bcb.gov.br/estabilidadefinanceira/comunicacaodados)__.
+        No momento que o usuário devedor efetua a leitura de um QR Code dinâmico gerado pelo recebedor, esta URL será acessada e seu conteúdo consiste em uma estrutura JWS.
+        As informações sobre a segurança no acesso às urls encontram-se no Manual de Segurança do Pix disponível em nesse __[link](https://www.bcb.gov.br/estabilidadefinanceira/comunicacaodados)__.
 
       security: []
       responses:
         "200":
           description: |
-              # Descrição do Retorno
-              O retorno desse endpoint é um objeto que apresenta estrutura JWS, conforme especificado no manual de segurança. Segue um exemplo:
+            # Descrição do Retorno
+            O retorno desse endpoint é um objeto que apresenta estrutura JWS, conforme especificado no manual de segurança. Segue um exemplo:
 
-              ```jws
-              eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyIsImtpZCI6IjIwMTEtMDQtMjkiLCJqa3UiOiJodHRwczovL3Rvb2xzLmlldGYub3JnL2h0bWwvcmZjNzUxNyIsIng1dCI6IkFwcGVuZGl4QUV4YW1wbGVBMUpXS1NSc2FLZXkifQ.eyJjYWxlbmRhcmlvIjp7ImNyaWFjYW8iOiIyMDIwLTA5LTE1VDE5OjM5OjU0LjAxM1oiLCJhcHJlc2VudGFjYW8iOiIyMDIwLTA0LTAxVDE4OjAwOjAwWiIsImV4cGlyYWNhbyI6IjM2MDAifSwidHhpZCI6ImZjOWE0MzY2ZmYzZDQ5NjRiNWRiYzZjOTFhODcyMmQzIiwicmV2aXNhbyI6IjMiLCJzdGF0dXMiOiJBVElWQSIsInZhbG9yIjp7Im9yaWdpbmFsIjoiNTAwLjAwIn0sImNoYXZlIjoiNzQwN2M5YzgtZjc4Yi0xMWVhLWFkYzEtMDI0MmFjMTIwMDAyIiwic29saWNpdGFjYW9QYWdhZG9yIjoiSW5mb3JtYXIgY2FydGFvIGZpZGVsaWRhZGUiLCJpbmZvQWRpY2lvbmFpcyI6W3sibm9tZSI6InF1YW50aWRhZGUiLCJ2YWxvciI6IjIifV19.qI7NUrYkwcgXmyoyOjt2YLQyhxH-lPdr3xQ7RId9TDXZ-MlWmPJkUScjuo1Nz_EvlSotbWDGOxErBXHeTLHOQM-9T7lBmG5iw6uEX7L5U72XiganIm80EZCFD1vBPq9j89i4cP2U2Yv21TTt8JLhjA57KHLOSlj-KB5UAKCH-MX3AORFcrXFrYL2rrSQDe-lFNtdyPRwLQHIrhkQ6RR2FPhynzUG0401LScS9mWLLYbYzhzwtP5lk07Ryf4MZq86ihmOLFZXkIiW7pbSd8QfD5Dvj28XebLQi_bam9wInqKB--57_N741BskCN_TXf0EHbQ1qjNTgiT8Y1GIrA4pFA
-              ```
+            ```jws
+            eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyIsImtpZCI6IjIwMTEtMDQtMjkiLCJqa3UiOiJodHRwczovL3Rvb2xzLmlldGYub3JnL2h0bWwvcmZjNzUxNyIsIng1dCI6IkFwcGVuZGl4QUV4YW1wbGVBMUpXS1NSc2FLZXkifQ.eyJjYWxlbmRhcmlvIjp7ImNyaWFjYW8iOiIyMDIwLTA5LTE1VDE5OjM5OjU0LjAxM1oiLCJhcHJlc2VudGFjYW8iOiIyMDIwLTA0LTAxVDE4OjAwOjAwWiIsImV4cGlyYWNhbyI6IjM2MDAifSwidHhpZCI6ImZjOWE0MzY2ZmYzZDQ5NjRiNWRiYzZjOTFhODcyMmQzIiwicmV2aXNhbyI6IjMiLCJzdGF0dXMiOiJBVElWQSIsInZhbG9yIjp7Im9yaWdpbmFsIjoiNTAwLjAwIn0sImNoYXZlIjoiNzQwN2M5YzgtZjc4Yi0xMWVhLWFkYzEtMDI0MmFjMTIwMDAyIiwic29saWNpdGFjYW9QYWdhZG9yIjoiSW5mb3JtYXIgY2FydGFvIGZpZGVsaWRhZGUiLCJpbmZvQWRpY2lvbmFpcyI6W3sibm9tZSI6InF1YW50aWRhZGUiLCJ2YWxvciI6IjIifV19.qI7NUrYkwcgXmyoyOjt2YLQyhxH-lPdr3xQ7RId9TDXZ-MlWmPJkUScjuo1Nz_EvlSotbWDGOxErBXHeTLHOQM-9T7lBmG5iw6uEX7L5U72XiganIm80EZCFD1vBPq9j89i4cP2U2Yv21TTt8JLhjA57KHLOSlj-KB5UAKCH-MX3AORFcrXFrYL2rrSQDe-lFNtdyPRwLQHIrhkQ6RR2FPhynzUG0401LScS9mWLLYbYzhzwtP5lk07Ryf4MZq86ihmOLFZXkIiW7pbSd8QfD5Dvj28XebLQi_bam9wInqKB--57_N741BskCN_TXf0EHbQ1qjNTgiT8Y1GIrA4pFA
+            ```
 
-              Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
-              de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
+            Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
+            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
 
-              Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
+            Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
 
-              Em termos de funcionalidade, o fragmento que interessa ao devedor é o `payload`, que apresenta estrutura conforme especificada pelo `schema` do presente endpoint, contendo detalhes concernentes à cobrança.
+            Em termos de funcionalidade, o fragmento que interessa ao devedor é o `payload`, que apresenta estrutura conforme especificada pelo `schema` do presente endpoint, contendo detalhes concernentes à cobrança.
 
           content:
             "application/jose":
@@ -1408,7 +1428,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaCobPayloadExample1"
@@ -1426,7 +1446,7 @@ paths:
       - name: "codMun"
         in: "query"
         description: |
-            Código baseado na Tabela de Códigos de Municípios do __[IBGE](https://www.ibge.gov.br/explica/codigos-dos-municipios.php)__ que apresenta a lista dos municípios brasileiros associados a um código composto de 7 dígitos, sendo os dois primeiros referentes ao código da Unidade da Federação.
+          Código baseado na Tabela de Códigos de Municípios do __[IBGE](https://www.ibge.gov.br/explica/codigos-dos-municipios.php)__ que apresenta a lista dos municípios brasileiros associados a um código composto de 7 dígitos, sendo os dois primeiros referentes ao código da Unidade da Federação.
         schema:
           type: "string"
           pattern: "/^\\d{7}$/"
@@ -1449,28 +1469,28 @@ paths:
               description: Endpoint base para que os usuários devedores possam acessar o payload JSON que representa a cobrança com vencimento.
       summary: "Recuperar o payload JSON que representa a cobrança com vencimento."
       description: |
-          ## Endpoint (location) que serve um payload que representa uma cobrança com vencimento.
+        ## Endpoint (location) que serve um payload que representa uma cobrança com vencimento.
 
-          No momento que o usuário devedor efetua a leitura de um QR Code dinâmico gerado pelo recebedor, esta URL será acessada e seu conteúdo consiste em uma estrutura JWS.
-          As informações sobre a segurança no acesso às urls encontram-se no Manual de Segurança do Pix disponível em nesse __[link](https://www.bcb.gov.br/estabilidadefinanceira/comunicacaodados)__.
+        No momento que o usuário devedor efetua a leitura de um QR Code dinâmico gerado pelo recebedor, esta URL será acessada e seu conteúdo consiste em uma estrutura JWS.
+        As informações sobre a segurança no acesso às urls encontram-se no Manual de Segurança do Pix disponível em nesse __[link](https://www.bcb.gov.br/estabilidadefinanceira/comunicacaodados)__.
 
       security: []
       responses:
         "200":
           description: |
-              # Descrição do Retorno
-              O retorno desse endpoint é um objeto que apresenta estrutura JWS, conforme especificado no manual de segurança. Segue um exemplo:
+            # Descrição do Retorno
+            O retorno desse endpoint é um objeto que apresenta estrutura JWS, conforme especificado no manual de segurança. Segue um exemplo:
 
-              ```jws
-              eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyIsImtpZCI6IjIwMTEtMDQtMjkiLCJqa3UiOiJodHRwczovL3Rvb2xzLmlldGYub3JnL2h0bWwvcmZjNzUxNyIsIng1dCI6IkFwcGVuZGl4QUV4YW1wbGVBMUpXS1NSc2FLZXkifQ.eyJjYWxlbmRhcmlvIjp7ImNyaWFjYW8iOiIyMDIwLTA5LTE1VDE5OjM5OjU0LjAxM1oiLCJhcHJlc2VudGFjYW8iOiIyMDIwLTA0LTAxVDE4OjAwOjAwWiIsImRhdGFEZVZlbmNpbWVudG8iOiIyMDIwLTEyLTMxIiwidmFsaWRhZGVBcG9zVmVuY2ltZW50byI6MzB9LCJkZXZlZG9yIjp7ImxvZ3JhZG91cm8iOiJBbGFtZWRhIFNhbnRvcywgTnVtZXJvIDEwLCBCYWlycm8gQnJheiIsImNpZGFkZSI6IkRpYWRlbWEiLCJ1ZiI6IlNQIiwiY2VwIjoiNzA4MDAxMDAiLCJjbnBqIjoiNTY5ODkwMDAwMTk1MzMiLCJub21lIjoiRW1wcmVzYSBkZSBBbGltZW50b3MgU0EifSwicmVjZWJlZG9yIjp7ImxvZ3JhZG91cm8iOiJSdWEgMjAgTnVtZXJvIDcwLCBCYWlycm8gTHV6IiwiY2lkYWRlIjoiQmVsbyBIb3Jpem9udGUiLCJ1ZiI6Ik1HIiwiY2VwIjoiNTUxMjA3NTAiLCJjbnBqIjoiNTg5MDA2MzMxMjA3MTEiLCJub21lIjoiRW1wcmVzYSBkZSBBYmFzdGVjaW1lbnRvIFNBIn0sInR4aWQiOiJmYzlhNDM2NmZmM2Q0OTY0YjVkYmM2YzkxYTg3MjJkMyIsInJldmlzYW8iOiIzIiwic3RhdHVzIjoiQVRJVkEiLCJ2YWxvciI6eyJvcmlnaW5hbCI6IjEyMy40NSIsIm11bHRhIjoiMTUuMDAiLCJqdXJvcyI6IjIuMDAiLCJmaW5hbCI6IjE0MCw0NSJ9LCJjaGF2ZSI6Ijc0MDdjOWM4LWY3OGItMTFlYS1hZGMxLTAyNDJhYzEyMDAwMiIsInNvbGljaXRhY2FvUGFnYWRvciI6IkluZm9ybWFyIGNhcnRhbyBmaWRlbGlkYWRlIiwiaW5mb0FkaWNpb25haXMiOlt7Im5vbWUiOiJxdWFudGlkYWRlIiwidmFsb3IiOiIyIn1dfQ.BYibf_oK38IubbnnfThe4gaXuJgfoGQzFIezxHS76jGLQ4re2BwSdsiIzBW1t0JOtL094jLtJMVttdIdF9YJukrdzbknbf1jzfHghgBfNqXfZm7jxWuV8IO0jimoSoo7oMrG3MYytRFpdk2Q_ZhTL5UgZqVbfJkMwcp8o0FYmzrmiGPll-kgBulTgGgvGjzl-mC5dtl56351ix1-If1D7KAohHzcYTHzEFkvYZlNCcxyHJX94-8IqpYaTQ1rJlnPExPIgys-ioZ3U_QzcPz4d3tGvRAfHEU7VoIeZHeXR1jqKuqvz70ayc8mAbL7RXzJat1Ru_glS3krkSdXdZxK-w
-              ```
+            ```jws
+            eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyIsImtpZCI6IjIwMTEtMDQtMjkiLCJqa3UiOiJodHRwczovL3Rvb2xzLmlldGYub3JnL2h0bWwvcmZjNzUxNyIsIng1dCI6IkFwcGVuZGl4QUV4YW1wbGVBMUpXS1NSc2FLZXkifQ.eyJjYWxlbmRhcmlvIjp7ImNyaWFjYW8iOiIyMDIwLTA5LTE1VDE5OjM5OjU0LjAxM1oiLCJhcHJlc2VudGFjYW8iOiIyMDIwLTA0LTAxVDE4OjAwOjAwWiIsImRhdGFEZVZlbmNpbWVudG8iOiIyMDIwLTEyLTMxIiwidmFsaWRhZGVBcG9zVmVuY2ltZW50byI6MzB9LCJkZXZlZG9yIjp7ImxvZ3JhZG91cm8iOiJBbGFtZWRhIFNhbnRvcywgTnVtZXJvIDEwLCBCYWlycm8gQnJheiIsImNpZGFkZSI6IkRpYWRlbWEiLCJ1ZiI6IlNQIiwiY2VwIjoiNzA4MDAxMDAiLCJjbnBqIjoiNTY5ODkwMDAwMTk1MzMiLCJub21lIjoiRW1wcmVzYSBkZSBBbGltZW50b3MgU0EifSwicmVjZWJlZG9yIjp7ImxvZ3JhZG91cm8iOiJSdWEgMjAgTnVtZXJvIDcwLCBCYWlycm8gTHV6IiwiY2lkYWRlIjoiQmVsbyBIb3Jpem9udGUiLCJ1ZiI6Ik1HIiwiY2VwIjoiNTUxMjA3NTAiLCJjbnBqIjoiNTg5MDA2MzMxMjA3MTEiLCJub21lIjoiRW1wcmVzYSBkZSBBYmFzdGVjaW1lbnRvIFNBIn0sInR4aWQiOiJmYzlhNDM2NmZmM2Q0OTY0YjVkYmM2YzkxYTg3MjJkMyIsInJldmlzYW8iOiIzIiwic3RhdHVzIjoiQVRJVkEiLCJ2YWxvciI6eyJvcmlnaW5hbCI6IjEyMy40NSIsIm11bHRhIjoiMTUuMDAiLCJqdXJvcyI6IjIuMDAiLCJmaW5hbCI6IjE0MCw0NSJ9LCJjaGF2ZSI6Ijc0MDdjOWM4LWY3OGItMTFlYS1hZGMxLTAyNDJhYzEyMDAwMiIsInNvbGljaXRhY2FvUGFnYWRvciI6IkluZm9ybWFyIGNhcnRhbyBmaWRlbGlkYWRlIiwiaW5mb0FkaWNpb25haXMiOlt7Im5vbWUiOiJxdWFudGlkYWRlIiwidmFsb3IiOiIyIn1dfQ.BYibf_oK38IubbnnfThe4gaXuJgfoGQzFIezxHS76jGLQ4re2BwSdsiIzBW1t0JOtL094jLtJMVttdIdF9YJukrdzbknbf1jzfHghgBfNqXfZm7jxWuV8IO0jimoSoo7oMrG3MYytRFpdk2Q_ZhTL5UgZqVbfJkMwcp8o0FYmzrmiGPll-kgBulTgGgvGjzl-mC5dtl56351ix1-If1D7KAohHzcYTHzEFkvYZlNCcxyHJX94-8IqpYaTQ1rJlnPExPIgys-ioZ3U_QzcPz4d3tGvRAfHEU7VoIeZHeXR1jqKuqvz70ayc8mAbL7RXzJat1Ru_glS3krkSdXdZxK-w
+            ```
 
-              Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
-              de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
+            Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
+            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
 
-              Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
+            Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
 
-              Em termos de funcionalidade, o fragmento que interessa ao devedor é o `payload`, que apresenta estrutura conforme especificada pelo `schema` do presente endpoint, contendo detalhes concernentes à cobrança.
+            Em termos de funcionalidade, o fragmento que interessa ao devedor é o `payload`, que apresenta estrutura conforme especificada pelo `schema` do presente endpoint, contendo detalhes concernentes à cobrança.
 
           content:
             "application/jose":
@@ -1484,7 +1504,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaCobPayloadExample1"
@@ -1502,8 +1522,8 @@ paths:
           title: "Chave DICT do recebedor"
           maxLength: 77
     put:
-      tags: 
-      - Webhook
+      tags:
+        - Webhook
       summary: Configurar o Webhook Pix.
       description: |
         Endpoint para configuração do serviço de notificações acerca de Pix recebidos.
@@ -1520,7 +1540,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problema'
+                $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
                   $ref: "#/components/examples/RequisicaoInvalidaWebhookExample1"
@@ -1535,36 +1555,36 @@ paths:
           "{$request.body#/webhookUrl}/pix":
             post:
               description: |
-                 O callback deve ser acionado sempre que um ou mais Pix associados a um txid forem recebidos
-                 pelo usuário recebedor e desde que a chave associada ao Pix em questão esteja
-                 associada a um webhook cadastrado.
+                O callback deve ser acionado sempre que um ou mais Pix associados a um txid forem recebidos
+                pelo usuário recebedor e desde que a chave associada ao Pix em questão esteja
+                associada a um webhook cadastrado.
 
-                 O callback também deve ser acionado sempre que uma devolução associada a um Pix
-                 associado a um txid atinja um status final: `DEVOLVIDO` ou `NAO_REALIZADO`.
-                
-                 O SLA específico a ser definido no contexto dos acionamento dos callbacks fica a
-                 cargo de cada PSP recebedor. Orienta-se, no entanto, que o SLA seja definido dentro
-                 de um limite razoável tendo em vista que a expectativa é que o callback seja um aviso "on-line" da
-                 ocorrência do pagamento.
-                
-                 No contexto da estratégia específica de SLA de cada PSP recebedor, é possível agrupar
-                 Pix associados a uma mesma chave para economizar acionamentos múltiplos.
-                 Este serviço está protegido por uma camada de autenticação mTLS. Para maiores detalhes,
-                 verificar o [Manual de padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
+                O callback também deve ser acionado sempre que uma devolução associada a um Pix
+                associado a um txid atinja um status final: `DEVOLVIDO` ou `NAO_REALIZADO`.
+
+                O SLA específico a ser definido no contexto dos acionamento dos callbacks fica a
+                cargo de cada PSP recebedor. Orienta-se, no entanto, que o SLA seja definido dentro
+                de um limite razoável tendo em vista que a expectativa é que o callback seja um aviso "on-line" da
+                ocorrência do pagamento.
+
+                No contexto da estratégia específica de SLA de cada PSP recebedor, é possível agrupar
+                Pix associados a uma mesma chave para economizar acionamentos múltiplos.
+                Este serviço está protegido por uma camada de autenticação mTLS. Para maiores detalhes,
+                verificar o [Manual de padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
               security: []
               requestBody:
                 $ref: "#/components/requestBodies/WebhookPixBody"
-              responses:   
+              responses:
                 "200":
                   description: "Notificação recebida com sucesso"
     get:
-      tags: 
-      - Webhook
+      tags:
+        - Webhook
       summary: "Exibir informações acerca do Webhook Pix."
-      description: | 
+      description: |
         Endpoint para recuperação de informações sobre o Webhook Pix.
       security:
-        - OAuth2: [webhook.read]  
+        - OAuth2: [webhook.read]
       responses:
         "200":
           description: "Dados do webhook."
@@ -1583,7 +1603,7 @@ paths:
           $ref: "#/components/responses/ServicoIndisponivel"
     delete:
       tags:
-      - Webhook
+        - Webhook
       summary: "Cancelar o webhook Pix."
       description: |
         Endpoint para cancelamento do webhook. Não é a única forma pela qual um webhook pode ser
@@ -1609,16 +1629,16 @@ paths:
           name: "inicio"
           required: false
           schema:
-            $ref:  "#/components/schemas/Inicio"
+            $ref: "#/components/schemas/Inicio"
         - in: "query"
           name: "fim"
           required: false
           schema:
-            $ref:  "#/components/schemas/Fim"
+            $ref: "#/components/schemas/Fim"
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
-      - "Webhook"
+        - "Webhook"
       summary: "Consultar webhooks cadastrados."
       security:
         - OAuth2: [webhook.read]
@@ -1727,10 +1747,67 @@ components:
       summary: "Exemplo de revisão de cobrança 3"
       value:
         status: REMOVIDA_PELO_USUARIO_RECEBEDOR
+    cobBody6:
+      summary: "Exemplo de criação de cobrança imediata com Saque Pix"
+      value:
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "0.00"
+          modalidadeAlteracao: 0
+          retirada:
+            saque:
+              valor: "5.00"
+              modalidadeAlteracao: 0
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
+    cobBody7:
+      summary: "Exemplo de revisão de cobrança com vencimento 1"
+      value:
+        loc:
+          id: 789
+        devedor:
+          logradouro: "Alameda Souza, Numero 80, Bairro Braz"
+          cidade: "Recife"
+          uf: "PE"
+          cep: "70011750"
+          cpf: "12345678909"
+          nome: "Francisco da Silva"
+        valor:
+          original: "123.45"
+        solicitacaoPagador: "Cobrança dos serviços prestados."
+    cobBody8:
+      summary: "Exemplo de criação de cobrança imediata com Saque Pix 2"
+      value:
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "0.00"
+          modalidadeAlteracao: 0
+          retirada:
+            saque:
+              valor: "20.00"
+              modalidadeAlteracao: 1
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
+    cobBody9:
+      summary: "Exemplo de criação de cobrança imediata com Saque Pix 3"
+      value:
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "10.00"
+          modalidadeAlteracao: 0
+          retirada:
+            troco:
+              valor: "0.00"
+              modalidadeAlteracao: 1
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVBody1:
       summary: "Exemplo de criação de lote de cobranças com vencimento 1"
       value:
-        descricao:  "Cobranças dos alunos do turno vespertino"
+        descricao: "Cobranças dos alunos do turno vespertino"
         cobsv:
           - calendario:
               dataDeVencimento: "2020-12-31"
@@ -1798,10 +1875,15 @@ components:
           cnpj: "12345678000195"
           nome: "Empresa de Serviços SA"
         valor:
-          original: "567.89"
+          original: "37.00"
           modalidadeAlteracao: 1
-        chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
-        solicitacaoPagador: "Informar cartão fidelidade"
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
+        solicitacaoPagador: "Serviço realizado."
+        infoAdicionais:
+          - nome: "Campo 1"
+            valor: "Informação Adicional1 do PSP-Recebedor"
+          - nome: "Campo 2"
+            valor: "Informação Adicional2 do PSP-Recebedor"
     cobResponse2:
       summary: "Exemplo de cobrança imediata 2"
       value:
@@ -1824,18 +1906,18 @@ components:
         chave: "40a0932d-1918-4eee-845d-35a2da1690dc"
         solicitacaoPagador: "Informar cartão fidelidade"
         pix:
-        - endToEndId: "E12345678202009091221kkkkkkkkkkk"
-          txid: "655dfdb1a4514b8fbb58254b958913fb"
-          valor: "110.00"
-          horario: "2020-09-09T20:15:00.358Z"
-          infoPagador: "0123456789"
-          devolucoes:
-          - id: "123ABC"
-            rtrId: "Dxxxxxxxx202009091221kkkkkkkkkkk"
-            valor: "10.00"
-            horario:
-              solicitacao: "2020-09-09T20:15:00.358Z"
-            status: "EM_PROCESSAMENTO"
+          - endToEndId: "E12345678202009091221kkkkkkkkkkk"
+            txid: "655dfdb1a4514b8fbb58254b958913fb"
+            valor: "110.00"
+            horario: "2020-09-09T20:15:00.358Z"
+            infoPagador: "0123456789"
+            devolucoes:
+              - id: "123ABC"
+                rtrId: "Dxxxxxxxx202009091221kkkkkkkkkkk"
+                valor: "10.00"
+                horario:
+                  solicitacao: "2020-09-09T20:15:00.358Z"
+                status: "EM_PROCESSAMENTO"
     cobResponse3:
       summary: "Exemplo de cobrança revisada 1"
       value:
@@ -1845,19 +1927,19 @@ components:
         txid: "7978c0c97ea847e78e8849634473c1f1"
         revisao: 1
         loc:
-          id: 789
+          id: 7768
           location: "pix.example.com/qr/b1/9d36b84fc70b478fb95c12729b90ca25"
           tipoCob: "cob"
         location: "pix.example.com/qr/v1/9d36b84fc70b478fb95c12729b90ca25"
         status: "ATIVA"
         devedor:
-          cnpj: "12345678000195"
-          nome: "Empresa de Serviços SA"
+          cpf: "12345678909"
+          nome: "Francisco da Silva"
         valor:
-          original: "567.89"
+          original: "123.45"
           modalidadeAlteracao: 0
         chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
-        solicitacaoPagador: "Informar cartão fidelidade"
+        solicitacaoPagador: "Cobrança dos serviços prestados."
     cobResponse4:
       summary: "Exemplo de cobrança com vencimento 1"
       value:
@@ -1873,12 +1955,12 @@ components:
           tipoCob: "cobv"
         status: "ATIVA"
         devedor:
-          logradouro: "Rua 15, Numero 1, Bairro Luz"
-          cidade: "Belo Horizonte"
-          uf: "MG"
-          cep: "99000750"
-          cnpj: "12345678000195"
-          nome: "Empresa de Serviços SA"
+          logradouro: "Alameda Souza, Numero 80, Bairro Braz"
+          cidade: "Recife"
+          uf: "PE"
+          cep: "70011750"
+          cpf: "12345678909"
+          nome: "Francisco da Silva"
         recebedor:
           logradouro: "Rua 15 Numero 1200, Bairro São Luiz"
           cidade: "São Paulo"
@@ -1887,13 +1969,88 @@ components:
           cnpj: "56989000019533"
           nome: "Empresa de Logística SA"
         valor:
-          original: "567.89"
-        chave: "a1f4102e-a446-4a57-bcce-6fa48899c1d1"
-        solicitacaoPagador: "Informar cartão fidelidade"
+          original: "123.45"
+        chave: "5f84a4c5-c5cb-4599-9f13-7eb4d419dacc"
+        solicitacaoPagador: "Cobrança dos serviços prestados."
+    cobResponse5:
+      summary: "Exemplo de cobrança imediata com Saque Pix"
+      value:
+        calendario:
+          criacao: "2020-09-09T20:15:00.358Z"
+          expiracao: 3600
+        txid: "33beb661beda44a8928fef47dbeb2dc5"
+        revisao: 0
+        loc:
+          id: 1004
+          location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+          tipoCob: "cob"
+        location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+        status: "ATIVA"
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "0.00"
+          modalidadeAlteracao: 0
+          retirada:
+            saque:
+              valor: "5.00"
+              modalidadeAlteracao: 0
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
+    cobResponse6:
+      summary: "Exemplo de cobrança imediata com Saque Pix 2"
+      value:
+        calendario:
+          criacao: "2020-09-09T20:15:00.358Z"
+          expiracao: 3600
+        txid: "33beb661beda44a8928fef47dbeb2dc5"
+        revisao: 0
+        loc:
+          id: 1004
+          location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+          tipoCob: "cob"
+        location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+        status: "ATIVA"
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "0.00"
+          modalidadeAlteracao: 0
+          retirada:
+            saque:
+              valor: "20.00"
+              modalidadeAlteracao: 1
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
+    cobResponse7:
+      summary: "Exemplo de cobrança imediata com Saque Pix 3"
+      value:
+        calendario:
+          criacao: "2020-09-09T20:15:00.358Z"
+          expiracao: 3600
+        txid: "33beb661beda44a8928fef47dbeb2dc5"
+        revisao: 0
+        loc:
+          id: 1004
+          location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+          tipoCob: "cob"
+        location: "pix.example.com/qr/7faa6893c4e64893a503baf0d40af213"
+        status: "ATIVA"
+        devedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        valor:
+          original: "10.00"
+          modalidadeAlteracao: 0
+          retirada:
+            troco:
+              valor: "0.00"
+              modalidadeAlteracao: 1
+        chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVResponse1:
       summary: "Exemplo de lote de cobranças com vencimento 1"
       value:
-        descricao:  "Cobranças dos alunos do turno vespertino"
+        descricao: "Cobranças dos alunos do turno vespertino"
         criacao: "2020-11-01T20:15:00.358Z"
         cobsv:
           - criacao: "2020-11-01T20:15:00.358Z"
@@ -1905,14 +2062,14 @@ components:
               type: https://pix.bcb.gov.br/api/v2/error/CobVOperacaoInvalida
               title: "Cobrança inválida."
               status: 400
-              detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o schema ou está semanticamente errada."
+              detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o _schema_ ou está semanticamente errada."
               violacoes:
-              - razao: "O objeto cobv.devedor não respeita o schema."
-                propriedade: "cobv.devedor"
+                - razao: "O objeto cobv.devedor não respeita o _schema_."
+                  propriedade: "cobv.devedor"
     loteCobVResponse2:
       summary: "Exemplo de lote de cobranças com vencimento 2"
       value:
-        descricao:  "Cobranças dos assinantes anuais"
+        descricao: "Cobranças dos assinantes anuais"
         criacao: "2020-11-17T20:00:00.358Z"
         cobsv:
           - criacao: "2020-11-17T20:00:00.358Z"
@@ -1983,12 +2140,12 @@ components:
         horario: "2020-09-10T13:03:33.902Z"
         infoPagador: "Reforma da casa"
         devolucoes:
-        - id: "000AAA111"
-          rtrId: "D12345678202009091000abcde123456"
-          valor: "11.00"
-          horario:
-            solicitacao: "2020-09-10T13:03:33.902Z"
-          status: EM_PROCESSAMENTO
+          - id: "000AAA111"
+            rtrId: "D12345678202009091000abcde123456"
+            valor: "11.00"
+            horario:
+              solicitacao: "2020-09-10T13:03:33.902Z"
+            status: EM_PROCESSAMENTO
     pixResponse2:
       summary: "Exemplo de Pix 2"
       value:
@@ -1997,6 +2154,19 @@ components:
         valor: "200.00"
         horario: "2020-09-10T13:03:33.902Z"
         infoPagador: "Revisão do carro"
+    pixResponse3:
+      summary: "Exemplo de Pix com Saque"
+      value:
+        endToEndId: "E88631478202009091221ghijk78901234"
+        txid: "82433415910c47e5adb6ac3527cca160"
+        valor: "200.00"
+        componentesValor:
+          - tipo: "ORIGINAL"
+            valor: "180.00"
+          - tipo: "SAQUE"
+            valor: "20.00"
+        horario: "2020-09-10T13:03:33.902Z"
+        infoPagador: "Saque Pix"
     webhookBody1:
       summary: "Exemplo de configuração de Webhook 1"
       value:
@@ -2069,8 +2239,8 @@ components:
         chave: "7407c9c8-f78b-11ea-adc1-0242ac120002"
         solicitacaoPagador: "Informar cartao fidelidade"
         infoAdicionais:
-        - nome: "quantidade"
-          valor: "2"      
+          - nome: "quantidade"
+            valor: "2"
     cobPayload2:
       summary: "Exemplo de payload de cobrança com vencimento 1"
       value:
@@ -2100,8 +2270,8 @@ components:
         chave: "7407c9c8-f78b-11ea-adc1-0242ac120002"
         solicitacaoPagador: "Informar cartao fidelidade"
         infoAdicionais:
-        - nome: "quantidade"
-          valor: "2"      
+          - nome: "quantidade"
+            valor: "2"
     getCobs1:
       summary: "Exemplo de retorno da consulta de cobranças 1"
       value:
@@ -2115,9 +2285,15 @@ components:
             quantidadeTotalDeItens: 2
         cobs:
           - allOf:
-            - $ref: "#/components/examples/cobResponse1/value"
+              - $ref: "#/components/examples/cobResponse1/value"
           - allOf:
-            - $ref: "#/components/examples/cobResponse2/value"
+              - $ref: "#/components/examples/cobResponse2/value"
+          - allOf:
+              - $ref: "#/components/examples/cobResponse5/value"
+          - allOf:
+              - $ref: "#/components/examples/cobResponse6/value"
+          - allOf:
+              - $ref: "#/components/examples/cobResponse7/value"
     getCobs2:
       summary: "Exemplo de retorno da consulta de cobranças 2"
       value:
@@ -2131,7 +2307,7 @@ components:
             quantidadeTotalDeItens: 1
         cobs:
           - allOf:
-            - $ref: "#/components/examples/cobResponse1/value"
+              - $ref: "#/components/examples/cobResponse1/value"
     getCobsV1:
       summary: "Exemplo de retorno da consulta de cobranças com vencimento 1"
       value:
@@ -2145,7 +2321,7 @@ components:
             quantidadeTotalDeItens: 1
         cobs:
           - allOf:
-            - $ref: "#/components/examples/cobResponse4/value"
+              - $ref: "#/components/examples/cobResponse4/value"
     getPix1:
       summary: "Exemplo de retorno da consulta de Pix 1"
       value:
@@ -2159,9 +2335,11 @@ components:
             quantidadeTotalDeItens: 2
         pix:
           - allOf:
-            - $ref: "#/components/examples/pixResponse1/value"
+              - $ref: "#/components/examples/pixResponse1/value"
           - allOf:
-            - $ref: "#/components/examples/pixResponse2/value"
+              - $ref: "#/components/examples/pixResponse2/value"
+          - allOf:
+              - $ref: "#/components/examples/pixResponse3/value"
     getLotesCobsV:
       summary: "Exemplo de retorno da consulta de Pix 1"
       value:
@@ -2175,9 +2353,9 @@ components:
             quantidadeTotalDeItens: 2
         lotes:
           - allOf:
-            - $ref: '#/components/examples/loteCobVResponse1/value'
+              - $ref: "#/components/examples/loteCobVResponse1/value"
           - allOf:
-            - $ref: '#/components/examples/loteCobVResponse2/value'
+              - $ref: "#/components/examples/loteCobVResponse2/value"
     getPayloadLocation1:
       summary: "Exemplo de retorno da consulta de locations 1"
       value:
@@ -2191,11 +2369,11 @@ components:
             quantidadeTotalDeItens: 3
         loc:
           - allOf:
-            - $ref: '#/components/examples/payloadLocationResponse1/value'
+              - $ref: "#/components/examples/payloadLocationResponse1/value"
           - allOf:
-            - $ref: '#/components/examples/payloadLocationResponse2/value'
+              - $ref: "#/components/examples/payloadLocationResponse2/value"
           - allOf:
-            - $ref: '#/components/examples/payloadLocationResponse3/value'
+              - $ref: "#/components/examples/payloadLocationResponse3/value"
     getWebhook1:
       summary: "Exemplo de retorno da consulta de Webhooks 1"
       value:
@@ -2209,34 +2387,34 @@ components:
             quantidadeTotalDeItens: 1
         webhooks:
           - allOf:
-            - $ref: '#/components/examples/webhookResponse1/value'
+              - $ref: "#/components/examples/webhookResponse1/value"
     RequisicaoInvalidaCobExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/CobOperacaoInvalida
         title: "Cobrança inválida."
         status: 400
-        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o schema ou está semanticamente errada."
+        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o _schema_ ou está semanticamente errada."
         violacoes:
-        - razao: "O campo cob.valor.original não respeita o schema."
-          propriedade: "cob.valor.original"
+          - razao: "O campo cob.valor.original não respeita o _schema_."
+            propriedade: "cob.valor.original"
     OperacaoInvalidaCobExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/CobOperacaoInvalida
         title: "Operação inválida."
         status: 400
-        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o schema ou está semanticamente errada."
+        detail: "A requisição que busca alterar ou criar uma cobrança para pagamento imediato não respeita o _schema_ ou está semanticamente errada."
     RequisicaoInvalidaCobVExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/CobVOperacaoInvalida
         title: "Cobrança inválida."
         status: 400
-        detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o schema ou está semanticamente errada."
+        detail: "A requisição que busca alterar ou criar uma cobrança com vencimento não respeita o _schema_ ou está semanticamente errada."
         violacoes:
-        - razao: "O objeto cobv.devedor não respeita o schema."
-          propriedade: "cobv.devedor"
+          - razao: "O objeto cobv.devedor não respeita o _schema_."
+            propriedade: "cobv.devedor"
     OperacaoInvalidaCobVExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -2257,33 +2435,33 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/LoteCobVOperacaoInvalida
         title: "Lote de cobranças inválido."
         status: 400
-        detail: "A requisição que busca alterar ou criar um lote de cobranças com vencimento não respeita o schema ou está semanticamente errada."
+        detail: "A requisição que busca alterar ou criar um lote de cobranças com vencimento não respeita o _schema_ ou está semanticamente errada."
         violacoes:
-        - razao: "O objeto loteCobV.cobsV não respeita o schema."
-          propriedade: "loteCobV.cobsV"
-        - razao: "O campo loteCobV.descricao não respeita o schema."
-          propriedade: "loteCobV.descricao"
+          - razao: "O objeto loteCobV.cobsV não respeita o _schema_."
+            propriedade: "loteCobV.cobsV"
+          - razao: "O campo loteCobV.descricao não respeita o _schema_."
+            propriedade: "loteCobV.descricao"
     RequisicaoInvalidaDevolucaoExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/PixDevolucaoInvalida
         title: "Devolução inválida."
         status: 400
-        detail: "A presente requisição de devolução não respeita o schema ou não faz sentido semanticamente."
+        detail: "A presente requisição de devolução não respeita o _schema_ ou não faz sentido semanticamente."
     RequisicaoInvalidaWebhookExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/WebhookOperacaoInvalida
         title: "Webhook inválido."
         status: 400
-        detail: "A presente requisição busca criar um webhook sem respeitar o schema ou, ainda, com sentido semanticamente inválido."
+        detail: "A presente requisição busca criar um webhook sem respeitar o _schema_ ou, ainda, com sentido semanticamente inválido."
     RequisicaoInvalidaLocationExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
         type: https://pix.bcb.gov.br/api/v2/error/PayloadLocationOperacaoInvalida
         title: "PayloadLocation inválido."
         status: 400
-        detail: "A presente requisição busca criar uma location sem respeitar o schema estabelecido."
+        detail: "A presente requisição busca criar uma location sem respeitar o _schema_ estabelecido."
     AcessoNegadoExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -2304,7 +2482,7 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/ServicoIndisponivel
         title: "Serviço Indisponível"
         status: 503
-        detail: "Serviço não está disponível no momento. Serviço solicitado pode estar em manutenção ou fora da janela de funcionamento."     
+        detail: "Serviço não está disponível no momento. Serviço solicitado pode estar em manutenção ou fora da janela de funcionamento."
   requestBodies:
     CobBody:
       description: "Dados para geração da cobrança imediata."
@@ -2316,6 +2494,12 @@ components:
           examples:
             exemplo1:
               $ref: "#/components/examples/cobBody2"
+            exemplo2:
+              $ref: "#/components/examples/cobBody6"
+            exemplo3:
+              $ref: "#/components/examples/cobBody8"
+            exemplo4:
+              $ref: "#/components/examples/cobBody9"
     CobVBody:
       description: "Dados para geração da cobrança com vencimento."
       required: true
@@ -2332,7 +2516,7 @@ components:
       content:
         "application/json":
           schema:
-            required: ["descricao","cobsv"]
+            required: ["descricao", "cobsv"]
             properties:
               descricao:
                 type: "string"
@@ -2386,7 +2570,7 @@ components:
             exemplo2:
               $ref: "#/components/examples/cobBody4"
             exemplo3:
-              $ref: "#/components/examples/cobBody5"             
+              $ref: "#/components/examples/cobBody5"
     CobVBodyRevisada:
       description: "Dados para geração da cobrança."
       required: true
@@ -2396,11 +2580,11 @@ components:
             $ref: "#/components/schemas/CobVRevisada"
           examples:
             exemplo1:
-              $ref: "#/components/examples/cobBody3"
+              $ref: "#/components/examples/cobBody7"
             exemplo2:
               $ref: "#/components/examples/cobBody4"
             exemplo3:
-              $ref: "#/components/examples/cobBody5"             
+              $ref: "#/components/examples/cobBody5"
     PayloadLocationBody:
       description: "Dados para geração da location."
       required: true
@@ -2443,31 +2627,31 @@ components:
                   $ref: "#/components/schemas/Pix"
                 example:
                   - allOf:
-                    - $ref: "#/components/examples/pixWebhook1/value"
+                      - $ref: "#/components/examples/pixWebhook1/value"
                   - allOf:
-                    - $ref: "#/components/examples/pixWebhook2/value"
+                      - $ref: "#/components/examples/pixWebhook2/value"
   schemas:
     TxId:
       type: "string"
       title: "Id da Transação"
       description: |
-          # Identificador da transação
+        # Identificador da transação
 
-          O campo txid determina o identificador da transação.
-          O objetivo desse campo é ser um elemento que possibilite ao PSP do recebedor apresentar ao usuário recebedor a funcionalidade de conciliação de pagamentos.
+        O campo `txid` determina o identificador da transação.
+        O objetivo desse campo é ser um elemento que possibilite ao PSP do recebedor apresentar ao usuário recebedor a funcionalidade de conciliação de pagamentos.
 
-          Na pacs.008, é referenciado como `TransactionIdentification <txId>` ou `idConciliacaoRecebedor`.
-          
-          Em termos de fluxo de funcionamento, o txid é lido pelo aplicativo do PSP do pagador e, 
-          depois de confirmado o pagamento, é enviado para o SPI via pacs.008. 
-          Uma pacs.008 também é enviada ao PSP do recebedor, contendo, além de todas as informações usuais 
-          do pagamento, o txid.
-          Ao perceber um recebimento dotado de txid, o PSP do recebedor está apto a se comunicar com o usuário recebedor, 
-          informando que um pagamento específico foi liquidado.
+        Na pacs.008, é referenciado como `TransactionIdentification <txId>` ou `idConciliacaoRecebedor`.
 
-          O txid é criado exclusivamente pelo usuário recebedor e está sob sua responsabilidade.
-          O txid, no contexto de representação de uma cobrança, é único por CPF/CNPJ do usuário recebedor. Cabe ao 
-          PSP recebedor validar essa regra na API Pix.
+        Em termos de fluxo de funcionamento, o txid é lido pelo aplicativo do PSP do pagador e, 
+        depois de confirmado o pagamento, é enviado para o SPI via pacs.008. 
+        Uma pacs.008 também é enviada ao PSP do recebedor, contendo, além de todas as informações usuais 
+        do pagamento, o txid.
+        Ao perceber um recebimento dotado de txid, o PSP do recebedor está apto a se comunicar com o usuário recebedor, 
+        informando que um pagamento específico foi liquidado.
+
+        O txid é criado exclusivamente pelo usuário recebedor e está sob sua responsabilidade.
+        O txid, no contexto de representação de uma cobrança, é único por CPF/CNPJ do usuário recebedor. Cabe ao 
+        PSP recebedor validar essa regra na API Pix.
       pattern: "[a-zA-Z0-9]{26,35}"
     EndToEndId:
       type: "string"
@@ -2595,7 +2779,7 @@ components:
                       maxLength: 200
           allOf:
             - required: ["logradouro", "cidade", "uf", "cep"]
-            - $ref: "#/components/schemas/DadosComplementaresPessoa"    
+            - $ref: "#/components/schemas/DadosComplementaresPessoa"
     WebhookSolicitado:
       type: "object"
       required: ["webhookUrl"]
@@ -2607,7 +2791,7 @@ components:
           example: https://pix.example.com/api/webhook/
     WebhookCompleto:
       type: "object"
-      required: ["webhookUrl","chave","criacao"]
+      required: ["webhookUrl", "chave", "criacao"]
       title: "Webhook"
       properties:
         webhookUrl:
@@ -2745,7 +2929,7 @@ components:
           type: "string"
           format: "date-time"
           title: "Timestamp de apresentação do QR Code"
-          description:  "Timestamp que indica o momento em que o payload JSON que representa a cobrança foi recuperado. Ou seja, idealmente, é o momento em que o usuário realizou a captura do QR Code para verificar os dados de pagamento. Respeita o formato definido na RFC 3339."
+          description: "Timestamp que indica o momento em que o payload JSON que representa a cobrança foi recuperado. Ou seja, idealmente, é o momento em que o usuário realizou a captura do QR Code para verificar os dados de pagamento. Respeita o formato definido na RFC 3339."
     CobCriacao:
       type: "object"
       title: "Criação"
@@ -2778,14 +2962,13 @@ components:
               title: "Modalidade da multa"
               minimum: 1
               maximum: 2
-              description: 
-                | 
+              description: |
                 ##### Modalidade da multa, conforme tabela de domínios.
                 <table><tr><th>Descrição</th><th>Domínio</th></tr><tr><td>Valor Fixo</td><td>1</td></tr><tr><td>Percentual</td><td>2</td></tr></table>
             valorPerc:
               type: "string"
               title: "Valor da multa absoluta"
-              description: "Multa do documento em valor absoluto ou percentual, conforme \"valor.multa.modalidade\"."
+              description: 'Multa do documento em valor absoluto ou percentual, conforme "valor.multa.modalidade".'
               pattern: "\\d{1,10}\\.\\d{2}"
         juros:
           type: "object"
@@ -2799,8 +2982,7 @@ components:
               minimum: 1
               maximum: 8
               title: "Modalidade de juros"
-              description: 
-                | 
+              description: |
                 ##### Modalidade de juros, conforme tabela de domínios.
                 <table><tr><th>Descrição</th><th>Domínio</th></tr><tr><td>Valor (dias corridos)</td><td>1</td></tr><tr><td>Percentual ao dia (dias corridos)</td><td>2</td></tr><tr><td>Percentual ao mês (dias corridos)</td><td>3</td></tr><tr><td>Percentual ao ano (dias corridos)</td><td>4</td></tr><tr><td>Valor (dias úteis)</td><td>5</td></tr><tr><td>Percentual ao dia (dias úteis)</td><td>6</td></tr><tr><td>Percentual ao mês (dias úteis)</td><td>7</td></tr><tr><td>Percentual ao ano (dias úteis)</td><td>8</td></tr></table>
             valorPerc:
@@ -2818,8 +3000,7 @@ components:
               minimum: 1
               maximum: 2
               title: "Modalidade de abatimentos"
-              description: 
-                | 
+              description: |
                 ##### Modalidade de abatimentos, conforme tabela de domínios.
                 <table><tr><th>Descrição</th><th>Domínio</th></tr><tr><td>Valor Fixo</td><td>1</td></tr><tr><td>Percentual</td><td>2</td></tr></table>
             valorPerc:
@@ -2840,11 +3021,10 @@ components:
                   minimum: 1
                   maximum: 6
                   title: "Modalidade de descontos"
-                  description: 
-                    | 
+                  description: |
                     ##### Modalidade de desconto, conforme tabela de domínios.
                     <table><tr><th>Descrição</th><th>Domínio</th></tr><tr><td>Valor Fixo até a[s] data[s] informada[s]</td><td>1</td></tr><tr><td>Percentual até a data informada</td><td>2</td></tr><tr><td>Valor por antecipação dia corrido</td><td>3</td></tr><tr><td>Valor por antecipação dia útil</td><td>4</td></tr><tr><td>Percentual por antecipação dia corrido</td><td>5</td></tr><tr><td>Percentual por antecipação dia útil</td><td>6</td></tr></table>
-                
+
           oneOf:
             - type: "object"
               properties:
@@ -2856,12 +3036,12 @@ components:
                   maxItems: 3
                   uniqueItems: true
                   items:
-                    required: ["data","valorPerc"]
+                    required: ["data", "valorPerc"]
                     allOf:
                       - properties:
                           data:
                             title: "Data limite para o desconto absoluto da cobrança"
-                            description: "Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par \"data e valorPerc\", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor que a data de vencimento da cobrança."
+                            description: 'Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par "data e valorPerc", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor que a data de vencimento da cobrança.'
                             type: "string"
                             format: "date"
                             example: "2020-04-01"
@@ -2879,7 +3059,7 @@ components:
                   title: "Abatimentos"
                   description: "Abatimentos ou outras deduções aplicadas ao documento, em valor absoluto ou percentual do valor original do documento."
                   pattern: "\\d{1,10}\\.\\d{2}"
-                
+
     CobValor:
       type: "object"
       title: "Valor da cobrança imediata"
@@ -2897,11 +3077,216 @@ components:
           maximum: 1
           title: "Modalidade de alteração"
           description: "Trata-se de um campo que determina se o valor final do documento pode ser alterado pelo pagador. Na ausência desse campo, assume-se que não se pode alterar o valor do documento de cobrança, ou seja, assume-se o valor 0. Se o campo estiver presente e com valor 1, então está determinado que o valor final da cobrança pode ter seu valor alterado pelo pagador."
+        retirada:
+          description: |
+            É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
+
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+
+            Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
+            - quando o `saque` estiver presente a cobrança deve respeitar as seguintes condições:
+              - O campo `valor.original` deve ser preenchido com **valor igual a 0.00 (zero)**;
+              - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
+            - quando o `troco` estiver presente a cobrança deve respeitar as seguintes condições:
+              - O campo `valor.original` deve ser preenchido com **valor maior que 0.00 (zero)**;
+              - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
+
+            **IMPORTANTE**: Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+
+            #### Exemplos válidos:
+            Considerando os campos da estrutura `valor` e o predicado 'presente' cujo resultado é verdade quando a estrutura apontada é encontrada temos: 
+            - **uma cobrança com valor fixo** (condições: valor.original > 0 && valor.modalidadeAlteração = 0 && !presente(valor.retirada))
+              ```
+              ...
+              "valor": {
+                "original": "10.00"
+              },
+              ...
+              ```
+            - **uma cobrança com valor alterável** (condições: valor.original >= 0.00 && modalidadeAlteração = 1 && !presente(valor.retirada))
+              ```
+              ...
+              "valor": {
+                "original": "10.00",
+                "modalidadeAlteracao": 1
+              },
+              ```
+            - **saque com valor fixo** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor > 0 && valor.retirada.saque.modalidadeAlteracao = 0)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00"
+                  }
+                }
+              },
+              ...
+              ```
+            - **saque com valor alterável** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor >= 0 && valor.retirada.saque.modalidadeAlteracao = 1)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                "saque": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                  }
+                }
+              },
+              ...
+              ```
+            - **cobrança com troco fixo** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor > 0 && valor.retirada.troco.modalidadeAlteracao = 0)
+              ```
+              ...
+              "valor": {
+                "original": "10.00",
+                "retirada": {
+                  "troco": {
+                    "valor": "5.00"
+                  }
+                }
+              },
+              ...
+              ```
+            - **cobrança com troco alterável** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor >= 0 && valor.retirada.troco.modalidadeAlteracao = 1)
+              ```
+              ...
+                "valor": {
+                  "original": "10.00",
+                  "troco": {
+                    "valor": "0.00",
+                    "modalidadeAlteracao": 1
+                  }
+                },
+              ...
+              ```
+            #### Exemplos inválidos:
+            Abaixo alguns exemplos que **não são válidos**. Convém observar que esta listagem não tem pretensão de ser completa, sendo tão somente uma referência para alguns erros possíveis.
+            - **cobrança com saque e troco juntos** (não pode ter os dois ao mesmo tempo)
+              ```
+              ...
+              "valor": {
+                "original": "100.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "50.00"
+                  },
+                  "troco": {
+                    "valor": "30.00"
+                  }
+                }
+              },
+              ...
+              ```
+            - **saque com valor.original maior que 0.00 (zero)** (saque requer valor.original = 0.00)
+              ```
+              ...
+              "valor": {
+                "original": "10.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00"
+                  }
+                }
+              },
+              ...
+              ```
+            - **troco com valor.original igual a 0.00 (zero)** (para haver troco tem que haver valor.original > 0.00)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "troco": {
+                    "valor": "5.00"
+                  }
+                }
+              },
+              ...
+              ```
+            - **saque com valor.original alterável** (não se pode alterar o valor.original na presença do saque)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "modalidadeAlteracao": 1,
+                "retirada": {
+                "saque": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                  }
+                }
+              },
+              ...
+              ```
+            - **troco com valor.original alterável** (não se pode alterar o valor.original na presença do troco)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "modalidadeAlteracao": 1,
+                "retirada": {
+                "saque": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                  }
+                }
+              },
+              ...
+              ```
+          title: "Informações de retirada"
+          type: "object"
+          oneOf:
+            - type: "object"
+              properties:
+                saque:
+                  type: "object"
+                  title: "Saque"
+                  required: ["valor"]
+                  description: "Informações relacionadas ao saque"
+                  properties:
+                    valor:
+                      type: "string"
+                      title: "Valor do saque"
+                      pattern: "\\d{1,10}\\.\\d{2}"
+                      description: "Valor do saque efetuado"
+                    modalidadeAlteracao:
+                      type: "integer"
+                      format: "int32"
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+                      title: "Modalidade de alteração do saque"
+                      description: "Modalidade de alteração de valor do saque. Quando não preenchido o valor assumido é o 0 (zero)."
+            - type: "object"
+              properties:
+                troco:
+                  type: "object"
+                  title: "Troco"
+                  required: ["valor"]
+                  description: "Informações relacionadas ao troco"
+                  properties:
+                    valor:
+                      type: "string"
+                      title: "Valor do troco"
+                      pattern: "\\d{1,10}\\.\\d{2}"
+                      description: "Valor do troco efetuado"
+                    modalidadeAlteracao:
+                      type: "integer"
+                      format: "int32"
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+                      title: "Modalidade de alteração do troco"
+                      description: "Modalidade de alteração de valor do troco. Quando não preenchido o valor assumido é o 0 (zero)."
     CobPayloadValor:
       type: "object"
       title: "Valor da cobrança imediata retornada pelo payload"
       required: ["original"]
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
+      description: "Todos os campos que indicam valores monetários obedecem ao pattern \\d{1,10}\\.\\d{2}. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
       properties:
         original:
           type: "string"
@@ -2915,11 +3300,216 @@ components:
           maximum: 1
           title: "Modalidade de alteração"
           description: "Trata-se de um campo que determina se o valor final do documento pode ser alterado pelo pagador. Na ausência desse campo, assume-se que não se pode alterar o valor do documento de cobrança, ou seja, assume-se o valor 0. Se o campo estiver presente e com valor 1, então está determinado que o valor final da cobrança pode ter seu valor alterado pelo pagador."
+        retirada:
+          description: |
+            É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
+
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+
+            Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
+            - quando o `saque` estiver presente a cobrança deve respeitar as seguintes condições:
+              - O campo `valor.original` deve ser preenchido com **valor igual a 0.00 (zero)**;
+              - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
+            - quando o `troco` estiver presente a cobrança deve respeitar as seguintes condições:
+              - O campo `valor.original` deve ser preenchido com **valor maior que 0.00 (zero)**;
+              - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
+
+            **IMPORTANTE**: Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+
+            #### Exemplos válidos:
+            Considerando os campos da estrutura `valor` e o predicado 'presente' cujo resultado é verdade quando a estrutura apontada é encontrada temos: 
+            - 1 - **uma cobrança com valor fixo** (condições: valor.original > 0 && valor.modalidadeAlteração = 0 && !presente(valor.retirada))
+            ```
+            ...
+            "valor": {
+              "original": "10.00"
+            },
+            ...
+            ```
+            - 2 - **uma cobrança com valor alterável** (condições: valor.original >= 0.00 && modalidadeAlteração = 1 && !presente(valor.retirada))
+            ```
+            ...
+            "valor": {
+              "original": "10.00",
+              "modalidadeAlteracao": 1
+            },
+            ```
+            - 3 - **saque com valor fixo** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor > 0 && valor.retirada.saque.modalidadeAlteracao = 0)
+            ```
+            ...
+            "valor": {
+              "original": "0.00",
+              "retirada": {
+                "saque": {
+                  "valor": "5.00"
+                 }
+              }
+            },
+            ...
+            ```
+            - 4 - **saque com valor alterável** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor >= 0 && valor.retirada.saque.modalidadeAlteracao = 1)
+            ```
+            ...
+            "valor": {
+              "original": "0.00",
+              "retirada": {
+              "saque": {
+                  "valor": "5.00",
+                  "modalidadeAlteracao": 1,
+                }
+              }
+            },
+            ...
+            ```
+            - 5 - **cobrança com troco fixo** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor > 0 && valor.retirada.troco.modalidadeAlteracao = 0)
+            ```
+            ...
+            "valor": {
+              "original": "10.00",
+              "retirada": {
+                "troco": {
+                  "valor": "5.00"
+                }
+              }
+            },
+            ...
+            ```
+            - 6 - **cobrança com troco alterável** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor >= 0 && valor.retirada.troco.modalidadeAlteracao = 1)
+            ```
+            ...
+              "valor": {
+                "original": "10.00",
+                "troco": {
+                  "valor": "0.00",
+                  "modalidadeAlteracao": 1
+                }
+              },
+            ...
+            ```
+            #### Exemplos inválidos:
+            Abaixo alguns exemplos que **não são válidos**. Convém observar que esta listagem não tem pretensão de ser completa, sendo tão somente uma referência para alguns erros possíveis.
+            - 1 - **cobrança com saque e troco juntos** (não pode ter os dois ao mesmo tempo)
+            ```
+            ...
+            "valor": {
+              "original": "100.00",
+              "retirada": {
+                "saque": {
+                  "valor": "50.00"
+                 },
+                "troco": {
+                  "valor": "30.00"
+                 }
+              }
+            },
+            ...
+            ```
+            - 2 - **saque com valor.original maior que 0.00 (zero)** (saque requer valor.original = 0.00)
+            ```
+            ...
+            "valor": {
+              "original": "10.00",
+              "retirada": {
+                "saque": {
+                  "valor": "5.00"
+                 }
+              }
+            },
+            ...
+            ```
+            - 3 - **troco com valor.original igual a 0.00 (zero)** (para haver troco tem que haver valor.original > 0.00)
+            ```
+            ...
+            "valor": {
+              "original": "0.00",
+              "retirada": {
+                "troco": {
+                  "valor": "5.00"
+                 }
+              }
+            },
+            ...
+            ```
+            - 4 - **saque com valor.original alterável** (não se pode alterar o valor.original na presença do saque)
+            ```
+            ...
+            "valor": {
+              "original": "0.00",
+              "modalidadeAlteracao": 1,
+              "retirada": {
+              "saque": {
+                  "valor": "5.00",
+                  "modalidadeAlteracao": 1,
+                }
+              }
+            },
+            ...
+            ```
+            - 5 - **troco com valor.original alterável** (não se pode alterar o valor.original na presença do troco)
+            ```
+            ...
+            "valor": {
+              "original": "0.00",
+              "modalidadeAlteracao": 1,
+              "retirada": {
+              "saque": {
+                  "valor": "5.00",
+                  "modalidadeAlteracao": 1,
+                }
+              }
+            },
+            ...
+            ```
+          title: "Informações de retirada"
+          type: "object"
+          oneOf:
+            - type: "object"
+              properties:
+                saque:
+                  type: "object"
+                  title: "Saque"
+                  required: ["valor"]
+                  description: "Informações relacionadas ao saque"
+                  properties:
+                    valor:
+                      type: "string"
+                      title: "Valor do saque"
+                      pattern: "\\d{1,10}\\.\\d{2}"
+                      description: "Valor do saque efetuado"
+                    modalidadeAlteracao:
+                      type: "integer"
+                      format: "int32"
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+                      title: "Modalidade de alteração do saque"
+                      description: "Modalidade de alteração de valor do saque. Quando não preenchido o valor assumido é o 0 (zero)."
+            - type: "object"
+              properties:
+                troco:
+                  type: "object"
+                  title: "Troco"
+                  required: ["valor"]
+                  description: "Informações relacionadas ao troco"
+                  properties:
+                    valor:
+                      type: "string"
+                      title: "Valor do troco"
+                      pattern: "\\d{1,10}\\.\\d{2}"
+                      description: "Valor do troco efetuado"
+                    modalidadeAlteracao:
+                      type: "integer"
+                      format: "int32"
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+                      title: "Modalidade de alteração do troco"
+                      description: "Modalidade de alteração de valor do troco. Quando não preenchido o valor assumido é o 0 (zero)."
     CobVPayloadValor:
       type: "object"
       title: "Valor da cobrança com vencimento calculada retornada pelo payload"
       required: ["final"]
-      description: "Todos os campos que indicam valores monetários obedecem ao formato do ID 54 da especificação EMV/BR Code para QR Codes. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
+      description: "Todos os campos que indicam valores monetários obedecem ao pattern \\d{1,10}\\.\\d{2}. O separador decimal é o caractere ponto. Não é aplicável utilizar separador de milhar. Exemplos de valores aderentes ao padrão: “1.00”, “123.99”, “123456789.23"
       properties:
         original:
           type: "string"
@@ -2929,7 +3519,7 @@ components:
         multa:
           title: "Multa aplicada"
           description: "Multa aplicada à cobrança"
-          type: "string"          
+          type: "string"
           pattern: "\\d{1,10}\\.\\d{2}"
         juros:
           title: "Juro aplicado"
@@ -3006,7 +3596,7 @@ components:
         - type: "object"
           properties:
             devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo `devedor.cpf` e campo `devedor.cnpj` estejam preenchidos ao mesmo tempo. Se o campo `devedor.cnpj` está preenchido, então o campo `devedor.cpf` não pode estar preenchido, e vice-versa. Se o campo `devedor.nome` está preenchido, então deve existir ou um `devedor.cpf` ou um campo `devedor.cnpj` preenchido."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisica"
                 - $ref: "#/components/schemas/PessoaJuridica"
@@ -3021,7 +3611,7 @@ components:
               allOf:
                 - required: ["original"]
                 - $ref: "#/components/schemas/CobValor"
-        - $ref: "#/components/schemas/CobBase"    
+        - $ref: "#/components/schemas/CobBase"
     CobVSolicitada:
       type: "object"
       title: "Cobrança com vencimento solicitada"
@@ -3047,7 +3637,7 @@ components:
               allOf:
                 - required: ["original"]
                 - $ref: "#/components/schemas/CobVValor"
-        - $ref: "#/components/schemas/CobBase"    
+        - $ref: "#/components/schemas/CobBase"
     CobRevisada:
       type: "object"
       title: "Cobrança imediata revisada"
@@ -3063,7 +3653,7 @@ components:
         - type: "object"
           properties:
             devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo `devedor.cpf` e campo `devedor.cnpj` estejam preenchidos ao mesmo tempo. Se o campo `devedor.cnpj` está preenchido, então o campo `devedor.cpf` não pode estar preenchido, e vice-versa. Se o campo `devedor.nome` está preenchido, então deve existir ou um `devedor.cpf` ou um campo `devedor.cnpj` preenchido."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisica"
                 - $ref: "#/components/schemas/PessoaJuridica"
@@ -3118,7 +3708,7 @@ components:
       type: "object"
       title: "Cobrança imediata gerada"
       description: "Dados criados ou alterados da cobrança imediata via API Pix"
-      required: ["txid", "calendario","revisao", "status","valor", "chave"]
+      required: ["txid", "calendario", "revisao", "status", "valor", "chave"]
       allOf:
         - type: "object"
           properties:
@@ -3136,14 +3726,14 @@ components:
         - type: "object"
           properties:
             devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo `devedor.cpf` e campo `devedor.cnpj` estejam preenchidos ao mesmo tempo. Se o campo `devedor.cnpj` está preenchido, então o campo `devedor.cpf` não pode estar preenchido, e vice-versa. Se o campo `devedor.nome` está preenchido, então deve existir ou um `devedor.cpf` ou um campo `devedor.cnpj` preenchido."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisica"
                 - $ref: "#/components/schemas/PessoaJuridica"
         - type: "object"
           properties:
             loc:
-              required: ["id","txid","tipoCob","criacao"]
+              required: ["id", "txid", "tipoCob", "criacao"]
               allOf:
                 - $ref: "#/components/schemas/PayloadLocation"
         - type: "object"
@@ -3161,7 +3751,7 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
@@ -3172,12 +3762,23 @@ components:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobValor"
-        - $ref: "#/components/schemas/CobBase"  
+        - $ref: "#/components/schemas/CobBase"
     CobVGerada:
       type: "object"
       title: "Cobrança com vencimento gerada"
       description: "Dados criados ou alterados da cobrança com vencimento via API Pix"
-      required: ["location", "txid", "devedor", "calendario","revisao", "status","valor", "chave","recebedor"]
+      required:
+        [
+          "location",
+          "txid",
+          "devedor",
+          "calendario",
+          "revisao",
+          "status",
+          "valor",
+          "chave",
+          "recebedor",
+        ]
       allOf:
         - type: "object"
           properties:
@@ -3197,7 +3798,7 @@ components:
         - type: "object"
           properties:
             loc:
-              required: ["id","txid","tipoCob","criacao"]
+              required: ["id", "txid", "tipoCob", "criacao"]
               allOf:
                 - $ref: "#/components/schemas/PayloadLocation"
         - type: "object"
@@ -3216,11 +3817,11 @@ components:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobVValor"
-        - $ref: "#/components/schemas/CobBase"  
+        - $ref: "#/components/schemas/CobBase"
     LoteCobVGerado:
       title: "Lote de cobranças com vencimento gerado"
       type: "object"
-      required: ["id","descricao","criacao","cobsv"]
+      required: ["id", "descricao", "criacao", "cobsv"]
       properties:
         id:
           type: "integer"
@@ -3251,13 +3852,13 @@ components:
               title: "Pix recebidos"
               items:
                 allOf:
-                 - $ref: "#/components/schemas/Pix"
-                 - type: "object" 
-                   properties:
-                     txid:
-                       allOf:
-                         - $ref: "#/components/schemas/TxId"
-                         - pattern: "[a-zA-Z0-9]{26,35}"
+                  - $ref: "#/components/schemas/Pix"
+                  - type: "object"
+                    properties:
+                      txid:
+                        allOf:
+                          - $ref: "#/components/schemas/TxId"
+                          - pattern: "[a-zA-Z0-9]{26,35}"
         - type: "object"
           properties:
             status:
@@ -3291,17 +3892,17 @@ components:
               title: "Pix recebidos"
               items:
                 allOf:
-                 - $ref: "#/components/schemas/Pix"
-                 - type: "object" 
-                   properties:
-                     txid:
-                       allOf:
-                         - $ref: "#/components/schemas/TxId"
-                         - pattern: "[a-zA-Z0-9]{26,35}"
+                  - $ref: "#/components/schemas/Pix"
+                  - type: "object"
+                    properties:
+                      txid:
+                        allOf:
+                          - $ref: "#/components/schemas/TxId"
+                          - pattern: "[a-zA-Z0-9]{26,35}"
     LoteCobVConsultado:
       title: "Lote de solicitações de alteração ou criação de cobranças com vencimento"
       type: "object"
-      required: ["id","descricao","criacao","cobsv"]
+      required: ["id", "descricao", "criacao", "cobsv"]
       properties:
         id:
           type: "integer"
@@ -3319,7 +3920,7 @@ components:
           type: "array"
           items:
             type: "object"
-            required: ["txid","status"]
+            required: ["txid", "status"]
             properties:
               txid:
                 $ref: "#/components/schemas/TxId"
@@ -3355,14 +3956,24 @@ components:
       type: "object"
       title: "Payload JSON da cobrança com vencimento"
       description: "Dados da cobrança com vencimento acessados pelo payload JSON"
-      required: ["txid", "calendario","revisao","status","valor","chave","devedor","recebedor"]
+      required:
+        [
+          "txid",
+          "calendario",
+          "revisao",
+          "status",
+          "valor",
+          "chave",
+          "devedor",
+          "recebedor",
+        ]
       allOf:
         - type: "object"
           properties:
             calendario:
               title: "Calendário"
               description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
-              required: ["criacao", "apresentacao","validadeAposVencimento"]
+              required: ["criacao", "apresentacao", "validadeAposVencimento"]
               allOf:
                 - $ref: "#/components/schemas/CobCriacao"
                 - $ref: "#/components/schemas/CobApresentacao"
@@ -3370,7 +3981,7 @@ components:
         - type: "object"
           properties:
             devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo `devedor.cpf` e campo `devedor.cnpj` estejam preenchidos ao mesmo tempo. Se o campo `devedor.cnpj` está preenchido, então o campo `devedor.cpf` não pode estar preenchido, e vice-versa. Se o campo `devedor.nome` está preenchido, então deve existir ou um `devedor.cpf` ou um campo `devedor.cnpj` preenchido."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisica"
                 - $ref: "#/components/schemas/PessoaJuridica"
@@ -3386,7 +3997,7 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
@@ -3400,14 +4011,14 @@ components:
       type: "object"
       title: "Payload JSON da cobrança imediata"
       description: "Dados da cobrança imediata acessados pelo payload JSON"
-      required: ["txid", "calendario","revisao","status","valor","chave"]
+      required: ["txid", "calendario", "revisao", "status", "valor", "chave"]
       allOf:
         - type: "object"
           properties:
             calendario:
               title: "Calendário"
               description: "Os campos aninhados sob o identificador calendário organizam informações a respeito de controle de tempo da cobrança."
-              required: ["criacao", "apresentacao","expiracao"]
+              required: ["criacao", "apresentacao", "expiracao"]
               allOf:
                 - $ref: "#/components/schemas/CobCriacao"
                 - $ref: "#/components/schemas/CobApresentacao"
@@ -3419,7 +4030,7 @@ components:
         - type: "object"
           properties:
             devedor:
-              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo devedor.cpf e campo devedor.cnpj estejam preenchidos ao mesmo tempo. Se o campo devedor.cnpj está preenchido, então o campo devedor.cpf não pode estar preenchido, e vice-versa. Se o campo devedor.nome está preenchido, então deve existir ou um devedor.cpf ou um campo devedor.cnpj preenchido."
+              description: "Os campos aninhados sob o objeto devedor são opcionais e identificam o devedor, ou seja, a pessoa ou a instituição a quem a cobrança está endereçada. Não identifica, necessariamente, quem irá efetivamente realizar o pagamento. Um CPF pode ser o devedor de uma cobrança, mas pode acontecer de outro CPF realizar, efetivamente, o pagamento do documento. Não é permitido que o campo `devedor.cpf` e campo `devedor.cnpj` estejam preenchidos ao mesmo tempo. Se o campo `devedor.cnpj` está preenchido, então o campo `devedor.cpf` não pode estar preenchido, e vice-versa. Se o campo `devedor.nome` está preenchido, então deve existir ou um `devedor.cpf` ou um campo `devedor.cnpj` preenchido."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisica"
                 - $ref: "#/components/schemas/PessoaJuridica"
@@ -3428,21 +4039,21 @@ components:
             status:
               type: "string"
               title: "Status da Cobrança"
-              enum: 
+              enum:
                 - "ATIVA"
                 - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"  
-                - "REMOVIDA_PELO_PSP"  
+                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                - "REMOVIDA_PELO_PSP"
         - type: "object"
           properties:
             valor:
               $ref: "#/components/schemas/CobPayloadValor"
-        - $ref: "#/components/schemas/CobBase" 
+        - $ref: "#/components/schemas/CobBase"
     PayloadLocation:
       type: "object"
       title: "Location do Payload"
       description: "Identificador da localização do payload."
-      required: ["id","location","tipoCob","criacao"]
+      required: ["id", "location", "tipoCob", "criacao"]
       properties:
         id:
           $ref: "#/components/schemas/PayloadLocationId"
@@ -3511,7 +4122,7 @@ components:
     PayloadLocationCob:
       type: "object"
       title: "Location do Payload"
-      required: ["id","tipoCob"]
+      required: ["id", "tipoCob"]
       description: "Identificador da localização do payload."
       properties:
         id:
@@ -3552,7 +4163,7 @@ components:
           title: "Status da Cobrança"
           description: "Filtro pelo status das cobranças."
         paginacao:
-          $ref: "#/components/schemas/Paginacao"  
+          $ref: "#/components/schemas/Paginacao"
     ParametrosConsultaLote:
       type: "object"
       title: "Parâmetros de consulta de lotes de cobrança com vencimento."
@@ -3572,7 +4183,7 @@ components:
           description: "Data de fim utilizada na consulta. Respeita RFC 3339."
           example: "2020-04-01T17:00:00Z"
         paginacao:
-          $ref: "#/components/schemas/Paginacao"  
+          $ref: "#/components/schemas/Paginacao"
     CobsVConsultadas:
       type: "object"
       title: "Cobranças com vencimento consultadas"
@@ -3604,7 +4215,7 @@ components:
     Pix:
       type: "object"
       title: "Pix"
-      required: ["endToEndId", "valor", "horario","pagador"]
+      required: ["endToEndId", "valor", "horario", "pagador"]
       properties:
         endToEndId:
           $ref: "#/components/schemas/EndToEndId"
@@ -3617,6 +4228,161 @@ components:
           title: "Valor do Pix."
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor do Pix."
+        componentesValor:
+          type: "array"
+          title: "Informações sobre o valor do Pix"
+          description: |-
+            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix.
+
+            Regras da listagem:
+            - O `valor` do Pix é igual ao somatório dos campos `valor` dos elementos dessa listagem;
+            - Não pode haver dois elementos com o mesmo tipo;
+            - Não pode haver simultaneamente um elemento do tipo `SAQUE` e outro elemento do tipo `TROCO`;
+            - Não há restrição na ordem dos elementos.
+
+            Para o caso de uma retirada com saque pode-se retornar
+             um elemento de tipo=`ORIGINAL` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir
+              o elemento com tipo=`ORIGINAL`. No caso de um troco o elemento com tipo=`ORIGINAL` vai sempre estar presente.
+
+            #### Exemplos válidos:
+            Exemplo de preenchimentos válidos. 
+
+            - **cobrança imediata (sem saque ou troco)**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "100.00"
+                } 
+              ]
+              ...
+              ```
+            - **cobrança imediata com saque**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "SAQUE",
+                  "valor": "100.00"
+                } 
+              ]
+              ...
+              ```
+            - **cobrança imediata com saque (pode vir tipo=ORIGINAL e valor=0.00)**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "0.00"
+                },
+                {
+                  "tipo": "SAQUE",
+                  "valor": "100.00"
+                } 
+              ]
+              ...
+              ```
+            - **cobrança imediata com troco**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "80.00"
+                },
+                {
+                  "tipo": "TROCO",
+                  "valor": "20.00"
+                } 
+              ]
+              ...
+              ```
+            - **cobrança imediata com troco (ordem não importa)**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "TROCO",
+                  "valor": "20.00"
+                },
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "80.00"
+                }
+              ]
+              ...
+              ```
+            #### Exemplos inválidos:
+            Exemplos, não exaustivos, de preenchimentos inválidos.
+            - **`ORIGINAL` com valor maior que 0.00 (zero) e `SAQUE` juntos**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "80.00"
+                },
+                {
+                  "tipo": "SAQUE",
+                  "valor": "20.00"
+                } 
+              ]
+              ...
+              ```
+            - **dois elementos de `SAQUE`**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "SAQUE",
+                  "valor": "20.00"
+                },
+                {
+                  "tipo": "SAQUE",
+                  "valor": "10.00"
+                } 
+              ]
+              ...
+              ```
+            - **cobrança imediata com `SAQUE` e `TROCO`**
+              ```
+              ...
+              "componentesValor": [
+                {
+                  "tipo": "ORIGINAL",
+                  "valor": "60.00"
+                },
+                {
+                  "tipo": "SAQUE",
+                  "valor": "20.00"
+                },
+                {
+                  "tipo": "TROCO",
+                  "valor": "20.00"
+                } 
+              ]
+              ...
+              ```
+          maximum: 50
+          items:
+            type: "object"
+            required: ["tipo", "valor"]
+            properties:
+              tipo:
+                type: "string"
+                title: "Tipo"
+                description: "Tipo do elemento de composição do valor do Pix."
+                enum:
+                  - "ORIGINAL"
+                  - "SAQUE"
+                  - "TROCO"
+              valor:
+                type: "string"
+                title: "Valor"
+                description: "Valor do elemento de composição do Pix."
+                pattern: "\\d{1,10}\\.\\d{2}"
         chave:
           type: "string"
           title: "Chave DICT do recebedor"
@@ -3687,7 +4453,7 @@ components:
 
             Campo opcional que pode ser utilizado pelo PSP recebedor para detalhar os motivos
             de a devolução ter atingido o status em questão.
-            Pode ser utilizado, por exemplo, para detalhar o motivo de a devolução não ter sido realizada.          
+            Pode ser utilizado, por exemplo, para detalhar o motivo de a devolução não ter sido realizada.
           maxLength: 140
     DevolucaoSolicitada:
       type: "object"
@@ -3725,7 +4491,7 @@ components:
             - "cob"
             - "cobv"
         paginacao:
-          $ref: "#/components/schemas/Paginacao"   
+          $ref: "#/components/schemas/Paginacao"
     PayloadLocationConsultadas:
       type: "object"
       title: "Locations Consultadas"
@@ -3776,7 +4542,7 @@ components:
           pattern: "/^\\d{14}$/"
           description: "CNPJ"
         paginacao:
-          $ref: "#/components/schemas/Paginacao"        
+          $ref: "#/components/schemas/Paginacao"
     ParametrosConsultaWebhooks:
       type: "object"
       title: "Parâmetros de Consulta de Webhooks"
@@ -3795,7 +4561,7 @@ components:
           description: "Data de fim utilizada na consulta. Respeita RFC 3339."
           example: "2020-12-01T17:00:00Z"
         paginacao:
-          $ref: "#/components/schemas/Paginacao"        
+          $ref: "#/components/schemas/Paginacao"
     PixConsultados:
       type: "object"
       title: "Pix Consultados"
@@ -3808,7 +4574,7 @@ components:
           title: "Lista de Pix recebidos"
           items:
             allOf:
-              - $ref: "#/components/schemas/Pix"  
+              - $ref: "#/components/schemas/Pix"
     WebhooksConsultados:
       type: "object"
       title: "Webhooks Consultados"
@@ -3821,11 +4587,17 @@ components:
           title: "Lista de Webhooks consultados"
           items:
             allOf:
-              - $ref: "#/components/schemas/WebhookCompleto"  
+              - $ref: "#/components/schemas/WebhookCompleto"
     Paginacao:
       type: "object"
       title: "Paginação"
-      required: ["paginaAtual", "itensPorPagina", "quantidadeDePaginas","quantidadeTotalDeItens"]
+      required:
+        [
+          "paginaAtual",
+          "itensPorPagina",
+          "quantidadeDePaginas",
+          "quantidadeTotalDeItens",
+        ]
       properties:
         paginaAtual:
           type: "integer"
@@ -3841,12 +4613,12 @@ components:
           type: "integer"
           title: "Quantidade de páginas"
           description: "Quantidade de páginas disponíveis para consulta."
-          minimum: 1 
+          minimum: 1
         quantidadeTotalDeItens:
           type: "integer"
           title: "Quantidade total de itens"
           description: "Quantidade total de itens disponíveis de acordo com os parâmetros informados."
-          minimum: 0 
+          minimum: 0
     Violacao:
       type: "object"
       title: "Violações"
@@ -3868,13 +4640,13 @@ components:
           example: "061996671234"
     Problema:
       type: object
-      required: ["type","title","status"]
+      required: ["type", "title", "status"]
       properties:
         type:
           type: string
           format: uri
           description: "URI de referência que identifica o tipo de problema. De acordo com a RFC 7807."
-          example: 'https://pix.bcb.gov.br/api/v2/error/NaoEncontrado'
+          example: "https://pix.bcb.gov.br/api/v2/error/NaoEncontrado"
         title:
           type: string
           description: "Descrição resumida do problema."
@@ -3899,10 +4671,10 @@ components:
       title: "Data de início"
       description: "Filtra os registros cuja data de criação seja maior ou igual que a data de início. Respeita RFC 3339."
     Fim:
-        type: "string"
-        format: "date-time"
-        title: "Data de fim"
-        description: "Filtra os registros cuja data de criação seja menor ou igual que a data de fim. Respeita RFC 3339."
+      type: "string"
+      format: "date-time"
+      title: "Data de fim"
+      description: "Filtra os registros cuja data de criação seja menor ou igual que a data de fim. Respeita RFC 3339."
   parameters:
     paginaAtual:
       in: "query"
@@ -3933,13 +4705,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Problema'
+            $ref: "#/components/schemas/Problema"
     NaoEncontrado:
       description: "Recurso solicitado não foi encontrado."
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problema'
+            $ref: "#/components/schemas/Problema"
           examples:
             exemplo1:
               $ref: "#/components/examples/NaoEncontradoExample1"
@@ -3948,7 +4720,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problema'
+            $ref: "#/components/schemas/Problema"
           examples:
             exemplo1:
               $ref: "#/components/examples/AcessoNegadoExample1"
@@ -3957,7 +4729,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/Problema'
+            $ref: "#/components/schemas/Problema"
           examples:
             exemplo1:
               $ref: "#/components/examples/ServicoIndisponivelExample1"
