@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.5.0"
+  version: "2.6.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -690,7 +690,7 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status da Cobrança"
+            title: "Status do registro da cobrança"
             description: "Filtro pelo status da cobrança."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
@@ -857,7 +857,7 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status da Cobrança"
+            title: "Status do registro da cobrança"
             description: "Filtro pelo status da cobrança."
         - name: "loteCobVId"
           in: "query"
@@ -2683,12 +2683,20 @@ components:
       type: "string"
       title: "Natureza da Devolução"
       description: |
-        Indica qual é a natureza da devolução. Uma devolução pode ser relacionada a um Pix comum, ou a um Pix 
-        de Saque ou Troco. Na ausência deste campo a natureza deve ser interpretada como sendo de um Pix comum (ORIGINAL).
+        Indica qual é a natureza da devolução. Uma devolução pode ser relacionada a um Pix comum (corresponde ao código `MD06` da pacs.004), 
+        ou a um Pix de Saque ou Troco (corresponde ao código `SL02` da pacs.004). Na ausência deste campo a natureza deve ser interpretada 
+        como sendo de um Pix comum (ORIGINAL).
 
         As naturezas são assim definidas:
         - `ORIGINAL`: quando a devolução se refere a um Pix comum ou ao valor da compra em um Pix Troco;
         - `RETIRADA`: quando a devolução se refere a um Pix Saque ou ao valor do troco em um Pix Troco.
+
+        Os valores de devoluções são sempre limitados aos valores máximos de acordo com:
+          - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso é ORIGINAL);
+          - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso é RETIRADA);
+          - Pix Troco: o valor da devolução é limitado ao valor relativo à natureza da compra:
+            - ORIGINAL: limitado ao valor da compra;
+            - RETIRADA: limitado ao valor da retirada.
       enum:
         - "ORIGINAL"
         - "RETIRADA"
@@ -3786,6 +3794,18 @@ components:
                 title: "Valor"
                 description: "Dados do campo."
                 maxLength: 200
+    CobBaseCopiaCola:
+      type: "object"
+      title: "Cobrança Base com Copia e Cola"
+      description: "Atributos comuns a todas entidades de Cobrança que possuem informação de Copia e Cola"
+      allOf:
+        - type: "object"
+          properties:
+            pixCopiaECola:
+              type: "string"
+              title: "Pix Copia e Cola correspondente à cobrança."
+              description: "Este campo retorna o valor do Pix Copia e Cola correspondente à cobrança. Trata-se da sequência de caracteres que representa o BR Code."
+        - $ref: "#/components/schemas/CobBase"
     CobSolicitada:
       type: "object"
       title: "Cobrança imediata solicitada"
@@ -3872,7 +3892,7 @@ components:
           properties:
             status:
               type: "string"
-              title: "Status da Cobrança"
+              title: "Status do registro da cobrança"
               enum:
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
@@ -3902,7 +3922,7 @@ components:
           properties:
             status:
               type: "string"
-              title: "Status da Cobrança"
+              title: "Status do registro da cobrança"
               enum:
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
@@ -3955,20 +3975,14 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobValor"
-        - $ref: "#/components/schemas/CobBase"
+        - $ref: "#/components/schemas/CobBaseCopiaCola"
     CobVGerada:
       type: "object"
       title: "Cobrança com vencimento gerada"
@@ -4010,20 +4024,30 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobVValor"
-        - $ref: "#/components/schemas/CobBase"
+        - $ref: "#/components/schemas/CobBaseCopiaCola"
+    CobrancaStatus:
+      type: "string"
+      title: "Status do registro da cobrança."
+      description: |
+        Estado do registro da cobrança. Não se confunde com o estado da cobrança em si, ou seja, não guarda relação com o fato de a cobrança encontrar-se vencida ou expirada, por exemplo.
+
+        Os status são assim definidos:
+        - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
+        - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
+        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança; e
+        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+      enum:
+        - "ATIVA"
+        - "CONCLUIDA"
+        - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+        - "REMOVIDA_PELO_PSP"
     LoteCobVGerado:
       title: "Lote de cobranças com vencimento gerado"
       type: "object"
@@ -4068,13 +4092,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
     CobCompleta:
       title: "Cobrança imediata completa"
       required: ["status"]
@@ -4084,13 +4102,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             pix:
@@ -4201,13 +4213,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
@@ -4243,13 +4249,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
@@ -4366,7 +4366,7 @@ components:
           description: "Filtro pela existência de location vinculada."
         status:
           type: "string"
-          title: "Status da Cobrança"
+          title: "Status do registro da cobrança"
           description: "Filtro pelo status das cobranças."
         paginacao:
           $ref: "#/components/schemas/Paginacao"
@@ -4438,21 +4438,25 @@ components:
           type: "object"
           title: "Informações sobre o valor do Pix"
           description: |-
-            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix.
+            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix, incluindo informações sobre as multas, juros, descontos e abatimentos quando o Pix for relativo a cobranças com vencimento.
 
             Regras da estrutura:
-            - O `valor` do Pix é igual ao somatório dos campos `valor` das subestruturas que compõem essa estrutura;
+            - O `valor` do Pix é igual a: 
+              - (`original.valor` + `saque.valor` + `troco.valor`) + `multa.valor` + `juros.valor` – `abatimento.valor` – `desconto.valor`
+              considerando-se apenas os campos que estiverem presentes para cada tipo de cobrança pago.
+            - As estruturas `saque` e `troco` só serão retornadas quando o Pix for relativo a um Pix Saque ou Pix Troco, respectivamente, e 
+            as demais estruturas (`juros`, `multa`, `abatimento` e `desconto`) só serão pertinentes aos Pix de pagamentos das cobranças com vencimento.
             - Não pode haver simultaneamente uma subsestrutura do tipo `saque` e outra do tipo `troco`;
             - Não há restrição na ordem das subestruturas.
 
-            Para o caso de uma retirada com saque pode-se retornar
-             `original` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir
-              a subestrutura `original`. No caso de um troco a subsestrutura `original` vai sempre estar presente.
+            Para o caso de um Pix Saque pode-se retornar `original` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir a 
+            subestrutura original. No caso de um Pix Troco ou de um pagamento de cobrança com vencimento a subsestrutura `original` vai sempre estar 
+            presente.
 
             #### Exemplos válidos:
             Exemplo de preenchimentos válidos. 
 
-            - **cobrança imediata (sem saque ou troco)**
+            - **Pix para pagamento de cobrança imediata (sem saque ou troco).**
               ```
               ...
               "componentesValor": {
@@ -4462,7 +4466,7 @@ components:
               }
               ...
               ```
-            - **cobrança imediata com saque**
+            - **Pix Saque.**
               ```
               ...
               "componentesValor": {
@@ -4474,7 +4478,7 @@ components:
               }
               ...
               ```
-            - **cobrança imediata com saque (pode vir original.valor=0.00)**
+            - **Pix para pagamento de cobrança imediata com saque (pode vir original.valor=0.00).**
               ```
               ...
               "componentesValor": {
@@ -4489,7 +4493,7 @@ components:
               }
               ...
               ```
-            - **cobrança imediata com troco**
+            - **Pix Troco.**
               ```
               ...
               "componentesValor": {
@@ -4504,7 +4508,7 @@ components:
               }
               ...
               ```
-            - **cobrança imediata com troco (ordem não importa)**
+            - **Pix para pagamento de cobrança imediata com troco (ordem não importa).**
               ```
               ...
               "componentesValor": {
@@ -4519,6 +4523,22 @@ components:
               }
               ...
               ```
+            - **Pix para pagamento de cobrança com vencimento de R$100,00 considerando-se um atraso de 2 dias a uma multa de 3% e juros de 1% ao dia. O `valor` do Pix será R$105,00.**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "100.00"
+                },
+                "multa": {
+                  "valor": "3.00"
+                },
+                "juros": {
+                  "valor": "2.00"
+                }
+              }
+              ...
+              ```            
             #### Exemplos inválidos:
             Exemplos, não exaustivos, de preenchimentos inválidos.
             - **`original.valor` maior que 0.00 (zero) e `saque` juntos**
@@ -4553,7 +4573,7 @@ components:
               ]
               ...
               ```
-            - **cobrança imediata com `saque` e `troco`**
+            - **saque e troco simultaneamente**
               ```
               ...
               "componentesValor": {
@@ -4577,6 +4597,10 @@ components:
             - $ref: "#/components/schemas/PixValorOriginal"
             - $ref: "#/components/schemas/PixValorSaque"
             - $ref: "#/components/schemas/PixValorTroco"
+            - $ref: "#/components/schemas/PixValorJuros"
+            - $ref: "#/components/schemas/PixValorMulta"
+            - $ref: "#/components/schemas/PixValorAbatimento"
+            - $ref: "#/components/schemas/PixValorDesconto"
         chave:
           type: "string"
           title: "Chave DICT do recebedor"
@@ -4667,6 +4691,54 @@ components:
               title: "Prestador do Serviço de Saque"
               pattern: "\\d{8}"
               description: "ISPB do Prestador do Serviço de Saque"
+    PixValorJuros:
+      type: "object"
+      properties:
+        juros:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo aos juros."
+              description: "Valor dos juros."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorMulta:
+      type: "object"
+      properties:
+        multa:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a multa."
+              description: "Valor da multa."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorDesconto:
+      type: "object"
+      properties:
+        desconto:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a desconto."
+              description: "Valor do desconto."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorAbatimento:
+      type: "object"
+      properties:
+        abatimento:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a abatimento."
+              description: "Valor do abatimento."
+              pattern: "\\d{1,10}\\.\\d{2}"
     Devolucao:
       type: "object"
       title: "Devolução"
@@ -4689,6 +4761,11 @@ components:
           description: "Valor a devolver."
         natureza:
           $ref: "#/components/schemas/DevolucaoNatureza"
+        descricao:
+          type: "string"
+          title: "Mensagem ao pagador relativa à devolução."
+          maxLength: 140
+          description: "O campo `descricao`, opcional, determina um texto a ser apresentado ao pagador contendo informações sobre a devolução. Esse texto será preenchido, na pacs.004, pelo PSP do recebedor, no campo RemittanceInformation. O tamanho do campo na pacs.004 está limitado a 140 caracteres."
         horario:
           type: "object"
           properties:
@@ -4728,6 +4805,11 @@ components:
           description: "Valor solicitado para devolução. A soma dos valores de todas as devolucões não podem ultrapassar o valor total do Pix."
         natureza:
           $ref: "#/components/schemas/DevolucaoNatureza"
+        descricao:
+          type: "string"
+          title: "Mensagem ao pagador relativa à devolução."
+          description: "O campo `descricao`, opcional, determina um texto a ser apresentado ao pagador contendo informações sobre a devolução. Esse texto será preenchido, na pacs.004, pelo PSP do recebedor, no campo RemittanceInformation. O tamanho do campo na pacs.004 está limitado a 140 caracteres."
+          maxLength: 140
     ParametrosConsultaPayloadLocation:
       type: "object"
       title: "Parâmetros de consulta de locations"

@@ -1,7 +1,13 @@
 # Changelog
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
-
+## [2.6.0] 
+*  Inclusão e referenciamento de "Status do registro de cobrança" onde lia-se "Status da Cobrança" com a descrição da semântica de cada estado.
+*  Inclusão do campo `pixCopiaECola` (opcional) correspondente às cobranças.
+*  Na listagem `componentesValor` do objeto `Pix` foram incluídas as informações relativas aos juros, multas, descontos e abatimentos quando o Pix se refere a um pagamento de cobrança com vencimento. Tendo assim o detalhamento em caso de antecipações ou atrasos no pagamento.
+* Inclusão do campo `descricao` nos objetos que tratam de Devoluções.  
+* Ajuste na descrição do campo `natureza` nas Devoluções.
+ 
 ## [2.5.0]
 * Inclusão do atributo `retirada` como campo opcional do objeto `valor` nos endpoints de consulta, criação e revisão da cobrança imediata. O campo pode ser preenchido com os atributos `saque` ou `troco` exclusivamente, detalhados pelos atributos `valor` e `modalidadeAlteracao`. Se apresentarem o campo `modalidadeAlteracao` como valor 1, significa que o usuário pagador pode alterar o valor do saque ou troco. 
 Em sua ausência, assume-se o valor 0, que significa que o valor do saque ou troco não pode ser alterado.
