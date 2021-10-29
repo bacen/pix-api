@@ -1,90 +1,101 @@
 # Changelog
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
-## [2.6.0] 
-*  Inclusão e referenciamento de "Status do registro de cobrança" onde lia-se "Status da Cobrança" com a descrição da semântica de cada estado.
-*  Inclusão do campo `pixCopiaECola` (opcional) correspondente às cobranças.
-*  Na listagem `componentesValor` do objeto `Pix` foram incluídas as informações relativas aos juros, multas, descontos e abatimentos quando o Pix se refere a um pagamento de cobrança com vencimento. Tendo assim o detalhamento em caso de antecipações ou atrasos no pagamento.
-* Inclusão do campo `descricao` nos objetos que tratam de Devoluções.  
-* Ajuste na descrição do campo `natureza` nas Devoluções.
- 
+
+## [2.6.1]
+
+- Restrição da `modalidadeAgente` do Pix Troco para aceitar somente `AGTEC`.
+- Ajustes nos endpoints de Devolução para os diferentes tipos de natureza relacionados aos códigos `BE08` e `FR01`.
+- Indicação tamanho máximo do campo `pixCopiaECola` [[#457](https://github.com/bacen/pix-api/issues/457)].
+
+## [2.6.0]
+
+- Inclusão e referenciamento de "Status do registro de cobrança" onde lia-se "Status da Cobrança" com a descrição da semântica de cada estado.
+- Inclusão do campo `pixCopiaECola` (opcional) correspondente às cobranças.
+- Na listagem `componentesValor` do objeto `Pix` foram incluídas as informações relativas aos juros, multas, descontos e abatimentos quando o Pix se refere a um pagamento de cobrança com vencimento. Tendo assim o detalhamento em caso de antecipações ou atrasos no pagamento.
+- Inclusão do campo `descricao` nos objetos que tratam de Devoluções.
+- Ajuste na descrição do campo `natureza` nas Devoluções.
+
 ## [2.5.0]
-* Inclusão do atributo `retirada` como campo opcional do objeto `valor` nos endpoints de consulta, criação e revisão da cobrança imediata. O campo pode ser preenchido com os atributos `saque` ou `troco` exclusivamente, detalhados pelos atributos `valor` e `modalidadeAlteracao`. Se apresentarem o campo `modalidadeAlteracao` como valor 1, significa que o usuário pagador pode alterar o valor do saque ou troco. 
-Em sua ausência, assume-se o valor 0, que significa que o valor do saque ou troco não pode ser alterado.
-* Inclusão do atributo `componentesValor` como campo opcional nos endpoints de consulta Pix para informações da composição do valor final do Pix, este será detalhado por um array de objetos compostos por `tipo` e `valor`.
-* Formatações gerais de referências a campos, objetos e schemas.
-* Inclusão do domínio `natureza` nas devoluções para diferenciamento de devoluções de Pix comuns, ou oriundos de Saque/Troco.
-* Referências a https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos trocadas por https://www.bcb.gov.br/estabilidadefinanceira/pix.   
+
+- Inclusão do atributo `retirada` como campo opcional do objeto `valor` nos endpoints de consulta, criação e revisão da cobrança imediata. O campo pode ser preenchido com os atributos `saque` ou `troco` exclusivamente, detalhados pelos atributos `valor` e `modalidadeAlteracao`. Se apresentarem o campo `modalidadeAlteracao` como valor 1, significa que o usuário pagador pode alterar o valor do saque ou troco.
+  Em sua ausência, assume-se o valor 0, que significa que o valor do saque ou troco não pode ser alterado.
+- Inclusão do atributo `componentesValor` como campo opcional nos endpoints de consulta Pix para informações da composição do valor final do Pix, este será detalhado por um array de objetos compostos por `tipo` e `valor`.
+- Formatações gerais de referências a campos, objetos e schemas.
+- Inclusão do domínio `natureza` nas devoluções para diferenciamento de devoluções de Pix comuns, ou oriundos de Saque/Troco.
+- Referências a https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos trocadas por https://www.bcb.gov.br/estabilidadefinanceira/pix.
 
 ## [2.4.0]
-* Não houve mudança. Versão seguiu para 2.5.0 para acompanhar o Manual de Iniciação.
-  
+
+- Não houve mudança. Versão seguiu para 2.5.0 para acompanhar o Manual de Iniciação.
+
 ## [2.3.0]
-* `modalidadeAlteracao` agora é um campo opcional do objeto `valor`
-no payload da cobrança imediata e nos endpoints de criação e revisão da cobrança imediata.
-Se apresentado como valor 1, significa que o usuário pagador pode alterar o valor da cobrança. 
-Em sua ausência, assume-se o valor 0, que significa que a cobrança não pode ser alterada.
-* Não é mais obrigatório que o fragmento de versão v2 esteja presente na _location_.
-Não há problema em manter o fragmento; este será considerado como parte integrante da _location_.
-* [[#348](https://github.com/bacen/pix-api/issues/348)]: corrige case do padrão de datas de `yyyy-mm-dd` -> `YYYY-MM-DD`.
-* [[#354](https://github.com/bacen/pix-api/issues/354)]: Aprimora a descrição do webhook detalhando 
-a ativação em caso de devolução de um pix. O callback deve ser ativado, também, no caso de serem atingidos 
-os status finais da devolução: "devolvido" e "não realizado".
-* [[#356](https://github.com/bacen/pix-api/issues/356)]: Adiciona dois cenários de erro para o endpoint
-`PUT /pix/{e2eid}/devolucao/{id}` na seção de tratamentos de erros.
-* [[#357](https://github.com/bacen/pix-api/issues/357)]: aprimora a descrição do campo "motivo" no retorno do endpoint 
-`​/pix​/{e2eid}​/devolucao​/{id}`.
+
+- `modalidadeAlteracao` agora é um campo opcional do objeto `valor`
+  no payload da cobrança imediata e nos endpoints de criação e revisão da cobrança imediata.
+  Se apresentado como valor 1, significa que o usuário pagador pode alterar o valor da cobrança.
+  Em sua ausência, assume-se o valor 0, que significa que a cobrança não pode ser alterada.
+- Não é mais obrigatório que o fragmento de versão v2 esteja presente na _location_.
+  Não há problema em manter o fragmento; este será considerado como parte integrante da _location_.
+- [[#348](https://github.com/bacen/pix-api/issues/348)]: corrige case do padrão de datas de `yyyy-mm-dd` -> `YYYY-MM-DD`.
+- [[#354](https://github.com/bacen/pix-api/issues/354)]: Aprimora a descrição do webhook detalhando
+  a ativação em caso de devolução de um pix. O callback deve ser ativado, também, no caso de serem atingidos
+  os status finais da devolução: "devolvido" e "não realizado".
+- [[#356](https://github.com/bacen/pix-api/issues/356)]: Adiciona dois cenários de erro para o endpoint
+  `PUT /pix/{e2eid}/devolucao/{id}` na seção de tratamentos de erros.
+- [[#357](https://github.com/bacen/pix-api/issues/357)]: aprimora a descrição do campo "motivo" no retorno do endpoint
+  `​/pix​/{e2eid}​/devolucao​/{id}`.
 
 ## [2.2.2]
 
-* [[#331](https://github.com/bacen/pix-api/issues/331)]: O campo `validadeAposVencimento` estava constando como `opcional`, na resposta da criação da cobrança, um efeito colateral da correção correlata ocorrida na release 2.2.1.
-* [[#334](https://github.com/bacen/pix-api/issues/334)]: adicionados detalhes a respeito da manipulação da revisão da cobrança em cenário de alteração do _location_.
-* [[#342](https://github.com/bacen/pix-api/issues/342)]: removidos trechos duplicados na seção de tratamento de erros.
+- [[#331](https://github.com/bacen/pix-api/issues/331)]: O campo `validadeAposVencimento` estava constando como `opcional`, na resposta da criação da cobrança, um efeito colateral da correção correlata ocorrida na release 2.2.1.
+- [[#334](https://github.com/bacen/pix-api/issues/334)]: adicionados detalhes a respeito da manipulação da revisão da cobrança em cenário de alteração do _location_.
+- [[#342](https://github.com/bacen/pix-api/issues/342)]: removidos trechos duplicados na seção de tratamento de erros.
 
 ## [2.2.1]
 
 ### Corrigido:
 
-* Os campos no objeto "devedor" no request do endpoint `PUT /cobv/{txid}` passam a ser opcionais.
-Nem sempre o usuário recebedor tem a posse de todas as informações que constavam como obrigatórias.
-* [[#307](https://github.com/bacen/pix-api/issues/307)]: Detalhada a semântica do campo `validadeAposVencimento`. Passa a apresentar redação 
-detalhando o que ocorre em casos de exceção em que o vencimento da cobrança seja um final de semana 
-ou um feriado juntamente com a atribuição de um valor pequeno para `validadeAposVencimento`. 
-* O campo `validadeAposVencimento` estava constando como `required`, o que estava incorreto. 
-Quando não preenchido, o PSP recebedor assume o valor deste campo como 30, então não há motivos para 
-o campo ser obrigatório.
-* [[#269](https://github.com/bacen/pix-api/issues/269)]. A regex do txid, na parte concernente ao tamanho, nos endpoints /pix e no callback webhook, 
-estava errada. Corrigida de `{26,35}` para `{1,35}` porque pode haver a presença de pagamentos de QRs
-estáticos nesses locais. 
-* [[#270](https://github.com/bacen/pix-api/issues/270)]: O id do objeto `location` estava especificado como `int32`. De fato, apenas cerca de 2 bilhões
-de possibilidades pode acabar muito rápido para grandes emissores de cobranças. Entendemos que o identificador do objeto `lotecobv`
-se encaixa na mesma situação. Nesse sentido, alteramos de `int32` para `int64`, 
-o que não deve causar maiores problemas no momento. 
-* [[#249](github.com/bacen/pix-api/issues/249)], [[#250](github.com/bacen/pix-api/issues/250)]: Com a entrada do campo "chave" como identificador do webhook, toda a parte referente à paginação 
-em GET /webhook perde a razão de existir. Nesse sentido, os parâmetros de busca "inicio" e "fim" passam 
-a ser opcionais. O objeto de paginação "parametros", também torna-se opcional. 
-* [[#239](github.com/bacen/pix-api/issues/239)]: Conforme relatado nesta discussão, entendemos que 
-seria interessante, tanto sob o aspecto de segurança quanto sob o aspecto de funcionalidade, que o 
-objeto pix agregue o atributo "chave", opcional.
-* [[#241](https://github.com/bacen/pix-api/issues/241)]: Acrescentamos detalhes em relação à questão do acionamento do webhook por parte do PSP recebedor. 
-* [[#294](https://github.com/bacen/pix-api/issues/294)]: Erro de ortografia. Na documentação, onde se lê `pixUrlAcessToken` deveria estar escrito `pixUrlAccessToken`. 
-* [[#273](https://github.com/bacen/pix-api/issues/273)]: O texto do response 202 do endpoint `PATCH lotecobv/{id}` estava erroneamente induzindo o 
-leitor a pensar que o lote já estava revisado quando, na verdade, estaria apenas em processamento 
-* [[#273](https://github.com/bacen/pix-api/issues/273)]: Na lista de violações em lotecobv, havia indicações do endpoint `/lotecobv/{txid}`, o que inexiste. O correto é `/lotecobv/{id}`. 
-* [[#316](https://github.com/bacen/pix-api/issues/316)]: Duas violações específicas foram removidas por questões de performance. 
+- Os campos no objeto "devedor" no request do endpoint `PUT /cobv/{txid}` passam a ser opcionais.
+  Nem sempre o usuário recebedor tem a posse de todas as informações que constavam como obrigatórias.
+- [[#307](https://github.com/bacen/pix-api/issues/307)]: Detalhada a semântica do campo `validadeAposVencimento`. Passa a apresentar redação
+  detalhando o que ocorre em casos de exceção em que o vencimento da cobrança seja um final de semana
+  ou um feriado juntamente com a atribuição de um valor pequeno para `validadeAposVencimento`.
+- O campo `validadeAposVencimento` estava constando como `required`, o que estava incorreto.
+  Quando não preenchido, o PSP recebedor assume o valor deste campo como 30, então não há motivos para
+  o campo ser obrigatório.
+- [[#269](https://github.com/bacen/pix-api/issues/269)]. A regex do txid, na parte concernente ao tamanho, nos endpoints /pix e no callback webhook,
+  estava errada. Corrigida de `{26,35}` para `{1,35}` porque pode haver a presença de pagamentos de QRs
+  estáticos nesses locais.
+- [[#270](https://github.com/bacen/pix-api/issues/270)]: O id do objeto `location` estava especificado como `int32`. De fato, apenas cerca de 2 bilhões
+  de possibilidades pode acabar muito rápido para grandes emissores de cobranças. Entendemos que o identificador do objeto `lotecobv`
+  se encaixa na mesma situação. Nesse sentido, alteramos de `int32` para `int64`,
+  o que não deve causar maiores problemas no momento.
+- [[#249](github.com/bacen/pix-api/issues/249)], [[#250](github.com/bacen/pix-api/issues/250)]: Com a entrada do campo "chave" como identificador do webhook, toda a parte referente à paginação
+  em GET /webhook perde a razão de existir. Nesse sentido, os parâmetros de busca "inicio" e "fim" passam
+  a ser opcionais. O objeto de paginação "parametros", também torna-se opcional.
+- [[#239](github.com/bacen/pix-api/issues/239)]: Conforme relatado nesta discussão, entendemos que
+  seria interessante, tanto sob o aspecto de segurança quanto sob o aspecto de funcionalidade, que o
+  objeto pix agregue o atributo "chave", opcional.
+- [[#241](https://github.com/bacen/pix-api/issues/241)]: Acrescentamos detalhes em relação à questão do acionamento do webhook por parte do PSP recebedor.
+- [[#294](https://github.com/bacen/pix-api/issues/294)]: Erro de ortografia. Na documentação, onde se lê `pixUrlAcessToken` deveria estar escrito `pixUrlAccessToken`.
+- [[#273](https://github.com/bacen/pix-api/issues/273)]: O texto do response 202 do endpoint `PATCH lotecobv/{id}` estava erroneamente induzindo o
+  leitor a pensar que o lote já estava revisado quando, na verdade, estaria apenas em processamento
+- [[#273](https://github.com/bacen/pix-api/issues/273)]: Na lista de violações em lotecobv, havia indicações do endpoint `/lotecobv/{txid}`, o que inexiste. O correto é `/lotecobv/{id}`.
+- [[#316](https://github.com/bacen/pix-api/issues/316)]: Duas violações específicas foram removidas por questões de performance.
 
 ## [2.2.0-rc.0]
 
 ### Adicionado:
 
-- A API Pix agora estabelece uma série de erros padronizados seguindo a [RFC 7807](https://tools.ietf.org/html/rfc7807) reunidos na seção 
-"Tratamento de erros". Procuramos ser exaustivos com relação aos possíveis erros semânticos.
-- Adicionado o endpoint `PATCH /lotecobv/{id}`. Este endpoint pode ser utilizado quando a intenção do 
-usuário recebedor for alterar cobranças específicas dentro do conjunto de cobranças criadas no lote em 
-questão. O endpoint `PUT /lotecobv/{id}` também pode ser utilizado para alterar cobranças, mas deve
-ser atribuído na requisição o array exatamente como especificado na requisição originária, o que torna 
-este endpoint ineficiente no caso em que quer se alterar uma cobrança específica ou poucas dentro de um 
-array com grande quantidade de cobranças.
+- A API Pix agora estabelece uma série de erros padronizados seguindo a [RFC 7807](https://tools.ietf.org/html/rfc7807) reunidos na seção
+  "Tratamento de erros". Procuramos ser exaustivos com relação aos possíveis erros semânticos.
+- Adicionado o endpoint `PATCH /lotecobv/{id}`. Este endpoint pode ser utilizado quando a intenção do
+  usuário recebedor for alterar cobranças específicas dentro do conjunto de cobranças criadas no lote em
+  questão. O endpoint `PUT /lotecobv/{id}` também pode ser utilizado para alterar cobranças, mas deve
+  ser atribuído na requisição o array exatamente como especificado na requisição originária, o que torna
+  este endpoint ineficiente no caso em que quer se alterar uma cobrança específica ou poucas dentro de um
+  array com grande quantidade de cobranças.
 
 - Incorporadas melhorias de redação em alguns endpoints específicos.
 
@@ -119,7 +130,7 @@ array com grande quantidade de cobranças.
 
 ### Correções
 
-- removido o objeto __opcional__ pix.pagador [#153](https://github.com/bacen/pix-api/issues/153)
+- removido o objeto **opcional** pix.pagador [#153](https://github.com/bacen/pix-api/issues/153)
 - os webhooks agora são associados a uma chave pix [#120](https://github.com/bacen/pix-api/issues/120)
 - os endereços dos endpoints agora apresentam corretamente o fragmento `v2` [#3](https://github.com/bacen/pix-api/issues/3)
 
@@ -147,7 +158,7 @@ array com grande quantidade de cobranças.
 
 - corrigido exemplo JWS da tag cobPayload
 
-## [2.1.0-rc.0] 
+## [2.1.0-rc.0]
 
 ### Novidades
 
@@ -162,9 +173,10 @@ array com grande quantidade de cobranças.
 - API começa em v2 e acompanha a major version [#3](https://github.com/bacen/pix-api/issues/3)
 - revisados exemplos inconsistentes.
 
-## [2.0.0] 
+## [2.0.0]
 
 ### Adicionado
+
 - Endpoint para criação de Cobranças
 - Endpoint para gerenciamento de Cobranças
 - Endpoint para consulta parametrizada de Cobranças
@@ -179,6 +191,7 @@ array com grande quantidade de cobranças.
 - Autenticação e Autorização baseada em OAuth2
 
 ### Removido
+
 - Recursos para gerenciamento de Documentos
 - Configuração de vencimento em calendário
 - Configuração de juros, multa e desconto em valor
