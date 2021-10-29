@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.6.0"
+  version: "2.6.1"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -1322,7 +1322,7 @@ paths:
       security:
         - OAuth2: [pix.write]
       description: |
-        Endpoint para solicitar uma devolução através de um e2eid do Pix e do ID da devolução. O motivo que será atribuído à PACS.004 será "Devolução solicitada pelo usuário recebedor do pagamento original" cuja sigla é "MD06" de acordo com a aba RTReason da PACS.004 que consta no Catálogo de Mensagens do Pix.
+        Endpoint para solicitar uma devolução através de um e2eid do Pix e do ID da devolução. O motivo que será atribuído à PACS.004 será "MD06" ou "SL02" de acordo com a aba RTReason da PACS.004 que consta no Catálogo de Mensagens do Pix a depender da `natureza` da devolução (Vide a descrição deste campo).
       requestBody:
         $ref: "#/components/requestBodies/DevolucaoBody"
       responses:
@@ -1807,7 +1807,7 @@ components:
             troco:
               valor: "0.00"
               modalidadeAlteracao: 1
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGTEC"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVBody1:
@@ -2056,7 +2056,7 @@ components:
             troco:
               valor: "0.00"
               modalidadeAlteracao: 1
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGTEC"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVResponse1:
@@ -2679,27 +2679,54 @@ components:
       title: "Id da Devolução"
       description: "Id gerado pelo cliente para representar unicamente uma devolução."
       pattern: "[a-zA-Z0-9]{1,35}"
+    DevolucaoSolicitadaNatureza:
+      type: "string"
+      title: "Natureza da Devolução Solicitada"
+      description: |
+        Indica qual é a natureza da devolução solicitada. Uma solicitação de devolução pelo usuário recebedor pode ser relacionada a um Pix
+         comum (com código: `MD06` da pacs.004), ou a um Pix de Saque ou Troco (com códigos possíveis: `MD06` e `SL02` da pacs.004). Na ausência 
+         deste campo a natureza deve ser interpretada como sendo de um Pix comum (`ORIGINAL`).
+
+        As naturezas são assim definidas:
+        - `ORIGINAL`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix comum ou ao valor da compra em um Pix Troco (`MD06`);
+        - `RETIRADA`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix Saque ou ao valor do troco em um Pix Troco (`SL02`).
+
+        Os valores de devoluções são sempre limitados aos valores máximos a seguir:
+        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso deve ser: ORIGINAL);
+        - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso deve ser: RETIRADA); e
+        - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
+          - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
+          - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
+        
+      enum:
+        - "ORIGINAL"
+        - "RETIRADA"
     DevolucaoNatureza:
       type: "string"
       title: "Natureza da Devolução"
       description: |
-        Indica qual é a natureza da devolução. Uma devolução pode ser relacionada a um Pix comum (corresponde ao código `MD06` da pacs.004), 
-        ou a um Pix de Saque ou Troco (corresponde ao código `SL02` da pacs.004). Na ausência deste campo a natureza deve ser interpretada 
-        como sendo de um Pix comum (ORIGINAL).
+        Indica qual é a natureza da devolução. Uma devolução pode ser relacionada a um Pix comum (com códigos possíveis: `MD06`, `BE08` e `FR01` da pacs.004), 
+        ou a um Pix de Saque ou Troco (com códigos possíveis:  `MD06` e `SL02` da pacs.004). Na ausência deste campo a natureza deve ser interpretada como 
+        sendo de um Pix comum (`ORIGINAL`).
 
         As naturezas são assim definidas:
-        - `ORIGINAL`: quando a devolução se refere a um Pix comum ou ao valor da compra em um Pix Troco;
-        - `RETIRADA`: quando a devolução se refere a um Pix Saque ou ao valor do troco em um Pix Troco.
+          - `ORIGINAL`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix comum ou ao valor da compra em um Pix Troco (`MD06`);
+          - `RETIRADA`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix Saque ou ao valor do troco em um Pix Troco (`SL02`);
+          - `MED_OPERACIONAL`: quando a devolução ocorre no âmbito do MED por motivo de falha operacional e se refere a um Pix comum (`BE08`);
+          - `MED_FRAUDE`: quando a devolução ocorre no âmbito do MED por fundada suspeita de fraude e se refere a um Pix comum (`FR01`).
 
-        Os valores de devoluções são sempre limitados aos valores máximos de acordo com:
-          - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso é ORIGINAL);
-          - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso é RETIRADA);
-          - Pix Troco: o valor da devolução é limitado ao valor relativo à natureza da compra:
-            - ORIGINAL: limitado ao valor da compra;
-            - RETIRADA: limitado ao valor da retirada.
+        Os valores de devoluções são sempre limitados aos valores máximos a seguir:
+        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_OPERACIONAL ou MED_FRAUDE);
+        - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso deve ser: RETIRADA); e
+        - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
+          - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
+          - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
+        
       enum:
         - "ORIGINAL"
         - "RETIRADA"
+        - "MED_OPERACIONAL"
+        - "MED_FRAUDE"
     PayloadLocationId:
       type: "integer"
       format: "int64"
@@ -3163,7 +3190,7 @@ components:
           description: |
             É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
 
-            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Pix Saque ou Pix Troco. 
 
             Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
             - os campos `modalidadeAgente` e `prestadorDoServicoDeSaque` são de **preenchimento obrigatório**;
@@ -3233,7 +3260,7 @@ components:
                 "retirada": {
                   "troco": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3248,7 +3275,7 @@ components:
                   "troco": {
                     "valor": "0.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 },
@@ -3282,7 +3309,7 @@ components:
                   },
                   "troco": {
                     "valor": "30.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3312,7 +3339,7 @@ components:
                 "retirada": {
                   "troco": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3420,11 +3447,9 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr></table>
                       enum:
                         - "AGTEC"
-                        - "AGTOT"
-                        - "AGPSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Prestador do Serviço de Saque"
@@ -3452,7 +3477,7 @@ components:
           description: |
             É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
 
-            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Pix Saque ou Pix Troco. 
 
             Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
             - os campos `modalidadeAgente` e `prestadorDoServicoDeSaque` são de **preenchimento obrigatório**;
@@ -3522,7 +3547,7 @@ components:
                 "retirada": {
                   "troco": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3537,7 +3562,7 @@ components:
                   "troco": {
                     "valor": "0.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 },
@@ -3571,7 +3596,7 @@ components:
                   },
                   "troco": {
                     "valor": "30.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3601,7 +3626,7 @@ components:
                 "retirada": {
                   "troco": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTEC",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3805,6 +3830,7 @@ components:
               type: "string"
               title: "Pix Copia e Cola correspondente à cobrança."
               description: "Este campo retorna o valor do Pix Copia e Cola correspondente à cobrança. Trata-se da sequência de caracteres que representa o BR Code."
+              maxLength: 512              
         - $ref: "#/components/schemas/CobBase"
     CobSolicitada:
       type: "object"
@@ -4502,7 +4528,7 @@ components:
                 },
                 "troco": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGTEC",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               }
@@ -4514,7 +4540,7 @@ components:
               "componentesValor": {
                 "troco": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGTEC",
                   "prestadorDeServicoDeSaque": "12345678"
                 },
                 "original": {
@@ -4587,7 +4613,7 @@ components:
                 },
                 "troco": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGTEC",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               }
@@ -4804,7 +4830,7 @@ components:
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor solicitado para devolução. A soma dos valores de todas as devolucões não podem ultrapassar o valor total do Pix."
         natureza:
-          $ref: "#/components/schemas/DevolucaoNatureza"
+          $ref: "#/components/schemas/DevolucaoSolicitadaNatureza"
         descricao:
           type: "string"
           title: "Mensagem ao pagador relativa à devolução."
