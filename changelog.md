@@ -2,6 +2,15 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.6.2]
+
+- Inclusão do valor `AGTOT` no domínio do campo `valor.retirada.troco.modalidadeAgente`.
+- Ajuste da descrição do valor domínio `AGTOT` de 'Agente Outra Espécie de Pessoa Jurídica' para 'Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País'.
+- Exclusão do valor `AGPSS` dos domínios dos campos `PixValorTroco.troco.modalidadeAgente` e `CobPayload.valor.retirada.troco.modalidadeAgente`.
+- Substituição da expressão 'Prestador de Serviços de Saque' por 'Facilitador de Serviço de Saque' em linha com a nova instrução normativa.
+- Correção do exemplo '*cobrança com troco alterável*' para inclusão da estrutura `retirada`.
+- Correção do exemplo '*troco com valor.original alterável*', estrutura `retirada.troco` com `AGTOT`.
+
 ## [2.6.1]
 
 - Restrição da `modalidadeAgente` do Pix Troco para aceitar somente `AGTEC`.
