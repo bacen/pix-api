@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.6.1"
+  version: "2.6.2"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -3272,11 +3272,13 @@ components:
               ...
                 "valor": {
                   "original": "10.00",
-                  "troco": {
-                    "valor": "0.00",
-                    "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGTEC",
-                    "prestadorDoServicoDeSaque": "12345678"
+                  "retirada": {
+                    "troco": {
+                      "valor": "0.00",
+                      "modalidadeAlteracao": 1,
+                      "modalidadeAgente": "AGTEC",
+                      "prestadorDoServicoDeSaque": "12345678"
+                    }
                   }
                 },
               ...
@@ -3367,13 +3369,13 @@ components:
               ```
               ...
               "valor": {
-                "original": "0.00",
+                "original": "0.01",
                 "modalidadeAlteracao": 1,
                 "retirada": {
-                  "saque": {
+                  "troco": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTOT",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3410,16 +3412,16 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
                         - "AGPSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
-                      title: "Prestador do Serviço de Saque"
+                      title: "Facilitador de Serviço de Saque"
                       pattern: "\\d{8}"
-                      description: "ISPB do Prestador do Serviço de Saque"
+                      description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
                 troco:
@@ -3447,14 +3449,15 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
                       enum:
                         - "AGTEC"
+                        - "AGTOT"
                     prestadorDoServicoDeSaque:
                       type: "string"
-                      title: "Prestador do Serviço de Saque"
+                      title: "Facilitador de Serviço de Saque"
                       pattern: "\\d{8}"
-                      description: "ISPB do Prestador do Serviço de Saque"
+                      description: "ISPB do Facilitador de Serviço de Saque"
     CobPayloadValor:
       type: "object"
       title: "Valor da cobrança imediata retornada pelo payload"
@@ -3559,11 +3562,13 @@ components:
               ...
                 "valor": {
                   "original": "10.00",
-                  "troco": {
-                    "valor": "0.00",
-                    "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGTEC",
-                    "prestadorDoServicoDeSaque": "12345678"
+                  "retirada": {
+                    "troco": {
+                      "valor": "0.00",
+                      "modalidadeAlteracao": 1,
+                      "modalidadeAgente": "AGTEC",
+                      "prestadorDoServicoDeSaque": "12345678"
+                    }
                   }
                 },
               ...
@@ -3654,13 +3659,13 @@ components:
               ```
               ...
               "valor": {
-                "original": "0.00",
+                "original": "0.01",
                 "modalidadeAlteracao": 1,
                 "retirada": {
-                  "saque": {
+                  "troco": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGTOT",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -3697,16 +3702,16 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
                         - "AGPSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
-                      title: "Prestador do Serviço de Saque"
+                      title: "Facilitador de Serviço de Saque"
                       pattern: "\\d{8}"
-                      description: "ISPB do Prestador do Serviço de Saque"
+                      description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
                 troco:
@@ -3734,16 +3739,15 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
-                        - "AGPSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
-                      title: "Prestador do Serviço de Saque"
+                      title: "Facilitador de Serviço de Saque"
                       pattern: "\\d{8}"
-                      description: "ISPB do Prestador do Serviço de Saque"
+                      description: "ISPB do Facilitador de Serviço de Saque"
     CobVPayloadValor:
       type: "object"
       title: "Valor da cobrança com vencimento calculada retornada pelo payload"
@@ -4680,16 +4684,16 @@ components:
               title: "Modalidade do Agente"
               description: |
                 ##### Modalidade do Agente
-                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
               enum:
                 - "AGTEC"
                 - "AGTOT"
                 - "AGPSS"
             prestadorDoServicoDeSaque:
               type: "string"
-              title: "Prestador do Serviço de Saque"
+              title: "Facilitador de Serviço de Saque"
               pattern: "\\d{8}"
-              description: "ISPB do Prestador do Serviço de Saque"
+              description: "ISPB do Facilitador de Serviço de Saque"
     PixValorTroco:
       type: "object"
       properties:
@@ -4707,16 +4711,15 @@ components:
               title: "Modalidade do Agente"
               description: |
                 ##### Modalidade do Agente
-                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica</td></tr><tr><td>AGPSS</td><td>Agente Prestador de Serviço de Saque</td></tr></table>
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
               enum:
                 - "AGTEC"
                 - "AGTOT"
-                - "AGPSS"
             prestadorDoServicoDeSaque:
               type: "string"
-              title: "Prestador do Serviço de Saque"
+              title: "Facilitador de Serviço de Saque"
               pattern: "\\d{8}"
-              description: "ISPB do Prestador do Serviço de Saque"
+              description: "ISPB do Facilitador de Serviço de Saque"
     PixValorJuros:
       type: "object"
       properties:
