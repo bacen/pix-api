@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.4.0.rc-0"
+  version: "2.6.2"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -690,7 +690,7 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status da Cobrança"
+            title: "Status do registro da cobrança"
             description: "Filtro pelo status da cobrança."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
@@ -857,7 +857,7 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status da Cobrança"
+            title: "Status do registro da cobrança"
             description: "Filtro pelo status da cobrança."
         - name: "loteCobVId"
           in: "query"
@@ -1322,7 +1322,7 @@ paths:
       security:
         - OAuth2: [pix.write]
       description: |
-        Endpoint para solicitar uma devolução através de um e2eid do Pix e do ID da devolução. O motivo que será atribuído à PACS.004 será "Devolução solicitada pelo usuário recebedor do pagamento original" cuja sigla é "MD06" de acordo com a aba RTReason da PACS.004 que consta no Catálogo de Mensagens do Pix.
+        Endpoint para solicitar uma devolução através de um e2eid do Pix e do ID da devolução. O motivo que será atribuído à PACS.004 será "MD06" ou "SL02" de acordo com a aba RTReason da PACS.004 que consta no Catálogo de Mensagens do Pix a depender da `natureza` da devolução (Vide a descrição deste campo).
       requestBody:
         $ref: "#/components/requestBodies/DevolucaoBody"
       responses:
@@ -1410,7 +1410,7 @@ paths:
             ```
 
             Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
-            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
+            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix)__.
 
             Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
 
@@ -1486,7 +1486,7 @@ paths:
             ```
 
             Este objeto JWS assinado deve ser validado pelo devedor. Maiores detalhes técnicos a respeito da especificação
-            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos)__.
+            de segurança encontram-se no __[Manual de Segurança do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix)__.
 
             Conforme pode-se verificar no exemplo acima, o objeto JWS apresenta três fragmentos separados pelo caractere `.` (ponto). São eles: `header`, `payload` e `signature`.
 
@@ -1760,6 +1760,8 @@ components:
             saque:
               valor: "5.00"
               modalidadeAlteracao: 0
+              modalidadeAgente: "AGPSS"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobBody7:
       summary: "Exemplo de revisão de cobrança com vencimento 1"
@@ -1789,6 +1791,8 @@ components:
             saque:
               valor: "20.00"
               modalidadeAlteracao: 1
+              modalidadeAgente: "AGPSS"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobBody9:
       summary: "Exemplo de criação de cobrança imediata com Saque Pix 3"
@@ -1803,6 +1807,8 @@ components:
             troco:
               valor: "0.00"
               modalidadeAlteracao: 1
+              modalidadeAgente: "AGTEC"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVBody1:
       summary: "Exemplo de criação de lote de cobranças com vencimento 1"
@@ -1996,6 +2002,8 @@ components:
             saque:
               valor: "5.00"
               modalidadeAlteracao: 0
+              modalidadeAgente: "AGPSS"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobResponse6:
       summary: "Exemplo de cobrança imediata com Saque Pix 2"
@@ -2021,6 +2029,8 @@ components:
             saque:
               valor: "20.00"
               modalidadeAlteracao: 1
+              modalidadeAgente: "AGPSS"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobResponse7:
       summary: "Exemplo de cobrança imediata com Saque Pix 3"
@@ -2046,6 +2056,8 @@ components:
             troco:
               valor: "0.00"
               modalidadeAlteracao: 1
+              modalidadeAgente: "AGTEC"
+              prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     loteCobVResponse1:
       summary: "Exemplo de lote de cobranças com vencimento 1"
@@ -2161,10 +2173,12 @@ components:
         txid: "82433415910c47e5adb6ac3527cca160"
         valor: "200.00"
         componentesValor:
-          - tipo: "ORIGINAL"
+          original:
             valor: "180.00"
-          - tipo: "SAQUE"
+          saque:
             valor: "20.00"
+            modalidadeAgente: "AGPSS"
+            prestadorDeServicoDeSaque: "12345678"
         horario: "2020-09-10T13:03:33.902Z"
         infoPagador: "Saque Pix"
     webhookBody1:
@@ -2665,6 +2679,54 @@ components:
       title: "Id da Devolução"
       description: "Id gerado pelo cliente para representar unicamente uma devolução."
       pattern: "[a-zA-Z0-9]{1,35}"
+    DevolucaoSolicitadaNatureza:
+      type: "string"
+      title: "Natureza da Devolução Solicitada"
+      description: |
+        Indica qual é a natureza da devolução solicitada. Uma solicitação de devolução pelo usuário recebedor pode ser relacionada a um Pix
+         comum (com código: `MD06` da pacs.004), ou a um Pix de Saque ou Troco (com códigos possíveis: `MD06` e `SL02` da pacs.004). Na ausência 
+         deste campo a natureza deve ser interpretada como sendo de um Pix comum (`ORIGINAL`).
+
+        As naturezas são assim definidas:
+        - `ORIGINAL`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix comum ou ao valor da compra em um Pix Troco (`MD06`);
+        - `RETIRADA`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix Saque ou ao valor do troco em um Pix Troco (`SL02`).
+
+        Os valores de devoluções são sempre limitados aos valores máximos a seguir:
+        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso deve ser: ORIGINAL);
+        - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso deve ser: RETIRADA); e
+        - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
+          - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
+          - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
+        
+      enum:
+        - "ORIGINAL"
+        - "RETIRADA"
+    DevolucaoNatureza:
+      type: "string"
+      title: "Natureza da Devolução"
+      description: |
+        Indica qual é a natureza da devolução. Uma devolução pode ser relacionada a um Pix comum (com códigos possíveis: `MD06`, `BE08` e `FR01` da pacs.004), 
+        ou a um Pix de Saque ou Troco (com códigos possíveis:  `MD06` e `SL02` da pacs.004). Na ausência deste campo a natureza deve ser interpretada como 
+        sendo de um Pix comum (`ORIGINAL`).
+
+        As naturezas são assim definidas:
+          - `ORIGINAL`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix comum ou ao valor da compra em um Pix Troco (`MD06`);
+          - `RETIRADA`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix Saque ou ao valor do troco em um Pix Troco (`SL02`);
+          - `MED_OPERACIONAL`: quando a devolução ocorre no âmbito do MED por motivo de falha operacional e se refere a um Pix comum (`BE08`);
+          - `MED_FRAUDE`: quando a devolução ocorre no âmbito do MED por fundada suspeita de fraude e se refere a um Pix comum (`FR01`).
+
+        Os valores de devoluções são sempre limitados aos valores máximos a seguir:
+        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_OPERACIONAL ou MED_FRAUDE);
+        - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso deve ser: RETIRADA); e
+        - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
+          - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
+          - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
+        
+      enum:
+        - "ORIGINAL"
+        - "RETIRADA"
+        - "MED_OPERACIONAL"
+        - "MED_FRAUDE"
     PayloadLocationId:
       type: "integer"
       format: "int64"
@@ -2806,7 +2868,7 @@ components:
 
             * O campo chave determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
             * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
-            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
+            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
           maxLength: 77
         criacao:
           type: "string"
@@ -2845,14 +2907,15 @@ components:
             Trata-se da quantidade de dias corridos após calendario.dataDeVencimento,
             em que a cobrança poderá ser paga.
 
-            Aplica-se este campo sobre o vencimento original da cobrança acrescentando-se o
-            número de dias corridos nos quais a cobrança ainda poderá ser paga, após vencida.
-            Este valor não se sobrepõe à possibilidade de pagamento em data posterior ao vencimento
-            original por [força de lei](http://www.planalto.gov.br/ccivil_03/LEIS/L7089.htm).
-            Nesse sentido, um vencimento determinado para um dia não útil deverá ser acatado
-            no primeiro dia útil subsequente mesmo que exceda o número de dias definido neste campo.
+            Sempre que a data de vencimento cair em um fim de semana ou em um feriado para o usuário pagador,
+             ela deve ser automaticamente prorrogada para o primeiro dia útil subsequente. Todos os campos 
+             que façam referência a esta data (`validadeAposVencimento`; `desconto`; `juros` e `multa`) devem assumir 
+             essa prorrogação, quando for o caso.
 
-            Para ilustrar o funcionamento, seguem alguns exemplos:
+            Para ilustrar o funcionamento, seguem alguns exemplos, onde:
+            - ``(#)`` representa a data de vencimento;
+            - ``(*)`` representa a data ajustada em função de dias não úteis;
+            - os ``(<número>)`` correspondem aos dias adicionais de validade para o pagamento.
 
             Exemplo A:
 
@@ -2860,9 +2923,14 @@ components:
             dataDeVencimento: 2020-10-20, terça-feira.
             validadeAposVencimento: 4
 
-            Tenta-se pagar no dia 2020-10-23, sexta: aceito.
-            Tenta-se pagar no dia 2020-10-24, sábado: aceito.
-            Tenta-se pagar no dia 2020-10-25, domingo: negado.
+            Tenta-se pagar no dia 2020-10-20, terça: aceito. (#)(*)
+            Tenta-se pagar no dia 2020-10-21, quarta: aceito. (1)
+            Tenta-se pagar no dia 2020-10-22, quinta: aceito. (2)
+            Tenta-se pagar no dia 2020-10-23, sexta: aceito. (3)
+            Tenta-se pagar no dia 2020-10-24, sábado: aceito. 
+            Tenta-se pagar no dia 2020-10-25, domingo: aceito. (Feriado)
+            Tenta-se pagar no dia 2020-10-26, segunda: aceito. (4)
+            Tenta-se pagar no dia 2020-10-27, terça: negado.
             ```
 
             Exemplo B:
@@ -2871,10 +2939,10 @@ components:
             dataDeVencimento: 2020-12-25, sexta-feira, feriado.
             validadeAposVencimento: 0
 
-            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito. (#)(Feriado)
             Tenta-se pagar no dia 2020-12-26, sábado: aceito.
             Tenta-se pagar no dia 2020-12-27, domingo: aceito.
-            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito. (*)
             Tenta-se pagar no dia 2020-12-29, terça: negado.
             ```
 
@@ -2884,11 +2952,12 @@ components:
             dataDeVencimento: 2020-12-25, sexta-feira, feriado.
             validadeAposVencimento: 1
 
-            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito. (#)(Feriado)
             Tenta-se pagar no dia 2020-12-26, sábado: aceito.
             Tenta-se pagar no dia 2020-12-27, domingo: aceito.
-            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
-            Tenta-se pagar no dia 2020-12-29, terça: negado.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito. (*)
+            Tenta-se pagar no dia 2020-12-29, terça: aceito. (1)
+            Tenta-se pagar no dia 2020-12-30, quarta: negado.
             ```
 
             Exemplo D:
@@ -2897,28 +2966,68 @@ components:
             dataDeVencimento: 2020-12-25, sexta-feira, feriado.
             validadeAposVencimento: 3
 
-            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito. (#)(Feriado)
             Tenta-se pagar no dia 2020-12-26, sábado: aceito.
             Tenta-se pagar no dia 2020-12-27, domingo: aceito.
-            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
-            Tenta-se pagar no dia 2020-12-29, terça: negado.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito. (*)
+            Tenta-se pagar no dia 2020-12-29, terça: aceito. (1)
+            Tenta-se pagar no dia 2020-12-30, quarta: aceito. (2)
+            Tenta-se pagar no dia 2020-12-31, quinta: aceito. (3)
+            Tenta-se pagar no dia 2021-01-01, sexta: negado.
             ```
 
             Exemplo E:
-
 
             ```txt
             dataDeVencimento: 2020-12-25, sexta-feira, feriado.
             validadeAposVencimento: 4
 
-            Tenta-se pagar no dia 2020-12-25, sexta: aceito.
+            Tenta-se pagar no dia 2020-12-25, sexta: aceito. (#)(Feriado)
             Tenta-se pagar no dia 2020-12-26, sábado: aceito.
             Tenta-se pagar no dia 2020-12-27, domingo: aceito.
-            Tenta-se pagar no dia 2020-12-28, segunda: aceito.
-            Tenta-se pagar no dia 2020-12-29, terça: aceito.
-            Tenta-se pagar no dia 2020-12-30, quarta: negado.
+            Tenta-se pagar no dia 2020-12-28, segunda: aceito. (*)
+            Tenta-se pagar no dia 2020-12-29, terça: aceito. (1)
+            Tenta-se pagar no dia 2020-12-30, quarta: aceito. (2)
+            Tenta-se pagar no dia 2020-12-31, quinta: aceito. (3)
+            Tenta-se pagar no dia 2021-01-01, sexta: aceito. (Feriado)
+            Tenta-se pagar no dia 2021-01-02, sábado: aceito.
+            Tenta-se pagar no dia 2021-01-03, domingo: aceito.
+            Tenta-se pagar no dia 2021-01-04, segunda: aceito. (4)
+            Tenta-se pagar no dia 2021-01-05, terça: negado. 
             ```
 
+            Exemplo F:
+
+            ```txt
+            dataDeVencimento: 2021-08-27, sexta-feira.
+            validadeAposVencimento: 5
+
+            Tenta-se pagar no dia 2020-08-27, sexta: aceito. (#)(*)
+            Tenta-se pagar no dia 2020-08-28, sábado: aceito. (1)
+            Tenta-se pagar no dia 2020-08-29, domingo: aceito. (2)
+            Tenta-se pagar no dia 2020-08-30, segunda: aceito. (3)
+            Tenta-se pagar no dia 2020-12-31, terça: aceito. (4)
+            Tenta-se pagar no dia 2020-12-01, quarta: aceito. (5)
+            Tenta-se pagar no dia 2020-12-02, quinta: negado. 
+            ```
+
+            Exemplo G:
+
+            ```txt
+            dataDeVencimento: 2021-08-28, sábado.
+            validadeAposVencimento: 5
+
+            Tenta-se pagar no dia 2020-08-28, sábado: aceito. (#)
+            Tenta-se pagar no dia 2020-08-29, domingo: aceito. 
+            Tenta-se pagar no dia 2020-08-30, segunda: aceito. (*)
+            Tenta-se pagar no dia 2020-08-31, terça: aceito. (1)
+            Tenta-se pagar no dia 2020-09-01, quarta: aceito. (2)
+            Tenta-se pagar no dia 2020-09-02, quinta: aceito. (3)
+            Tenta-se pagar no dia 2020-09-03, sexta: aceito. (4)
+            Tenta-se pagar no dia 2020-09-04, sabado: aceito. 
+            Tenta-se pagar no dia 2020-09-05, domingo: aceito. 
+            Tenta-se pagar no dia 2020-09-06, segunda: aceito. (5) 
+            ```
           default: 30
     CobApresentacao:
       type: "object"
@@ -3081,9 +3190,10 @@ components:
           description: |
             É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
 
-            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Pix Saque ou Pix Troco. 
 
             Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
+            - os campos `modalidadeAgente` e `prestadorDoServicoDeSaque` são de **preenchimento obrigatório**;
             - quando o `saque` estiver presente a cobrança deve respeitar as seguintes condições:
               - O campo `valor.original` deve ser preenchido com **valor igual a 0.00 (zero)**;
               - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
@@ -3118,7 +3228,9 @@ components:
                 "original": "0.00",
                 "retirada": {
                   "saque": {
-                    "valor": "5.00"
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3130,9 +3242,11 @@ components:
               "valor": {
                 "original": "0.00",
                 "retirada": {
-                "saque": {
+                  "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3145,7 +3259,9 @@ components:
                 "original": "10.00",
                 "retirada": {
                   "troco": {
-                    "valor": "5.00"
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3156,15 +3272,32 @@ components:
               ...
                 "valor": {
                   "original": "10.00",
-                  "troco": {
-                    "valor": "0.00",
-                    "modalidadeAlteracao": 1
+                  "retirada": {
+                    "troco": {
+                      "valor": "0.00",
+                      "modalidadeAlteracao": 1,
+                      "modalidadeAgente": "AGTEC",
+                      "prestadorDoServicoDeSaque": "12345678"
+                    }
                   }
                 },
               ...
               ```
             #### Exemplos inválidos:
             Abaixo alguns exemplos que **não são válidos**. Convém observar que esta listagem não tem pretensão de ser completa, sendo tão somente uma referência para alguns erros possíveis.
+            - **saque sem `modalidadeAgente` e `prestadorDoServicoDeSaque`** 
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00"
+                  }
+                }
+              },
+              ...
+              ```
             - **cobrança com saque e troco juntos** (não pode ter os dois ao mesmo tempo)
               ```
               ...
@@ -3172,10 +3305,14 @@ components:
                 "original": "100.00",
                 "retirada": {
                   "saque": {
-                    "valor": "50.00"
+                    "valor": "50.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
                   },
                   "troco": {
-                    "valor": "30.00"
+                    "valor": "30.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3188,7 +3325,9 @@ components:
                 "original": "10.00",
                 "retirada": {
                   "saque": {
-                    "valor": "5.00"
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3201,7 +3340,9 @@ components:
                 "original": "0.00",
                 "retirada": {
                   "troco": {
-                    "valor": "5.00"
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3214,9 +3355,11 @@ components:
                 "original": "0.00",
                 "modalidadeAlteracao": 1,
                 "retirada": {
-                "saque": {
+                  "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3226,12 +3369,14 @@ components:
               ```
               ...
               "valor": {
-                "original": "0.00",
+                "original": "0.01",
                 "modalidadeAlteracao": 1,
                 "retirada": {
-                "saque": {
+                  "troco": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGTOT",
+                    "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
               },
@@ -3245,7 +3390,8 @@ components:
                 saque:
                   type: "object"
                   title: "Saque"
-                  required: ["valor"]
+                  required:
+                    ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
                   description: "Informações relacionadas ao saque"
                   properties:
                     valor:
@@ -3261,12 +3407,28 @@ components:
                       default: 0
                       title: "Modalidade de alteração do saque"
                       description: "Modalidade de alteração de valor do saque. Quando não preenchido o valor assumido é o 0 (zero)."
+                    modalidadeAgente:
+                      type: "string"
+                      title: "Modalidade do Agente"
+                      description: |
+                        ##### Modalidade do Agente
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                      enum:
+                        - "AGTEC"
+                        - "AGTOT"
+                        - "AGPSS"
+                    prestadorDoServicoDeSaque:
+                      type: "string"
+                      title: "Facilitador de Serviço de Saque"
+                      pattern: "\\d{8}"
+                      description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
                 troco:
                   type: "object"
                   title: "Troco"
-                  required: ["valor"]
+                  required:
+                    ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
                   description: "Informações relacionadas ao troco"
                   properties:
                     valor:
@@ -3282,6 +3444,20 @@ components:
                       default: 0
                       title: "Modalidade de alteração do troco"
                       description: "Modalidade de alteração de valor do troco. Quando não preenchido o valor assumido é o 0 (zero)."
+                    modalidadeAgente:
+                      type: "string"
+                      title: "Modalidade do Agente"
+                      description: |
+                        ##### Modalidade do Agente
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
+                      enum:
+                        - "AGTEC"
+                        - "AGTOT"
+                    prestadorDoServicoDeSaque:
+                      type: "string"
+                      title: "Facilitador de Serviço de Saque"
+                      pattern: "\\d{8}"
+                      description: "ISPB do Facilitador de Serviço de Saque"
     CobPayloadValor:
       type: "object"
       title: "Valor da cobrança imediata retornada pelo payload"
@@ -3304,9 +3480,10 @@ components:
           description: |
             É uma estrutura opcional relacionada ao conceito de recebimento de numerário. Apenas um agrupamento por vez é permitido, quando há `saque` não há `troco` e vice-versa. 
 
-            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Saque Pix. 
+            Quando uma cobrança imediata tem uma estrutura de `retirada` ela deixa de ser considerada Pix comum e passa à categoria de Pix Saque ou Pix Troco. 
 
             Para que o preenchimento do objeto `retirada` seja considerado válido as seguintes regras se aplicam:
+            - os campos `modalidadeAgente` e `prestadorDoServicoDeSaque` são de **preenchimento obrigatório**;
             - quando o `saque` estiver presente a cobrança deve respeitar as seguintes condições:
               - O campo `valor.original` deve ser preenchido com **valor igual a 0.00 (zero)**;
               - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
@@ -3318,148 +3495,183 @@ components:
 
             #### Exemplos válidos:
             Considerando os campos da estrutura `valor` e o predicado 'presente' cujo resultado é verdade quando a estrutura apontada é encontrada temos: 
-            - 1 - **uma cobrança com valor fixo** (condições: valor.original > 0 && valor.modalidadeAlteração = 0 && !presente(valor.retirada))
-            ```
-            ...
-            "valor": {
-              "original": "10.00"
-            },
-            ...
-            ```
-            - 2 - **uma cobrança com valor alterável** (condições: valor.original >= 0.00 && modalidadeAlteração = 1 && !presente(valor.retirada))
-            ```
-            ...
-            "valor": {
-              "original": "10.00",
-              "modalidadeAlteracao": 1
-            },
-            ```
-            - 3 - **saque com valor fixo** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor > 0 && valor.retirada.saque.modalidadeAlteracao = 0)
-            ```
-            ...
-            "valor": {
-              "original": "0.00",
-              "retirada": {
-                "saque": {
-                  "valor": "5.00"
-                 }
-              }
-            },
-            ...
-            ```
-            - 4 - **saque com valor alterável** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor >= 0 && valor.retirada.saque.modalidadeAlteracao = 1)
-            ```
-            ...
-            "valor": {
-              "original": "0.00",
-              "retirada": {
-              "saque": {
-                  "valor": "5.00",
-                  "modalidadeAlteracao": 1,
-                }
-              }
-            },
-            ...
-            ```
-            - 5 - **cobrança com troco fixo** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor > 0 && valor.retirada.troco.modalidadeAlteracao = 0)
-            ```
-            ...
-            "valor": {
-              "original": "10.00",
-              "retirada": {
-                "troco": {
-                  "valor": "5.00"
-                }
-              }
-            },
-            ...
-            ```
-            - 6 - **cobrança com troco alterável** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor >= 0 && valor.retirada.troco.modalidadeAlteracao = 1)
-            ```
-            ...
+            - **uma cobrança com valor fixo** (condições: valor.original > 0 && valor.modalidadeAlteração = 0 && !presente(valor.retirada))
+              ```
+              ...
+              "valor": {
+                "original": "10.00"
+              },
+              ...
+              ```
+            - **uma cobrança com valor alterável** (condições: valor.original >= 0.00 && modalidadeAlteração = 1 && !presente(valor.retirada))
+              ```
+              ...
               "valor": {
                 "original": "10.00",
-                "troco": {
-                  "valor": "0.00",
-                  "modalidadeAlteracao": 1
+                "modalidadeAlteracao": 1
+              },
+              ```
+            - **saque com valor fixo** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor > 0 && valor.retirada.saque.modalidadeAlteracao = 0)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
                 }
               },
-            ...
-            ```
+              ...
+              ```
+            - **saque com valor alterável** (condições: valor.original = 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.saque) && valor.retirada.saque.valor >= 0 && valor.retirada.saque.modalidadeAlteracao = 1)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
+            - **cobrança com troco fixo** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor > 0 && valor.retirada.troco.modalidadeAlteracao = 0)
+              ```
+              ...
+              "valor": {
+                "original": "10.00",
+                "retirada": {
+                  "troco": {
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
+            - **cobrança com troco alterável** (condições: valor.original > 0.00 && valor.modalidadeAlteração = 0 && presente(valor.retirada.troco) && valor.retirada.troco.valor >= 0 && valor.retirada.troco.modalidadeAlteracao = 1)
+              ```
+              ...
+                "valor": {
+                  "original": "10.00",
+                  "retirada": {
+                    "troco": {
+                      "valor": "0.00",
+                      "modalidadeAlteracao": 1,
+                      "modalidadeAgente": "AGTEC",
+                      "prestadorDoServicoDeSaque": "12345678"
+                    }
+                  }
+                },
+              ...
+              ```
             #### Exemplos inválidos:
             Abaixo alguns exemplos que **não são válidos**. Convém observar que esta listagem não tem pretensão de ser completa, sendo tão somente uma referência para alguns erros possíveis.
-            - 1 - **cobrança com saque e troco juntos** (não pode ter os dois ao mesmo tempo)
-            ```
-            ...
-            "valor": {
-              "original": "100.00",
-              "retirada": {
-                "saque": {
-                  "valor": "50.00"
-                 },
-                "troco": {
-                  "valor": "30.00"
-                 }
-              }
-            },
-            ...
-            ```
-            - 2 - **saque com valor.original maior que 0.00 (zero)** (saque requer valor.original = 0.00)
-            ```
-            ...
-            "valor": {
-              "original": "10.00",
-              "retirada": {
-                "saque": {
-                  "valor": "5.00"
-                 }
-              }
-            },
-            ...
-            ```
-            - 3 - **troco com valor.original igual a 0.00 (zero)** (para haver troco tem que haver valor.original > 0.00)
-            ```
-            ...
-            "valor": {
-              "original": "0.00",
-              "retirada": {
-                "troco": {
-                  "valor": "5.00"
-                 }
-              }
-            },
-            ...
-            ```
-            - 4 - **saque com valor.original alterável** (não se pode alterar o valor.original na presença do saque)
-            ```
-            ...
-            "valor": {
-              "original": "0.00",
-              "modalidadeAlteracao": 1,
-              "retirada": {
-              "saque": {
-                  "valor": "5.00",
-                  "modalidadeAlteracao": 1,
+            - **saque sem `modalidadeAgente` e `prestadorDoServicoDeSaque`** 
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00"
+                  }
                 }
-              }
-            },
-            ...
-            ```
-            - 5 - **troco com valor.original alterável** (não se pode alterar o valor.original na presença do troco)
-            ```
-            ...
-            "valor": {
-              "original": "0.00",
-              "modalidadeAlteracao": 1,
-              "retirada": {
-              "saque": {
-                  "valor": "5.00",
-                  "modalidadeAlteracao": 1,
+              },
+              ...
+              ```
+            - **cobrança com saque e troco juntos** (não pode ter os dois ao mesmo tempo)
+              ```
+              ...
+              "valor": {
+                "original": "100.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "50.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  },
+                  "troco": {
+                    "valor": "30.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
                 }
-              }
-            },
-            ...
-            ```
+              },
+              ...
+              ```
+            - **saque com valor.original maior que 0.00 (zero)** (saque requer valor.original = 0.00)
+              ```
+              ...
+              "valor": {
+                "original": "10.00",
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
+            - **troco com valor.original igual a 0.00 (zero)** (para haver troco tem que haver valor.original > 0.00)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "retirada": {
+                  "troco": {
+                    "valor": "5.00",
+                    "modalidadeAgente": "AGTEC",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
+            - **saque com valor.original alterável** (não se pode alterar o valor.original na presença do saque)
+              ```
+              ...
+              "valor": {
+                "original": "0.00",
+                "modalidadeAlteracao": 1,
+                "retirada": {
+                  "saque": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGPSS",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
+            - **troco com valor.original alterável** (não se pode alterar o valor.original na presença do troco)
+              ```
+              ...
+              "valor": {
+                "original": "0.01",
+                "modalidadeAlteracao": 1,
+                "retirada": {
+                  "troco": {
+                    "valor": "5.00",
+                    "modalidadeAlteracao": 1,
+                    "modalidadeAgente": "AGTOT",
+                    "prestadorDoServicoDeSaque": "12345678"
+                  }
+                }
+              },
+              ...
+              ```
           title: "Informações de retirada"
           type: "object"
           oneOf:
@@ -3468,7 +3680,8 @@ components:
                 saque:
                   type: "object"
                   title: "Saque"
-                  required: ["valor"]
+                  required:
+                    ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
                   description: "Informações relacionadas ao saque"
                   properties:
                     valor:
@@ -3484,12 +3697,28 @@ components:
                       default: 0
                       title: "Modalidade de alteração do saque"
                       description: "Modalidade de alteração de valor do saque. Quando não preenchido o valor assumido é o 0 (zero)."
+                    modalidadeAgente:
+                      type: "string"
+                      title: "Modalidade do Agente"
+                      description: |
+                        ##### Modalidade do Agente
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                      enum:
+                        - "AGTEC"
+                        - "AGTOT"
+                        - "AGPSS"
+                    prestadorDoServicoDeSaque:
+                      type: "string"
+                      title: "Facilitador de Serviço de Saque"
+                      pattern: "\\d{8}"
+                      description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
                 troco:
                   type: "object"
                   title: "Troco"
-                  required: ["valor"]
+                  required:
+                    ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
                   description: "Informações relacionadas ao troco"
                   properties:
                     valor:
@@ -3505,6 +3734,20 @@ components:
                       default: 0
                       title: "Modalidade de alteração do troco"
                       description: "Modalidade de alteração de valor do troco. Quando não preenchido o valor assumido é o 0 (zero)."
+                    modalidadeAgente:
+                      type: "string"
+                      title: "Modalidade do Agente"
+                      description: |
+                        ##### Modalidade do Agente
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
+                      enum:
+                        - "AGTEC"
+                        - "AGTOT"
+                    prestadorDoServicoDeSaque:
+                      type: "string"
+                      title: "Facilitador de Serviço de Saque"
+                      pattern: "\\d{8}"
+                      description: "ISPB do Facilitador de Serviço de Saque"
     CobVPayloadValor:
       type: "object"
       title: "Valor da cobrança com vencimento calculada retornada pelo payload"
@@ -3554,7 +3797,7 @@ components:
 
             * O campo chave determina a chave Pix registrada no DICT que será utilizada para a cobrança. Essa chave será lida pelo aplicativo do PSP do pagador para consulta ao DICT, que retornará a informação que identificará o recebedor da cobrança.
             * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
-            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
+            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
           maxLength: 77
         solicitacaoPagador:
           type: "string"
@@ -3580,6 +3823,19 @@ components:
                 title: "Valor"
                 description: "Dados do campo."
                 maxLength: 200
+    CobBaseCopiaCola:
+      type: "object"
+      title: "Cobrança Base com Copia e Cola"
+      description: "Atributos comuns a todas entidades de Cobrança que possuem informação de Copia e Cola"
+      allOf:
+        - type: "object"
+          properties:
+            pixCopiaECola:
+              type: "string"
+              title: "Pix Copia e Cola correspondente à cobrança."
+              description: "Este campo retorna o valor do Pix Copia e Cola correspondente à cobrança. Trata-se da sequência de caracteres que representa o BR Code."
+              maxLength: 512              
+        - $ref: "#/components/schemas/CobBase"
     CobSolicitada:
       type: "object"
       title: "Cobrança imediata solicitada"
@@ -3666,7 +3922,7 @@ components:
           properties:
             status:
               type: "string"
-              title: "Status da Cobrança"
+              title: "Status do registro da cobrança"
               enum:
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
@@ -3696,7 +3952,7 @@ components:
           properties:
             status:
               type: "string"
-              title: "Status da Cobrança"
+              title: "Status do registro da cobrança"
               enum:
                 - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - type: "object"
@@ -3749,20 +4005,14 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobValor"
-        - $ref: "#/components/schemas/CobBase"
+        - $ref: "#/components/schemas/CobBaseCopiaCola"
     CobVGerada:
       type: "object"
       title: "Cobrança com vencimento gerada"
@@ -3804,20 +4054,30 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
               required: ["original"]
               allOf:
                 - $ref: "#/components/schemas/CobVValor"
-        - $ref: "#/components/schemas/CobBase"
+        - $ref: "#/components/schemas/CobBaseCopiaCola"
+    CobrancaStatus:
+      type: "string"
+      title: "Status do registro da cobrança."
+      description: |
+        Estado do registro da cobrança. Não se confunde com o estado da cobrança em si, ou seja, não guarda relação com o fato de a cobrança encontrar-se vencida ou expirada, por exemplo.
+
+        Os status são assim definidos:
+        - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
+        - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
+        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança; e
+        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+      enum:
+        - "ATIVA"
+        - "CONCLUIDA"
+        - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+        - "REMOVIDA_PELO_PSP"
     LoteCobVGerado:
       title: "Lote de cobranças com vencimento gerado"
       type: "object"
@@ -3862,13 +4122,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
     CobCompleta:
       title: "Cobrança imediata completa"
       required: ["status"]
@@ -3878,13 +4132,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             pix:
@@ -3995,13 +4243,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
@@ -4037,13 +4279,7 @@ components:
         - type: "object"
           properties:
             status:
-              type: "string"
-              title: "Status da Cobrança"
-              enum:
-                - "ATIVA"
-                - "CONCLUIDA"
-                - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-                - "REMOVIDA_PELO_PSP"
+              $ref: "#/components/schemas/CobrancaStatus"
         - type: "object"
           properties:
             valor:
@@ -4160,7 +4396,7 @@ components:
           description: "Filtro pela existência de location vinculada."
         status:
           type: "string"
-          title: "Status da Cobrança"
+          title: "Status do registro da cobrança"
           description: "Filtro pelo status das cobranças."
         paginacao:
           $ref: "#/components/schemas/Paginacao"
@@ -4229,160 +4465,172 @@ components:
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor do Pix."
         componentesValor:
-          type: "array"
+          type: "object"
           title: "Informações sobre o valor do Pix"
           description: |-
-            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix.
+            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix, incluindo informações sobre as multas, juros, descontos e abatimentos quando o Pix for relativo a cobranças com vencimento.
 
-            Regras da listagem:
-            - O `valor` do Pix é igual ao somatório dos campos `valor` dos elementos dessa listagem;
-            - Não pode haver dois elementos com o mesmo tipo;
-            - Não pode haver simultaneamente um elemento do tipo `SAQUE` e outro elemento do tipo `TROCO`;
-            - Não há restrição na ordem dos elementos.
+            Regras da estrutura:
+            - O `valor` do Pix é igual a: 
+              - (`original.valor` + `saque.valor` + `troco.valor`) + `multa.valor` + `juros.valor` – `abatimento.valor` – `desconto.valor`
+              considerando-se apenas os campos que estiverem presentes para cada tipo de cobrança pago.
+            - As estruturas `saque` e `troco` só serão retornadas quando o Pix for relativo a um Pix Saque ou Pix Troco, respectivamente, e 
+            as demais estruturas (`juros`, `multa`, `abatimento` e `desconto`) só serão pertinentes aos Pix de pagamentos das cobranças com vencimento.
+            - Não pode haver simultaneamente uma subsestrutura do tipo `saque` e outra do tipo `troco`;
+            - Não há restrição na ordem das subestruturas.
 
-            Para o caso de uma retirada com saque pode-se retornar
-             um elemento de tipo=`ORIGINAL` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir
-              o elemento com tipo=`ORIGINAL`. No caso de um troco o elemento com tipo=`ORIGINAL` vai sempre estar presente.
+            Para o caso de um Pix Saque pode-se retornar `original` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir a 
+            subestrutura original. No caso de um Pix Troco ou de um pagamento de cobrança com vencimento a subsestrutura `original` vai sempre estar 
+            presente.
 
             #### Exemplos válidos:
             Exemplo de preenchimentos válidos. 
 
-            - **cobrança imediata (sem saque ou troco)**
+            - **Pix para pagamento de cobrança imediata (sem saque ou troco).**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "ORIGINAL",
+              "componentesValor": {
+                "original": {
                   "valor": "100.00"
                 } 
-              ]
+              }
               ...
               ```
-            - **cobrança imediata com saque**
+            - **Pix Saque.**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "SAQUE",
-                  "valor": "100.00"
+              "componentesValor": {
+                "saque": {
+                  "valor": "100.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
-              ]
+              }
               ...
               ```
-            - **cobrança imediata com saque (pode vir tipo=ORIGINAL e valor=0.00)**
+            - **Pix para pagamento de cobrança imediata com saque (pode vir original.valor=0.00).**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "ORIGINAL",
+              "componentesValor": {
+                "original": {
                   "valor": "0.00"
                 },
-                {
-                  "tipo": "SAQUE",
-                  "valor": "100.00"
+                "saque": {
+                  "valor": "100.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
-              ]
+              }
               ...
               ```
-            - **cobrança imediata com troco**
+            - **Pix Troco.**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "ORIGINAL",
+              "componentesValor": {
+                "original": {
                   "valor": "80.00"
                 },
-                {
-                  "tipo": "TROCO",
-                  "valor": "20.00"
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
-              ]
+              }
               ...
               ```
-            - **cobrança imediata com troco (ordem não importa)**
+            - **Pix para pagamento de cobrança imediata com troco (ordem não importa).**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "TROCO",
-                  "valor": "20.00"
+              "componentesValor": {
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
                 },
-                {
-                  "tipo": "ORIGINAL",
+                "original": {
                   "valor": "80.00"
                 }
-              ]
+              }
               ...
               ```
+            - **Pix para pagamento de cobrança com vencimento de R$100,00 considerando-se um atraso de 2 dias a uma multa de 3% e juros de 1% ao dia. O `valor` do Pix será R$105,00.**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "100.00"
+                },
+                "multa": {
+                  "valor": "3.00"
+                },
+                "juros": {
+                  "valor": "2.00"
+                }
+              }
+              ...
+              ```            
             #### Exemplos inválidos:
             Exemplos, não exaustivos, de preenchimentos inválidos.
-            - **`ORIGINAL` com valor maior que 0.00 (zero) e `SAQUE` juntos**
+            - **`original.valor` maior que 0.00 (zero) e `saque` juntos**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "ORIGINAL",
+              "componentesValor": {
+                "original": {
                   "valor": "80.00"
                 },
-                {
-                  "tipo": "SAQUE",
-                  "valor": "20.00"
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
-              ]
+              }
               ...
               ```
-            - **dois elementos de `SAQUE`**
+            - **dois elementos de `saque`**
               ```
               ...
               "componentesValor": [
-                {
-                  "tipo": "SAQUE",
-                  "valor": "20.00"
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 },
-                {
-                  "tipo": "SAQUE",
-                  "valor": "10.00"
+                "saque": {
+                  "valor": "10.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
               ]
               ...
               ```
-            - **cobrança imediata com `SAQUE` e `TROCO`**
+            - **saque e troco simultaneamente**
               ```
               ...
-              "componentesValor": [
-                {
-                  "tipo": "ORIGINAL",
+              "componentesValor": {
+                "original": {
                   "valor": "60.00"
                 },
-                {
-                  "tipo": "SAQUE",
-                  "valor": "20.00"
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGPSS",
+                  "prestadorDeServicoDeSaque": "12345678"
                 },
-                {
-                  "tipo": "TROCO",
-                  "valor": "20.00"
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
                 } 
-              ]
+              }
               ...
               ```
-          maximum: 50
-          items:
-            type: "object"
-            required: ["tipo", "valor"]
-            properties:
-              tipo:
-                type: "string"
-                title: "Tipo"
-                description: "Tipo do elemento de composição do valor do Pix."
-                enum:
-                  - "ORIGINAL"
-                  - "SAQUE"
-                  - "TROCO"
-              valor:
-                type: "string"
-                title: "Valor"
-                description: "Valor do elemento de composição do Pix."
-                pattern: "\\d{1,10}\\.\\d{2}"
+          anyOf:
+            - $ref: "#/components/schemas/PixValorOriginal"
+            - $ref: "#/components/schemas/PixValorSaque"
+            - $ref: "#/components/schemas/PixValorTroco"
+            - $ref: "#/components/schemas/PixValorJuros"
+            - $ref: "#/components/schemas/PixValorMulta"
+            - $ref: "#/components/schemas/PixValorAbatimento"
+            - $ref: "#/components/schemas/PixValorDesconto"
         chave:
           type: "string"
           title: "Chave DICT do recebedor"
@@ -4391,7 +4639,7 @@ components:
 
             * Campo chave do recebedor conforme atribuído na respectiva PACS008.
             * Os tipos de chave podem ser: telefone, e-mail, cpf/cnpj ou EVP.
-            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pagamentosinstantaneos).
+            * O formato das chaves pode ser encontrado na seção "Formatação das chaves do DICT no BR Code" do [Manual de Padrões para iniciação do Pix](https://www.bcb.gov.br/estabilidadefinanceira/pix).
           maxLength: 77
         horario:
           type: "string"
@@ -4407,6 +4655,119 @@ components:
           title: "Devoluções"
           items:
             $ref: "#/components/schemas/Devolucao"
+    PixValorOriginal:
+      type: "object"
+      properties:
+        original:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor original"
+              description: "Valor original do Pix."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorSaque:
+      type: "object"
+      properties:
+        saque:
+          type: "object"
+          required: ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor do Saque Pix"
+              description: "Valor do Saque Pix."
+              pattern: "\\d{1,10}\\.\\d{2}"
+            modalidadeAgente:
+              type: "string"
+              title: "Modalidade do Agente"
+              description: |
+                ##### Modalidade do Agente
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+              enum:
+                - "AGTEC"
+                - "AGTOT"
+                - "AGPSS"
+            prestadorDoServicoDeSaque:
+              type: "string"
+              title: "Facilitador de Serviço de Saque"
+              pattern: "\\d{8}"
+              description: "ISPB do Facilitador de Serviço de Saque"
+    PixValorTroco:
+      type: "object"
+      properties:
+        troco:
+          type: "object"
+          required: ["valor", "modalidadeAgente", "prestadorDoServicoDeSaque"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor do Troco Pix"
+              description: "Valor do Troco Pix."
+              pattern: "\\d{1,10}\\.\\d{2}"
+            modalidadeAgente:
+              type: "string"
+              title: "Modalidade do Agente"
+              description: |
+                ##### Modalidade do Agente
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr></table>
+              enum:
+                - "AGTEC"
+                - "AGTOT"
+            prestadorDoServicoDeSaque:
+              type: "string"
+              title: "Facilitador de Serviço de Saque"
+              pattern: "\\d{8}"
+              description: "ISPB do Facilitador de Serviço de Saque"
+    PixValorJuros:
+      type: "object"
+      properties:
+        juros:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo aos juros."
+              description: "Valor dos juros."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorMulta:
+      type: "object"
+      properties:
+        multa:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a multa."
+              description: "Valor da multa."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorDesconto:
+      type: "object"
+      properties:
+        desconto:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a desconto."
+              description: "Valor do desconto."
+              pattern: "\\d{1,10}\\.\\d{2}"
+    PixValorAbatimento:
+      type: "object"
+      properties:
+        abatimento:
+          type: "object"
+          required: ["valor"]
+          properties:
+            valor:
+              type: "string"
+              title: "Valor relativo a abatimento."
+              description: "Valor do abatimento."
+              pattern: "\\d{1,10}\\.\\d{2}"
     Devolucao:
       type: "object"
       title: "Devolução"
@@ -4427,6 +4788,13 @@ components:
           title: "Valor a devolver."
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor a devolver."
+        natureza:
+          $ref: "#/components/schemas/DevolucaoNatureza"
+        descricao:
+          type: "string"
+          title: "Mensagem ao pagador relativa à devolução."
+          maxLength: 140
+          description: "O campo `descricao`, opcional, determina um texto a ser apresentado ao pagador contendo informações sobre a devolução. Esse texto será preenchido, na pacs.004, pelo PSP do recebedor, no campo RemittanceInformation. O tamanho do campo na pacs.004 está limitado a 140 caracteres."
         horario:
           type: "object"
           properties:
@@ -4464,6 +4832,13 @@ components:
           title: "Valor"
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor solicitado para devolução. A soma dos valores de todas as devolucões não podem ultrapassar o valor total do Pix."
+        natureza:
+          $ref: "#/components/schemas/DevolucaoSolicitadaNatureza"
+        descricao:
+          type: "string"
+          title: "Mensagem ao pagador relativa à devolução."
+          description: "O campo `descricao`, opcional, determina um texto a ser apresentado ao pagador contendo informações sobre a devolução. Esse texto será preenchido, na pacs.004, pelo PSP do recebedor, no campo RemittanceInformation. O tamanho do campo na pacs.004 está limitado a 140 caracteres."
+          maxLength: 140
     ParametrosConsultaPayloadLocation:
       type: "object"
       title: "Parâmetros de consulta de locations"
