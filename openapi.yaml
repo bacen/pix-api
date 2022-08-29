@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.6.2"
+  version: "2.6.3"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -896,7 +896,7 @@ paths:
         required: true
         schema:
           type: "string"
-          title: "Id do lote de cobranças com vencimento"
+          title: "Identificador do lote de cobranças com vencimento, em formato de texto."
     put:
       tags:
         - "LoteCobV"
@@ -2697,7 +2697,7 @@ components:
         - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
           - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
           - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
-        
+
       enum:
         - "ORIGINAL"
         - "RETIRADA"
@@ -2721,7 +2721,7 @@ components:
         - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
           - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
           - Quando a devolução for referente ao troco, o valor limita-se ao valor do troco (a natureza nesse caso deve ser RETIRADA).
-        
+
       enum:
         - "ORIGINAL"
         - "RETIRADA"
@@ -3002,13 +3002,13 @@ components:
             dataDeVencimento: 2021-08-27, sexta-feira.
             validadeAposVencimento: 5
 
-            Tenta-se pagar no dia 2020-08-27, sexta: aceito. (#)(*)
-            Tenta-se pagar no dia 2020-08-28, sábado: aceito. (1)
-            Tenta-se pagar no dia 2020-08-29, domingo: aceito. (2)
-            Tenta-se pagar no dia 2020-08-30, segunda: aceito. (3)
-            Tenta-se pagar no dia 2020-12-31, terça: aceito. (4)
-            Tenta-se pagar no dia 2020-12-01, quarta: aceito. (5)
-            Tenta-se pagar no dia 2020-12-02, quinta: negado. 
+            Tenta-se pagar no dia 2021-08-27, sexta: aceito. (#)(*)
+            Tenta-se pagar no dia 2021-08-28, sábado: aceito. (1)
+            Tenta-se pagar no dia 2021-08-29, domingo: aceito. (2)
+            Tenta-se pagar no dia 2021-08-30, segunda: aceito. (3)
+            Tenta-se pagar no dia 2021-08-31, terça: aceito. (4)
+            Tenta-se pagar no dia 2021-09-01, quarta: aceito. (5)
+            Tenta-se pagar no dia 2021-09-02, quinta: negado. 
             ```
 
             Exemplo G:
@@ -3017,16 +3017,16 @@ components:
             dataDeVencimento: 2021-08-28, sábado.
             validadeAposVencimento: 5
 
-            Tenta-se pagar no dia 2020-08-28, sábado: aceito. (#)
-            Tenta-se pagar no dia 2020-08-29, domingo: aceito. 
-            Tenta-se pagar no dia 2020-08-30, segunda: aceito. (*)
-            Tenta-se pagar no dia 2020-08-31, terça: aceito. (1)
-            Tenta-se pagar no dia 2020-09-01, quarta: aceito. (2)
-            Tenta-se pagar no dia 2020-09-02, quinta: aceito. (3)
-            Tenta-se pagar no dia 2020-09-03, sexta: aceito. (4)
-            Tenta-se pagar no dia 2020-09-04, sabado: aceito. 
-            Tenta-se pagar no dia 2020-09-05, domingo: aceito. 
-            Tenta-se pagar no dia 2020-09-06, segunda: aceito. (5) 
+            Tenta-se pagar no dia 2021-08-28, sábado: aceito. (#)
+            Tenta-se pagar no dia 2021-08-29, domingo: aceito. 
+            Tenta-se pagar no dia 2021-08-30, segunda: aceito. (*)
+            Tenta-se pagar no dia 2021-08-31, terça: aceito. (1)
+            Tenta-se pagar no dia 2021-09-01, quarta: aceito. (2)
+            Tenta-se pagar no dia 2021-09-02, quinta: aceito. (3)
+            Tenta-se pagar no dia 2021-09-03, sexta: aceito. (4)
+            Tenta-se pagar no dia 2021-09-04, sabado: aceito. 
+            Tenta-se pagar no dia 2021-09-05, domingo: aceito. 
+            Tenta-se pagar no dia 2021-09-06, segunda: aceito. (5) 
             ```
           default: 30
     CobApresentacao:
@@ -3150,7 +3150,7 @@ components:
                       - properties:
                           data:
                             title: "Data limite para o desconto absoluto da cobrança"
-                            description: 'Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par "data e valorPerc", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor que a data de vencimento da cobrança.'
+                            description: 'Descontos por pagamento antecipado, com data fixa. Matriz com até três elementos, sendo que cada elemento é composto por um par "data e valorPerc", para estabelecer descontos percentuais ou absolutos, até aquela data de pagamento. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. A data de desconto obrigatoriamente deverá ser menor ou igual à data de vencimento da cobrança.'
                             type: "string"
                             format: "date"
                             example: "2020-04-01"
@@ -3412,7 +3412,7 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
@@ -3702,7 +3702,7 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
@@ -3834,7 +3834,7 @@ components:
               type: "string"
               title: "Pix Copia e Cola correspondente à cobrança."
               description: "Este campo retorna o valor do Pix Copia e Cola correspondente à cobrança. Trata-se da sequência de caracteres que representa o BR Code."
-              maxLength: 512              
+              maxLength: 512
         - $ref: "#/components/schemas/CobBase"
     CobSolicitada:
       type: "object"
@@ -4155,7 +4155,7 @@ components:
         id:
           type: "integer"
           format: "int64"
-          title: "Id do lote"
+          title: "Identificador do lote em formato numérico."
         descricao:
           type: "string"
           title: "Descrição do lote"
@@ -4451,7 +4451,7 @@ components:
     Pix:
       type: "object"
       title: "Pix"
-      required: ["endToEndId", "valor", "horario", "pagador"]
+      required: ["endToEndId", "valor", "horario"]
       properties:
         endToEndId:
           $ref: "#/components/schemas/EndToEndId"
@@ -4684,7 +4684,7 @@ components:
               title: "Modalidade do Agente"
               description: |
                 ##### Modalidade do Agente
-                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
               enum:
                 - "AGTEC"
                 - "AGTOT"

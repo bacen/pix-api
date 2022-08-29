@@ -2,6 +2,14 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.6.3]
+
+- Inclusão de esclarecimento referente ao domínio `AGPSS` do campo `modalidadeAgente` para Pix Saque e Pix Troco, dispondo que ele deve ser convertido para `AGFSS` na elaboração da mensagem `pacs.008`. Optou-se pela não alteração desse domínio (para `AGFSS`) na API Pix neste momento, ficando a uniformização com o Catálogo de Mensagens do SPI reservada para a próxima *major version* da API Pix.
+- Descontos em cobranças com vencimento agora podem ser aplicados para datas **menores ou iguais** à data de vencimento.
+- Correção dos exemplos `F` e `G` conforme apontado na issue [[#485](https://github.com/bacen/pix-api/issues/485)].
+- Uniformização das descrições dos campos `/lotecobv/{id}` do request e `id` no response do GET `/lotecobv/{id}` que semânticamente são o mesmo valor.
+- Remoção do 'pagador' como campo obrigatório do 'Pix' no *seu respectivo schema*.
+
 ## [2.6.2]
 
 - Inclusão do valor `AGTOT` no domínio do campo `valor.retirada.troco.modalidadeAgente`.
