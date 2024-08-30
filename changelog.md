@@ -2,6 +2,17 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.7.0-RC1]
+
+- Inclusão das tags relacionadas ao Pix Automático:
+  -	`RecPayload`: que reúne os endpoints (locations) utilizados pelo software do PSP pagador para recuperar o payload JSON que representa uma recorrência;
+  - `Rec`: que reúne os endpoints destinados a lidar com o gerenciamento de recorrências;
+  - `SolicRec`: que reúne os endpoints destinados a lidar com o gerenciamento de solicitações de confirmação de recorrências;
+  - `CobR`: que reúne os endpoints destinados a lidar com o gerenciamento de cobranças associadas a uma recorrência;
+  - `PayloadLocationRec`: que reúne os endpoints destinados a lidar com a configuração e a remoção de locations para uso dos payloads de recorrências;
+  - `WebhookRec`: que reúne os endpoints para o gerenciamento de notificações de recorrências por parte do PSP recebedor ao usuário recebedor; e
+  - `WebhookCobR`: que reúne os endpoints para o gerenciamento de notificações de cobranças recorrentes por parte do PSP recebedor ao usuário recebedor.
+
 ## [2.6.3]
 
 - Inclusão de esclarecimento referente ao domínio `AGPSS` do campo `modalidadeAgente` para Pix Saque e Pix Troco, dispondo que ele deve ser convertido para `AGFSS` na elaboração da mensagem `pacs.008`. Optou-se pela não alteração desse domínio (para `AGFSS`) na API Pix neste momento, ficando a uniformização com o Catálogo de Mensagens do SPI reservada para a próxima *major version* da API Pix.
