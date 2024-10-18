@@ -2,6 +2,18 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.7.0]
+
+- Inclusão do campo `rec.dadosQR` contendo os campos `pixCopiaECola` e `jornada` referentes ao response do GET `/rec/{idRec}?txid={txid}` fornecendo informações complementares relacionadas a respectiva jornada e QRCode com exemplos.
+- Remoção do campo `rec.pagador` no response do POST `/rec` e PATCH `/rec/{idRec}`.
+- Remoção do campo `rec.cobr` no response do GET `/rec` e GET `/rec/{idRec}` e inserido `idRec` como parâmetro de busca em GET `/cobr`.
+- Ajuste no campo `cobr.dadosDevedor` substituído por `cobr.devedor`.
+- Ajuste no campo `cobr.contaRecebedor` substituido por `cobr.recebedor`.
+- Ajuste no campo `cobr.valor` substituido por `cobr.valor.original`.
+- Ajuste no campo `cobr.ajusteDiaUtil` para valor default `true`.
+- Inclusão do campo `cobr.vinculo.devedor.nome` no request do PATCH `/cobr/{txid}`.
+
+
 ## [2.7.0-RC1]
 
 - Inclusão das tags relacionadas ao Pix Automático:
