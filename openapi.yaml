@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.7.0-RC1"
+  version: "2.7.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -47,11 +47,11 @@ info:
     # Tratamento de erros
 
     A API Pix retorna códigos de status HTTP para indicar sucesso ou falhas das
-    requisições.
-
-    Códigos `2xx` indicam sucesso. Códigos `4xx` indicam falhas causadas pelas
-    informações enviadas pelo cliente ou pelo estado atual das entidades. Códigos `5xx`
-    indicam problemas no serviço no lado da API Pix.
+    requisições, são eles:
+    - Códigos `2xx` indicam sucesso; 
+    - Códigos `4xx` indicam falhas causadas pelas
+    informações enviadas pelo cliente ou pelo estado atual das entidades e;
+    - Códigos `5xx` indicam problemas no serviço no lado da API Pix.
 
     As respostas de erro incluem no corpo detalhes do erro seguindo o
     _schema_ da [RFC 7807](https://tools.ietf.org/html/rfc7807).
@@ -63,6 +63,11 @@ info:
     O padrão acima listado, referente ao campo `type`, não consiste, necessariamente, em uma
     URL que apresentará uma página web válida, ou um endpoint válido, embora possa, futuramente,
     ser exatamente o caso. O objetivo primário é apenas e tão somente identificar o tipo de erro.
+
+    Convém reforçar que a API Pix contempla uma lista de produtos e respectivas funcionalidades ofertadas pelo PSP recebedor. 
+    Cabendo à relação contratual com cada usuário recebedor a concessão da totalidade ou de um subconjunto de acessos
+    relacionados aos produtos ofertados. Por exemplo, o usuário recebedor, ao acessar uma funcionalidade não contemplada 
+    no seu escopo contratual, receberá o erro geral `AcessoNegado` descrito na próxima seção.
 
     Abaixo estão listados os tipos de erro e possíveis violações da API Pix.
 
@@ -188,7 +193,7 @@ info:
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[POST|PATCH] /rec/{idRec}`.
 
-    __Violações__ para os endpoints `POST /rec`:
+    __Violações__ para o endpoint `POST /rec`:
       - O objeto `rec.vinculo` não respeita o _schema_.
       - O campo `rec.calendario.dataInicial` é anterior à data de criação da recorrência.
       - O campo `rec.calendario.dataFinal` é anterior ao campo `rec.calendario.dataInicial`.
@@ -202,13 +207,16 @@ info:
       - O location referenciado por `rec.loc` inexiste.
       - O location referenciado por `rec.loc` já está sendo utilizado por outra recorrência.
 
-    __Violações__ para os endpoints `PATCH /rec/{idRec}`:
+    __Violações__ para o endpoint `PATCH /rec/{idRec}`:
 
       - O campo `rec.calendario.dataInicial` é anterior à data de criação da recorrência.
       - O location referenciado por `rec.loc` inexiste.
       - O location referenciado por `rec.loc` já está sendo utilizado por outra recorrência.
       - O campo `rec.status` não respeita o _schema_.
       - A recorrência encontra-se encerrada.
+      - O campo `rec.loc` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
+      - O campo `rec.calendario.dataInicial` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
+      - O campo `rec.dadosJornada.txid` não pode ser alterado quando a recorrência apresentar-se com o status REJEITADA ou CANCELADA.
 
     ### `RecConsultaInvalida`
 
@@ -238,14 +246,19 @@ info:
 
     ### `SolicRecOperacaoInvalida`
 
-    * __Significado__: a requisição que busca criar uma solicitação de confirmação de recorrência que não respeita o _schema_ ou está semanticamente errada.
+    * __Significado__: a requisição que busca criar ou alterar uma solicitação de confirmação de recorrência que não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `[POST] /solicrec/{idSolicRec}`.
+    * __endpoints__: `[POST] /solicrec` e `PATCH /solicrec/{idSolicRec}`.
 
-    __Violações__ para os endpoints `POST /solicrec`:
+    __Violações__ para o endpoint `POST /solicrec`:
       - O objeto `solicrec.calendario` não respeita o _schema_.
       - O campo `solicrec.calendario.dataExpiracaoSolicitacao` é anterior à data de criação da solicitação da recorrência.
       - O objeto `solicrec.destinatario` não respeita o _schema_.
+      - Existe uma solicitação ativa referente ao mesmo `solicrec.idRec`.
+    
+    __Violações__ para o endpoint `PATCH /solicrec/{idSolicRec}`:
+
+      - Não é possível cancelar uma solicitação de recorrência com o status diferente de CRIADA ou RECEBIDA
 
     ## Tag CobR
 
@@ -264,20 +277,20 @@ info:
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[POST|PUT|PATCH] /cobr/{txid}` e  `[POST] /cobr/{txid}/retentativa/{data}`.
 
-    __Violações__ para os endpoints `POST|PUT /cobr/{txid}`:
+    __Violações__ para o endpoint `POST|PUT /cobr/{txid}`:
       - O campo `cobr.infoAdicional` não respeita o _schema_.
       - O campo `cobr.status` não respeita o _schema_.
       - O objeto `cobr.calendario` não respeita o _schema_.
-      - O campo `cobr.calendario.dataVencimento` é anterior à data de criação da cobrança.
+      - O campo `cobr.calendario.dataDeVencimento` é anterior à data de criação da cobrança.
       - O campo `cobr.valor` não respeita o _schema_.
-      - O objeto `cobr.contaRecebedor` não respeita o _schema_.
-      - Os campos `cobr.contaRecebedor.conta` e `cobr.contaRecebedor.agencia` correspondem a uma conta que não pertence a este usuário recebedor.
-      - O objeto `cobr.dadosDevedor` não respeita o _schema_.
+      - O objeto `cobr.recebedor` não respeita o _schema_.
+      - Os campos `cobr.recebedor.conta` e `cobr.recebedor.agencia` correspondem a uma conta que não pertence a este usuário recebedor.
+      - O objeto `cobr.devedor` não respeita o _schema_.
       - O campo `cobr.txid` encontra-se em uso.
       - Existe uma cobrança expirada referente ao mesmo `cobr.idRec` no mesmo período.
       - Existe uma cobrança criada referente ao mesmo `cobr.idRec` no mesmo período.
 
-    __Violações__ para os endpoints `PATCH /cobr/{txid}`:
+    __Violações__ para o endpoint `PATCH /cobr/{txid}`:
 
       - Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira liquidação.
 
@@ -2294,13 +2307,20 @@ paths:
     get:
       tags:
         - "Rec"
+      parameters:
+        - name: "txid"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            title: "TxId da cobrança associada a recorrência."
       summary: "Consultar recorrência."
       security:
         - OAuth2: [rec.read]
       description: "Consultar recorrência."
       responses:
         "200":
-          description: "Dados da cobrança imediata."
+          description: "Dados da recorrência."
           content:
             "application/json":
               schema:
@@ -2312,6 +2332,10 @@ paths:
                   $ref: "#/components/examples/recResponse4"
                 response3:
                   $ref: "#/components/examples/recResponse5"
+                response4:
+                  $ref: "#/components/examples/recResponse6"
+                response5:
+                  $ref: "#/components/examples/recResponse7"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -2387,8 +2411,8 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status do registro da cobrança"
-            description: "Filtro pelo status da cobrança."
+            title: "Status do registro da recorrência"
+            description: "Filtro pelo status da recorrência."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -2697,6 +2721,15 @@ paths:
           required: true
           schema:
             $ref: "#/components/schemas/Fim"
+        - name: "idRec"
+          in: "query"
+          schema:
+            type: "string"
+            title: "ID Recorrência"
+            pattern: "[a-zA-Z0-9]{29}"
+            minLength: 29
+            maxLength: 29
+            description: "Filtro pelo Identificador da Recorrência."
         - name: "cpf"
           in: "query"
           schema:
@@ -2725,7 +2758,7 @@ paths:
       security:
         - OAuth2: [cobr.read]
       description: |-
-        Endpoint para consultar cobranças recorrentes através de parâmetros como início, fim, cpf, cnpj e status.
+        Endpoint para consultar cobranças recorrentes através de parâmetros como início, fim, idRec, cpf, cnpj e status.
       responses:
         "200":
           description: "Lista de cobranças recorrentes."
@@ -2961,16 +2994,17 @@ components:
         idRec: RR1234567820240115abcdefghijk
         infoAdicional: "Serviços de Streamming de Música e Filmes."
         calendario:
-          dataVencimento: "2024-04-15"
-        valor: "106.07"
-        ajusteDiaUtil: false
-        dadosDevedor:
+          dataDeVencimento: "2024-04-15"
+        valor: 
+          original: "106.07"
+        ajusteDiaUtil: true
+        devedor:
           cep: "89256-140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
           uf: "MG"
-        contaRecebedor:
+        recebedor:
           agencia: "9708"
           conta: "012682"
           tipoConta: CORRENTE
@@ -2985,19 +3019,20 @@ components:
         txid: 3136957d93134f2184b369e8f1c0729d
         infoAdicional: "Serviços de Streamming de Música e Filmes."
         calendario:
-          dataCriacao: "2024-04-01"
-          dataVencimento: "2024-04-15"
+          criacao: "2024-04-01"
+          dataDeVencimento: "2024-04-15"
         status: CRIADA
-        valor: "106.07"
+        valor:
+          original: "106.07"
         politicaRetentativa: PERMITE_3R_7D
-        ajusteDiaUtil: false
-        dadosDevedor:
+        ajusteDiaUtil: true
+        devedor:
           cep: "89256-140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
           uf: "MG"
-        contaRecebedor:
+        recebedor:
           agencia: "9708"
           conta: "012682"
           tipoConta: CORRENTE
@@ -3011,18 +3046,20 @@ components:
         txid: 3136957d93134f2184b369e8f1c0729d
         infoAdicional: "Serviços de Streamming de Música e Filmes."
         calendario:
-          dataCriacao: "2024-04-01"
-          dataVencimento: "2024-04-15"
-        valor: "106.07"
+          criacao: "2024-04-01"
+          dataDeVencimento: "2024-04-15"
+        valor: 
+          original: "106.07"
         status: CRIADA
         politicaRetentativa: PERMITE_3R_7D
-        dadosDevedor:
+        ajusteDiaUtil: true
+        devedor:
           cep: "89256-140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
           uf: "MG"
-        contaRecebedor:
+        recebedor:
           agencia: "9708"
           conta: "012682"
           tipoConta: CORRENTE
@@ -3035,19 +3072,20 @@ components:
         idRec: RR123456782024061999000566354
         txid: 7f733863543b4a16b516d839bd4bc34e
         calendario:
-          dataCriacao: "2024-05-20"
-          dataVencimento: "2024-06-20"
-        valor: "50.33"
-        ajusteDiaUtil: true
+          criacao: "2024-05-20"
+          dataDeVencimento: "2024-06-20"
+        valor: 
+          original: "50.33"
         status: ATIVA
         politicaRetentativa: PERMITE_3R_7D
-        dadosDevedor:
+        ajusteDiaUtil: true
+        devedor:
           cep: "63259-740"
           cidade: "Campinas"
           email: "beltrano.silva@mail.com"
           logradouro: "Rua Gonçalves Dias 605"
           uf: "SP"
-        contaRecebedor:
+        recebedor:
           cnpj: "58966551101210"
           conta: "997182"
           tipoConta: CORRENTE
@@ -3071,19 +3109,20 @@ components:
         idRec: RN985156112024071999000566354
         txid: 517bd858b59d458a841280b0f0a60bfa
         calendario:
-          dataCriacao: "2024-05-20"
-          dataVencimento: "2024-06-20"
-        valor: "210.00"
+          criacao: "2024-05-20"
+          dataDeVencimento: "2024-06-20"
+        valor: 
+          original: "210.00"
         status: CANCELADA
-        ajusteDiaUtil: true
         politicaRetentativa: NAO_PERMITE
-        dadosDevedor:
+        ajusteDiaUtil: true
+        devedor:
           cep: "26901-340"
           cidade: "São Luís"
           email: "fulano.tal@mail.com"
           logradouro: "Alameda Cardoso 1007"
           uf: "MA"
-        contaRecebedor:
+        recebedor:
           cnpj: "31166575201770"
           conta: "107262"
           nome: "Empresa de Telecomunicações SA"
@@ -3095,7 +3134,7 @@ components:
             status: CANCELADA 
         encerramento:
           cancelamento:
-            solicitante: "CANCELADA_PELO_USUARIO_RECEBEDOR"
+            solicitante: "USUARIO_RECEBEDOR"
             codigo: "SLCR"
             descricao: "Cancelamento de agendamento solicitado pelo usuário recebedor"
         atualizacao:
@@ -3399,6 +3438,9 @@ components:
       summary: "Exemplo de Revisão de Recorrência 1"
       value:
         loc: 108
+        vinculo:
+          devedor:
+            nome: "Fulano de Tal"
         calendario:
           dataInicial: "2024-04-01"
         ativacao:
@@ -3430,12 +3472,9 @@ components:
           id: 108
           location: pix.example.com/qr/v2/rec/2353c790eefb11eaadc10242ac120002
           idRec: RN1234567820240115abcdefghijk
-        pagador:
-          codMun: "6303804"
-          cpf: "45164632481"
-          ispbParticipante: "74323923"
         ativacao:
           dadosJornada:
+            tipoJornada: JORNADA_3
             txid: "33beb661beda44a8928fef47dbeb2dc5"
         atualizacao:
           - data: "2023-12-19T12:28:05.230Z"
@@ -3460,15 +3499,11 @@ components:
         valor:
           valorMinimoRecebedor: "5000.00"
         status: CRIADA
-        pagador:
-          codMun: "1203774"
-          cpf: "02989131415"
-          ispbParticipante: "89123731"
         atualizacao:
           - data: "2024-01-11T10:27:01.280Z"
             nome: CRIADA
     recResponse3:
-      summary: "Exemplo de Recorrência Completa 1"
+      summary: "Exemplo de Recorrência Completa com Dados QR Jornada 2"
       value:
         idRec: RN1234567820240115abcdefghijk
         status: APROVADA
@@ -3502,8 +3537,11 @@ components:
             nome: CRIADA
           - data: "2024-01-04T09:40:42.210Z"
             nome: APROVADA
+        dadosQR:
+          jornada: JORNADA_2
+          pixCopiaECola: 00020126180014br.gov.bcb.pix5204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80800014br.gov.bcb.pix2558pix.example.com/qr/v2/rec/2353c790eefb11eaadc10242ac120002630462C9
     recResponse4:
-      summary: "Exemplo de Recorrência Completa 2"
+      summary: "Exemplo de Recorrência Completa Jornada 1"
       value:
         idRec: RR7784567820240528123defgh775
         status: CRIADA
@@ -3531,7 +3569,7 @@ components:
           - data: "2024-01-03T08:30:02.050Z"
             nome: CRIADA
     recResponse5:
-      summary: "Exemplo de Recorrência Completa 3"
+      summary: "Exemplo de Recorrência Completa Jornada 1 com Cancelamento"
       value:
         idRec: RR1026652320240821lab77511abf
         status: CANCELADA
@@ -3557,7 +3595,7 @@ components:
           nome: "Universidade Brasileira"
         encerramento:
           cancelamento:
-            solicitante: "CANCELADA_PELO_USUARIO_RECEBEDOR"
+            solicitante: "USUARIO_RECEBEDOR"
             codigo: "SLCR"
             descricao: "Cancelamento solicitado pelo usuário recebedor"
         atualizacao:
@@ -3567,6 +3605,72 @@ components:
             nome: APROVADA
           - data: "2024-10-06T15:05:33.305Z"
             nome: CANCELADA
+        ativacao:
+          tipoJornada: JORNADA_1
+    recResponse6:
+      summary: "Exemplo de Recorrência Completa com Dados QR Jornada 3"
+      value:
+        idRec: RN1234567820241203fghijkabcde
+        status: CRIADA
+        valor:
+          valorRec: "150.00"
+        vinculo:
+          contrato: "5582610"
+          devedor:
+            cpf: "45164632481"
+            nome: "Fulano de Tal"
+          objeto: "Serviços de Gestão de Imóveis"
+        calendario:
+          dataFinal: "2028-09-01"
+          dataInicial: "2025-02-01"
+          periodicidade: MENSAL
+        politicaRetentativa: NAO_PERMITE
+        loc:
+          criacao: "2024-10-01T10:15:01.115Z"
+          id: 2726
+          location: pix.example.com/qr/v2/rec/94ed2badcbc04c15b0bb7fa353194890
+          idRec: RN1234567820241203fghijkabcde
+        recebedor:
+          cnpj: "12345678000195"
+          nome: "Empresa de Serviços SA"
+        atualizacao:
+          - data: "2024-12-03T08:30:02.050Z"
+            nome: CRIADA
+        dadosQR:
+          jornada: JORNADA_3
+          pixCopiaECola: 00020101021226760014br.gov.bcb.pix2554pix.example.com/qr/v2/8b3da2f39a4140d1a91abd93113bd4415204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80800014br.gov.bcb.pix2558pix.example.com/qr/v2/rec/94ed2badcbc04c15b0bb7fa35319489063047741
+    recResponse7:
+      summary: "Exemplo de Recorrência Completa com Dados QR Jornada 4"
+      value:
+        idRec: RN1234567820241130lkwdefghijk
+        status: CRIADA
+        valor:
+          valorRec: "210.00"
+        vinculo:
+          contrato: "11750023"
+          devedor:
+            cpf: "75633122216"
+            nome: "Francisco da Silva"
+          objeto: "Assinatura de Serviços de Transporte"
+        calendario:
+          dataFinal: "2026-12-01"
+          dataInicial: "2025-03-01"
+          periodicidade: MENSAL
+        politicaRetentativa: NAO_PERMITE
+        loc:
+          criacao: "2024-05-19T10:28:05.230Z"
+          id: 6153
+          location: pix.example.com/qr/v2/rec/3ffa640fa4f14080adccb949fa2dc0d0
+          idRec: RN1234567820241130lkwdefghijk
+        recebedor:
+          cnpj: "56989000019533"
+          nome: "Empresa de Logística SA"
+        atualizacao:
+          - data: "2024-11-30T08:30:02.050Z"
+            nome: CRIADA
+        dadosQR:
+          jornada: JORNADA_4
+          pixCopiaECola: 00020101021226810014br.gov.bcb.pix2559pix.example.com/qr/v2/cobv/1e6c54d3ec9449b7a7fc53b6b0f998e75204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80800014br.gov.bcb.pix2558pix.example.com/qr/v2/rec/3ffa640fa4f14080adccb949fa2dc0d06304A441
     recWebhookNotification1:
       summary: "Exemplo de Notificação de Recorrência 1"
       value:
@@ -3579,7 +3683,7 @@ components:
             - status: APROVADA
               data: '2024-08-22T12:43:53.337Z'
             ativacao:
-              tipoJornada: JORNADA_1
+              tipoJornada: JORNADA_3
               dadosJornada:
                 txid: r9eFIFmwcZ55Nm4RsKZAAtIvvCrlcNN6
     recPayload1:
@@ -4197,19 +4301,20 @@ components:
           - idRec: RR123456782024061999000566354
             txid: 7f733863543b4a16b516d839bd4bc34e
             calendario:
-              dataCriacao: "2024-05-20"
-              dataVencimento: "2024-06-20"
-            valor: "50.33"
+              criacao: "2024-05-20"
+              dataDeVencimento: "2024-06-20"
+            valor: 
+              original: "50.33"
             status: ATIVA
             ajusteDiaUtil: false
             politicaRetentativa: PERMITE_3R_7D
-            dadosDevedor:
+            devedor:
               cep: "63259-740"
               cidade: "Campinas"
               email: "beltrano.silva@mail.com"
               logradouro: "Rua Gonçalves Dias 605"
               uf: "SP"
-            contaRecebedor:
+            recebedor:
               conta: "997182"
               tipoConta: CORRENTE
             tentativas:
@@ -4878,8 +4983,8 @@ components:
     DadosDevedorRecorrencia:
       type: "object"
       properties:
-        dadosDevedor:
-          description: "O objeto devedor organiza as informações sobre o devedor da cobrança."
+        devedor:
+          description: "O objeto devedor organiza as informações sobre o devedor da recorrência."
           allOf:
             - type: "object"
               properties:
@@ -6030,13 +6135,75 @@ components:
         - $ref: "#/components/schemas/RecEncerramento"
         - type: "object"
           properties:
-            cobr:
+            solicitacao:
               type: "array"
-              title: "Cobranças Recorrentes vinculadas"
-              description: "Cobranças Recorrentes vinculadas"
+              title: "Solicitações vinculadas"
+              description: "Solicitações vinculadas"
               items:
                 allOf:
-                  - $ref: "#/components/schemas/CobRCompleta"
+                  - $ref: "#/components/schemas/SolicRecCompleta"
+        - $ref: "#/components/schemas/RecAtivacao"
+        - type: "object"
+          properties:
+            dadosQR:
+              type: "object"
+              title: "Informações do QR Composto."
+              description: |
+                ##### Informações relacionadas aos parâmetros `idRec` e `txid` informados na requisição.
+                Ao consultar uma recorrência via endpoint GET `/rec/{idRec}?txid={txid}`, o usuário recebedor pode optar pela consulta sem 
+                o `txid` ou por compor a requisição com um `txid` de uma cobrança imediata, ou cobrança com vencimento, de forma a obter o QR Composto
+                para a jornada de interesse.
+                
+                Os `dadosQR` retornados variam de acordo com a jornada desejada, indicada pela presença dos parâmetros de interesse, conforme a tabela abaixo:
+                <table  >
+                <tr><td width="15%">idRec</td><td  width="15%">txid de Cob</td><td  width="15%">txid de CobV</td><td width="100%">Conteúdo esperado</td></tr>
+                <tr><td>X</td><td>-</td><td>-</td><td><pre>{ jornada: "JORNADA_2", pixCopiaECola: "QR Composto da recorrência" }</pre></td></tr>
+                <tr><td>X</td><td>X</td><td>-</td><td><pre>{ jornada: "JORNADA_3", pixCopiaECola: "QR Composto da cobrança imediata + recorrência" }</pre></td></tr>
+                <tr><td>X</td><td>-</td><td>X</td><td><pre>{ jornada: "JORNADA_4", pixCopiaECola: "QR Composto da cobrança com vencimento + recorrência" }</pre></td></tr>
+                </table>
+
+                Os campos `dadosQR.jornada` e `dadosQR.pixCopiaECola` só serão retornados se as respectivas locations necessárias para a construção do QR Composto
+                estiverem preenchidas na recorrência e na eventual cobrança, a depender da jornada desejada.
+
+              properties:
+                jornada:
+                  type: "string"
+                  title: "Jornada de ativação"
+                  enum:
+                    - "JORNADA_2"
+                    - "JORNADA_3"
+                    - "JORNADA_4"
+                pixCopiaECola:
+                  type: "string"
+                  title: "Pix Copia e Cola correspondente à Recorrência."
+                  description: "Este campo retorna o valor do Pix Copia e Cola correspondente à recorrência. Trata-se da sequência de caracteres que representa o BR Code."
+                  maxLength: 512
+    RecCompletaPesquisada:
+      type: "object"
+      title: "Recorrência Completa Pesquisada"
+      required: ["status"]
+      description: "Atributos de Configuração de Recorrência"
+      allOf:
+        - type: "object"
+          properties:
+            idRec:
+              $ref: "#/components/schemas/RecId"
+        - $ref: "#/components/schemas/RecBase"
+        - type: "object"
+          properties:
+            recebedor:
+              oneOf:
+                - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
+        - $ref: "#/components/schemas/DadosPagadorRec"
+        - $ref: "#/components/schemas/RecStatus"
+        - $ref: "#/components/schemas/RecConfiguracao"
+        - type: "object"
+          properties:
+            loc:
+              allOf:
+                - $ref: "#/components/schemas/PayloadLocationRecCompleta"
+        - $ref: "#/components/schemas/RecAtualizacao"
+        - $ref: "#/components/schemas/RecEncerramento"
         - type: "object"
           properties:
             solicitacao:
@@ -6062,7 +6229,6 @@ components:
             recebedor:
               oneOf:
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
-        - $ref: "#/components/schemas/DadosPagadorRec"
         - $ref: "#/components/schemas/RecStatus"
         - type: "object"
           properties:
@@ -6071,6 +6237,7 @@ components:
                 - $ref: "#/components/schemas/PayloadLocationRecCompleta"
         - $ref: "#/components/schemas/RecAtualizacao"
         - $ref: "#/components/schemas/RecEncerramento"
+        - $ref: "#/components/schemas/RecAtivacao"
     RecSolicitada:
       type: "object"
       title: "Recorrência Solicitada"
@@ -6126,6 +6293,32 @@ components:
                 - "CANCELADA"
         - type: "object"
           properties:
+            vinculo:
+              type: "object"
+              properties:
+                devedor:
+                  description: "O objeto devedor organiza as informações sobre o devedor da recorrência."
+                  oneOf:
+                    -  type: "object"
+                       required: ["nome"]
+                       title: "Pessoa Física"
+                       properties:
+                        nome:
+                          type: "string"
+                          title: "Nome"
+                          description: "Nome do usuário."
+                          maxLength: 140
+                    -  type: "object"
+                       required: ["nome"]
+                       title: "Pessoa Jurídica"
+                       properties:
+                        nome:
+                          type: "string"
+                          title: "Nome"
+                          description: "Nome do usuário."
+                          maxLength: 140
+        - type: "object"
+          properties:
             loc:
               allOf:
                 - $ref: "#/components/schemas/PayloadLocationRecId"
@@ -6146,11 +6339,12 @@ components:
     RecNotification:
       type: "object"
       title: "Recorrência Notificada"
+      required: ["idRec","status",atualizacao"]
       description: "Atributos de Notificação de Recorrência"
       allOf:
         - type: "object"
           properties:
-            schema:
+            idRec:
               $ref: "#/components/schemas/RecId"
         - $ref: "#/components/schemas/RecStatus"
         - $ref: "#/components/schemas/RecAtualizacao"
@@ -6306,10 +6500,10 @@ components:
                       type: "string"
                       title: "Solicitante do cancelamento"
                       enum:
-                        - CANCELADA_PELO_PSP_PAGADOR
-                        - CANCELADA_PELO_USUARIO_PAGADOR
-                        - CANCELADA_PELO_PSP_RECEBEDOR
-                        - CANCELADA_PELO_USUARIO_RECEBEDOR
+                        - PSP_PAGADOR
+                        - USUARIO_PAGADOR
+                        - PSP_RECEBEDOR
+                        - USUARIO_RECEBEDOR
                     codigo:
                       type: "string"
                       title: "Código do cancelamento"
@@ -6374,7 +6568,7 @@ components:
                 - "Serviço de internet banda larga"
                 - "Assinatura anual"
             devedor:
-              description: "O objeto devedor organiza as informações sobre o devedor da cobrança."
+              description: "O objeto devedor organiza as informações sobre o devedor da recorrência."
               oneOf:
                 - $ref: "#/components/schemas/PessoaFisicaRecorrencia"
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
@@ -6476,7 +6670,7 @@ components:
       properties:
         status:
           type: "string"
-          title: "Status do registro da solictação de recorrência"
+          title: "Status do registro da solicitação de recorrência"
           enum:
             - "CRIADA"
             - "ENVIADA"
@@ -6500,7 +6694,7 @@ components:
             properties:
               status:
                 type: "string"
-                title: "Status do registro da solictação de recorrência"
+                title: "Status do registro da solicitação de recorrência"
                 enum:
                   - "CRIADA"
                   - "ENVIADA"
@@ -6527,7 +6721,7 @@ components:
       properties:
         status:
           type: "string"
-          title: "Status do registro da solictação de recorrência"
+          title: "Status do registro da solicitação de recorrência"
           enum:
             - "CANCELADA"
     SolicRecCompleta:
@@ -6564,9 +6758,9 @@ components:
           properties:
             calendario:
               type: "object"
-              required: ["dataCriacao"]
+              required: ["criacao"]
               properties:
-                dataCriacao:
+                criacao:
                   type: "string"
                   format: "date"
                   title: "Data de criação da cobrança"
@@ -6599,9 +6793,9 @@ components:
           properties:
             calendario:
               type: "object"
-              required: ["dataCriacao"]
+              required: ["criacao"]
               properties:
-                dataCriacao:
+                criacao:
                   type: "string"
                   format: "date"
                   title: "Data de criação da cobrança"
@@ -6670,10 +6864,10 @@ components:
                       type: "string"
                       title: "Solicitante do cancelamento"
                       enum:
-                        - CANCELADA_PELO_PSP_PAGADOR
-                        - CANCELADA_PELO_USUARIO_PAGADOR
-                        - CANCELADA_PELO_PSP_RECEBEDOR
-                        - CANCELADA_PELO_USUARIO_RECEBEDOR
+                        - PSP_PAGADOR
+                        - USUARIO_PAGADOR
+                        - PSP_RECEBEDOR
+                        - USUARIO_RECEBEDOR
                     codigo:
                       type: "string"
                       title: "Código do cancelamento"
@@ -6813,13 +7007,17 @@ components:
     CobRNotification:
       type: "object"
       title: "Cobrança Recorrente Notificada"
-      required: ["idRec", "calendario", "valor", "recebedor"]
+      required: ["idRec", "txid", "status", "atualizacao"]
       description: "Dados enviados para criação da cobrança recorrente via API Pix"
       allOf:
         - type: "object"
           properties:
             idRec:
               $ref: "#/components/schemas/RecId"
+        - type: "object"
+          properties:
+            txid:
+              $ref: "#/components/schemas/TxId"
         - $ref: "#/components/schemas/CobRStatus"
         - $ref: "#/components/schemas/CobRAtualizacao"
         - $ref: "#/components/schemas/CobRTentativas"
@@ -6885,27 +7083,33 @@ components:
         calendario:
           type: "object"
           title: "Informações sobre calendário da cobrança"
-          required: ["dataVencimento"]
+          required: ["dataDeVencimento"]
           description: ""
           properties:
-            dataVencimento:
+            dataDeVencimento:
               type: "string"
               format: "date"
               title: "Data de vencimento da cobrança"
               description: "Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. É a data de expiração da cobrança."
               example: "2023-04-01"
         valor:
-          type: "string"
-          pattern: "\\d{1,10}\\.\\d{2}"
-          title: "Valor da cobrança recorrente."
-          description: "Valor da cobrança recorrente."
+          type: "object"
+          title: "Valor da cobrança recorrente"
+          required: ["original"]
+          description: "Valor da cobrança recorrente"
+          properties:
+            original:
+              type: "string"
+              title: "Valor"
+              pattern: "\\d{1,10}\\.\\d{2}"
+              description: "Valor original da cobrança."
         ajusteDiaUtil:
           type: "boolean"
           title: "Ajuste data vencimento para próximo dia útil"
-          default: false
+          default: true
           description: "Campo de ativação do ajuste da data de vencimento para próximo dia útil caso o vencimento corrente seja um dia não útil. O PSP Pagador deverá considerar os feriados locais com base no código município do usuário pagador."
-        contaRecebedor:
-          description: "O objeto devedor organiza as informações sobre o recebedor da cobrança."
+        recebedor:
+          description: "O objeto recebedor organiza as informações sobre o recebedor da cobrança."
           allOf:
             - $ref: "#/components/schemas/DadosBancariosRecebedor"
     CobBase:
@@ -7530,6 +7734,43 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/PayloadLocationId"
+    ParametrosConsultaRec:
+      type: "object"
+      title: "Parâmetros de Consulta de Recorrências"
+      description: "Parâmetros utilizados para a realização de uma consulta de recorrências."
+      required: ["inicio", "fim", "paginacao"]
+      properties:
+        inicio:
+          type: "string"
+          format: "date-time"
+          title: "Data de Início"
+          description: "Data inicial utilizada na consulta. Respeita RFC 3339."
+          example: "2020-04-01T00:00:00Z"
+        fim:
+          type: "string"
+          format: "date-time"
+          title: "Data de Fim"
+          description: "Data de fim utilizada na consulta. Respeita RFC 3339."
+          example: "2020-04-01T17:00:00Z"
+        cpf:
+          type: "string"
+          title: "CPF"
+          pattern: "/^\\d{11}$/"
+          description: "Filtro pelo CPF do devedor. Não pode ser utilizado ao mesmo tempo que o CNPJ."
+        cnpj:
+          type: "string"
+          title: "CNPJ"
+          pattern: "/^\\d{14}$/"
+          description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
+        locationPresente:
+          type: "boolean"
+          description: "Filtro pela existência de location vinculada."
+        status:
+          type: "string"
+          title: "Status do registro da recorrência"
+          description: "Filtro pelo status das recorrências."
+        paginacao:
+          $ref: "#/components/schemas/Paginacao"
     ParametrosConsultaCob:
       type: "object"
       title: "Parâmetros de Consulta de Cobrança"
@@ -7585,6 +7826,8 @@ components:
           title: "Data de Fim"
           description: "Data de fim utilizada na consulta. Respeita RFC 3339."
           example: "2020-04-01T17:00:00Z"
+        idRec:
+          $ref: "#/components/schemas/RecId"
         cpf:
           type: "string"
           title: "CPF"
@@ -7666,13 +7909,13 @@ components:
       title: "Recorrencias consultadas"
       properties:
         parametros:
-          $ref: "#/components/schemas/ParametrosConsultaCob"
+          $ref: "#/components/schemas/ParametrosConsultaRec"
         recs:
           type: "array"
           title: "Lista de recorrências"
           items:
             allOf:
-              - $ref: "#/components/schemas/RecCompleta"
+              - $ref: "#/components/schemas/RecCompletaPesquisada"
     Pix:
       type: "object"
       title: "Pix"
