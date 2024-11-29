@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.7.0"
+  version: "2.8.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -65,7 +65,7 @@ info:
     ser exatamente o caso. O objetivo primário é apenas e tão somente identificar o tipo de erro.
 
     Convém reforçar que a API Pix contempla uma lista de produtos e respectivas funcionalidades ofertadas pelo PSP recebedor. 
-    Cabendo à relação contratual com cada usuário recebedor a concessão da totalidade ou de um subconjunto de acessos
+    Cabe à relação contratual com cada usuário recebedor a concessão da totalidade ou de um subconjunto de acessos
     relacionados aos produtos ofertados. Por exemplo, o usuário recebedor, ao acessar uma funcionalidade não contemplada 
     no seu escopo contratual, receberá o erro geral `AcessoNegado` descrito na próxima seção.
 
@@ -2564,7 +2564,7 @@ paths:
                 $ref: "#/components/schemas/Problema"
               examples:
                 requisicao1:
-                  $ref: "#/components/examples/OperacaoInvalidaSolicRecExample1"
+                  $ref: "#/components/examples/OperacaoInvalidaSolicRecExample2"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -2640,7 +2640,7 @@ paths:
                 $ref: "#/components/schemas/Problema"
               examples:
                 exemplo1:
-                  $ref: "#/components/examples/OperacaoInvalidaCobRExample1"
+                  $ref: "#/components/examples/OperacaoInvalidaCobRExample2"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -3410,9 +3410,6 @@ components:
           valorRec: "35.00"
         politicaRetentativa: NAO_PERMITE
         loc: 108
-        recebedor:
-          cnpj: "01602606113708"
-          nome: "Empresa de Serviços SA"
         ativacao:
           dadosJornada:
             txid: "33beb661beda44a8928fef47dbeb2dc5"
@@ -3431,9 +3428,6 @@ components:
         valor:
           valorMinimoRecebedor: "5000.00"
         politicaRetentativa: PERMITE_3R_7D
-        recebedor:
-          cnpj: "09172302153900"
-          nome: "Empresa de Serviços de Saúde SA"
     recBody3:
       summary: "Exemplo de Revisão de Recorrência 1"
       value:
@@ -4376,6 +4370,13 @@ components:
         violacoes:
           - razao: "O objeto cobr.calendario não respeita o schema."
             propriedade: "cobr.calendario"
+    OperacaoInvalidaCobRExample2:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/CobROperacaoInvalida
+        title: "Operação inválida."
+        status: 400
+        detail: "Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira liquidação."
     OperacaoInvalidaRecExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -4394,8 +4395,15 @@ components:
         status: 400
         detail: "A solicitação de confirmação de recorrência não respeita o schema."
         violacoes:
-          - razao: "O objeto solicrec.pagador não respeita o schema."
-            propriedade: "solicrec.pagador"
+          - razao: "O objeto solicrec.destinatario não respeita o schema."
+            propriedade: "solicrec.destinatario"
+    OperacaoInvalidaSolicRecExample2:
+      summary: "Exemplo de erro da requisição 1"
+      value:
+        type: https://pix.bcb.gov.br/api/v2/error/SolicRecOperacaoInvalida
+        title: "Operação inválida."
+        status: 400
+        detail: "Não é possível cancelar uma solicitação de recorrência com o status diferente de CRIADA ou RECEBIDA."
     RequisicaoInvalidaCobPayloadExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -4415,8 +4423,8 @@ components:
       value:
         type: https://pix.bcb.gov.br/api/v2/error/CobROperacaoInvalida
         title: "Cobrança não encontrada."
-        status: 404
-        detail: "A cobrança em questão não foi encontrada para o txid informado."
+        status: 400
+        detail: "A política configurada na recorrência não permite retentativa de cobrança."
     RequisicaoInvalidaLoteCobVExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -6116,7 +6124,7 @@ components:
         - type: "object"
           properties:
             idRec:
-              $ref: "#/components/schemas/RecId"
+              $ref: "#/components/schemas/RecId" 
         - $ref: "#/components/schemas/RecBase"
         - type: "object"
           properties:
@@ -6529,18 +6537,17 @@ components:
       description: |
         # Identificador da Recorrência
 
-        ID da recorrência: RRxxxxxxxxyyyyMMddkkkkkkkkkkk (29 caracteres; "case sensitive", isso é, diferencia letras maiúsculas e minúsculas), sendo:
-        - "R" ou "C":  fixo (1 caractere). "R" caso a recorrência tenha sido criada dentro do Pix, ou "C" caso tenha sido criada pela trilha do Open Finance;
-        - "R" ou "N":  fixo (1 caractere). "R" caso a recorrência permita novas tentativas de pagamento pós vencimento, ou "N" caso não permita novas tentativas.
-        - "xxxxxxxx":  identificação do agente que presta serviço para o usuário recebedor que gerou o <Id>, podendo ser: o ISPB do participante direto, o ISPB do participante indireto ou os 8 primeiros dígitos do CNPJ do prestador de serviço de iniciação (8 caracteres numéricos [0-9]);
-        - "yyyyMMdd":  data (8 caracteres) de criação da recorrência;
-        - "kkkkkkkkkkk": sequencial criado pelo agente que gerou o <Id> (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada "yyyyMMdd".
+        Regra de formação:
+        - RAxxxxxxxxyyyyMMddkkkkkkkkkkk (29 caracteres; "case sensitive", isso é, diferencia letras maiúsculas e minúsculas), sendo:
+          - "R":  fixo (1 caractere). "R" para a recorrência criada dentro do Pix;
+          - "A": identificação da possibilidade de novas tentativas, sendo possíveis os valores "R" ou "N" (1 caractere). "R" caso a recorrência permita novas tentativas de pagamento pós vencimento, ou "N" caso não permita novas tentativas.
+          - "xxxxxxxx":  identificação do agente que presta serviço para o usuário recebedor que gerou o <Id>, podendo ser: o ISPB do participante direto, o ISPB do participante indireto ou os 8 primeiros dígitos do CNPJ do prestador de serviço de iniciação (8 caracteres numéricos [0-9]);
+          - "yyyyMMdd":  data (8 caracteres) de criação da recorrência;
+          - "kkkkkkkkkkk": sequencial criado pelo agente que gerou o <Id> (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada "yyyyMMdd".
 
         Dessa forma, o ID da recorrência deve ser formado de acordo com um dos tipos a seguir:
         - "RRxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada dentro do Pix e que permite novas tentativas de pagamento pós vencimento; ou
-        - "RNxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada dentro do Pix e que não permite novas tentativas de pagamento pós vencimento; ou
-        - "CRxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada pela trilha do Open Finance e que permite novas tentativas de pagamento pós vencimento; ou
-        - "CNxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada pela trilha do Open Finance e que não permite novas tentativas de pagamento pós vencimento.”
+        - "RNxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada dentro do Pix e que não permite novas tentativas de pagamento pós vencimento.”
 
       pattern: "[a-zA-Z0-9]{29}"
       minLength: 29
@@ -6631,10 +6638,10 @@ components:
 
             Regra de formação:
             - SCxxxxxxxxyyyyMMddkkkkkkkkkkk (29 caracteres; “case sensitive”, isso é, diferencia letras maiúsculas e minúsculas), sendo:
-            - SC - fixo (2 caracteres);
-            - xxxxxxxx – ISPB do agente que envia a mensagem pain.009 de solicitação de confirmação da recorrência;
-            - yyyyMMdd – data (8 caracteres) de criação da mensagem pain.009 de solicitação de confirmação da recorrência;
-            - kkkkkkkkkkk – sequencial criado pelo agente que gerou a mensagem de solicitação de confirmação da recorrência (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada “yyyyMMdd”.
+              - SC - fixo (2 caracteres);
+              - xxxxxxxx – ISPB do agente que envia a mensagem pain.009 de solicitação de confirmação da recorrência;
+              - yyyyMMdd – data (8 caracteres) de criação da mensagem pain.009 de solicitação de confirmação da recorrência;
+              - kkkkkkkkkkk – sequencial criado pelo agente que gerou a mensagem de solicitação de confirmação da recorrência (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada “yyyyMMdd”.
           pattern: "[a-zA-Z0-9]{29}"
           minLength: 29
           maxLength: 29
@@ -6642,7 +6649,7 @@ components:
     SolicRecBase:
       type: "object"
       title: "Solicitação de Recorrência Base"
-      required: ["calendario", "pagador", "idRec"]
+      required: ["calendario", "pagador", "idRec","destinatario"]
       description: "Dados criados ou alterados da cobrança recorrente via API Pix"
       properties:
         idRec:
@@ -7895,6 +7902,7 @@ components:
     CobsRConsultadas:
       type: "object"
       title: "Cobranças recorrentes consultadas"
+      required: ["parametros", "cobsr"]
       properties:
         parametros:
           $ref: "#/components/schemas/ParametrosConsultaCobR"
@@ -7907,6 +7915,7 @@ components:
     RecsConsultadas:
       type: "object"
       title: "Recorrencias consultadas"
+      required: ["parametros", "recs"]
       properties:
         parametros:
           $ref: "#/components/schemas/ParametrosConsultaRec"
