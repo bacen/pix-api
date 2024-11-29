@@ -2,6 +2,16 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.8.0]
+
+- Correção do campo `destinatario` de opcional para obrigatório no schema da `Solicitação de Recorrência` do `POST /solicRec`.
+- Remoção do campo `recebedor`, desnecessário, do exemplo em `POST /rec`.
+- Incluída a obrigatoriedade dos campos `parametros` e `cobrs` no `GET /cobr` para seguir o comportamento similar ao existente para as demais consultas de outras entidades.
+- Incluída a obrigatoriedade dos campos `parametros` e `recs` no `GET /rec` para seguir o comportamento similar ao existente para as demais consultas de outras entidades.
+- Pequenos ajustes de texto na seção `Tratamento de Erros`.
+- Ajuste do exemplo na retentativa quando a política não permite, lançando erro 400.
+- Ajuste nas descrições dos identificadores de recorrência e solicitação de recorrência.
+
 ## [2.7.0]
 
 - Inclusão do campo `rec.dadosQR` contendo os campos `pixCopiaECola` e `jornada` referentes ao response do GET `/rec/{idRec}?txid={txid}` fornecendo informações complementares relacionadas a respectiva jornada e QRCode com exemplos.
