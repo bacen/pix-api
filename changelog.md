@@ -2,6 +2,20 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.8.1]
+
+- Inclusão do campo não obrigatório `rec.recebedor.convenio` no request do `POST /rec` e response do `GET /rec`, `GET /rec/{idRec}` e `POST /rec`.
+- Inclusão do parâmetro de busca não obrigatório `convenio` no `GET /rec`, `GET /cobr` e `GET /locrec`.
+- Inclusão de exemplo de uso do campo `convenio` no response do `GET /rec/{idRec}`. 
+- Inclusão da obrigatoriedade do campo `rec.recebedor` no response do GET `/rec` e GET `/rec/{idRec}` .
+- Inclusão do campo não obrigatório `cobr.tentativas.rejeicao` no response do `GET /cobr`, `GET /cobr/{txid}` e `POST /cobr/{txid}/retentativa/{data}`.
+- Ajuste na descrição dos campos `cobr.ajusteDiaUtil` e `cobr.calendario.dataDeVencimento`.
+- Pequenos ajustes de texto na seção `Tratamento de Erros`.
+- Inclusão de violações para o endpoint `GET /rec/{idRec}`.
+- Ajuste nas violações do endpoint `PATCH /solicrec/{idSolicRec}`.
+- Remoção do campo `tipoCob` do response do DELETE `/locrec/{id}/idrec`.
+- Ajuste no exemplo do response do DELETE `/locrec/{id}/idrec`.
+
 ## [2.8.0]
 
 - Correção do campo `destinatario` de opcional para obrigatório no schema da `Solicitação de Recorrência` do `POST /solicRec`.

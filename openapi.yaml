@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.8.0"
+  version: "2.8.1"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -191,7 +191,7 @@ info:
 
     * __Significado__: a requisição que busca alterar ou criar uma recorrência não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `[POST|PATCH] /rec/{idRec}`.
+    * __endpoints__: `POST /rec` e `PATCH /rec/{idRec}`.
 
     __Violações__ para o endpoint `POST /rec`:
       - O objeto `rec.vinculo` não respeita o _schema_.
@@ -206,6 +206,7 @@ info:
       - O campo `rec.politicaRetentativa` não respeita o _schema_.
       - O location referenciado por `rec.loc` inexiste.
       - O location referenciado por `rec.loc` já está sendo utilizado por outra recorrência.
+      - O valor do campo `rec.recebedor.convenio` não é aceito pelo PSP Recebedor.
 
     __Violações__ para o endpoint `PATCH /rec/{idRec}`:
 
@@ -232,6 +233,11 @@ info:
       - ambos os parâmetros `cpf` e `cnpj` estão preenchidos.
       - o parâmetro `paginacao.paginaAtual` é negativo.
       - o parâmetro `paginacao.itensPorPagina` é negativo.
+    
+    __Violações__ específicas para o endpoint `GET /rec/{idRec}`:
+
+      - o parâmetro `txid` não corresponde a uma cobrança compatível com o campo `ativacao.tipoJornada`. (_Exemplo: `txid` correspondente a uma CobV e `ativação.tipoJornada` igual a JORNADA_3._)
+      - o parâmetro `txid` corresponde a uma cobrança imediata diferente da informada no campo `ativação.dadosJornada.txid`. Esta violação não ocorre caso o parâmetro txid corresponda a uma cobrança com vencimento.
 
     ## Tag SolicRec
 
@@ -246,7 +252,7 @@ info:
 
     ### `SolicRecOperacaoInvalida`
 
-    * __Significado__: a requisição que busca criar ou alterar uma solicitação de confirmação de recorrência que não respeita o _schema_ ou está semanticamente errada.
+    * __Significado__: a requisição que busca criar ou alterar uma solicitação de confirmação de recorrência não respeita o _schema_ ou está semanticamente errada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoints__: `[POST] /solicrec` e `PATCH /solicrec/{idSolicRec}`.
 
@@ -258,7 +264,7 @@ info:
     
     __Violações__ para o endpoint `PATCH /solicrec/{idSolicRec}`:
 
-      - Não é possível cancelar uma solicitação de recorrência com o status diferente de CRIADA ou RECEBIDA
+      - Não é possível cancelar uma solicitação de recorrência com o status diferente de CRIADA, ENVIADA ou RECEBIDA.
 
     ## Tag CobR
 
@@ -287,15 +293,18 @@ info:
       - Os campos `cobr.recebedor.conta` e `cobr.recebedor.agencia` correspondem a uma conta que não pertence a este usuário recebedor.
       - O objeto `cobr.devedor` não respeita o _schema_.
       - O campo `cobr.txid` encontra-se em uso.
-      - Existe uma cobrança expirada referente ao mesmo `cobr.idRec` no mesmo período.
-      - Existe uma cobrança criada referente ao mesmo `cobr.idRec` no mesmo período.
+      - Existe uma CobR com status diferente de REJEITADA e CANCELADA referente ao mesmo `cobr.idRec` com `calendario.dataDeVencimento` no mesmo ciclo.
 
     __Violações__ para o endpoint `PATCH /cobr/{txid}`:
 
-      - Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira liquidação.
+      - Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira tentativa de liquidação.
 
     __Violações__ para o endpoint `POST /cobr/{txid}/retentativa/{data}`:
 
+      - Existe uma tentativa com status `SOLICITADA` ou `AGENDADA`.
+      - Existe uma tentativa em andamento.
+      - Existe uma tentativa ativa.
+      - Existe uma tentativa não finalizada.
       - Existe uma tentativa vigente para a `data` informada.
       - O parâmetro `data` não corresponde a uma data futura.
       - A política configurada na recorrência não permite retentativa de cobrança.
@@ -1370,6 +1379,13 @@ paths:
           in: "query"
           schema:
             type: "boolean"
+        - name: "convenio"
+          in: "query"
+          schema:
+            type: "string"
+            title: "Convênio"
+            maxLength: 60
+            description: "Filtro pelo convênio associado."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -1385,6 +1401,9 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/PayloadLocationRecConsultadas"
+              examples:
+                getPayloadLocationsRec:
+                  $ref: "#/components/examples/getPayloadLocationRec1"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "503":
@@ -1448,7 +1467,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/PayloadLocation"
+                $ref: "#/components/schemas/PayloadLocationRecCompleta"
               examples:
                 response1:
                   $ref: "#/components/examples/payloadLocationRecResponse2"
@@ -1541,7 +1560,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PayloadLocationConsultadas"
               examples:
-                getCobs1:
+                getPayloadLocations:
                   $ref: "#/components/examples/getPayloadLocation1"
         "403":
           $ref: "#/components/responses/AcessoNegado"
@@ -2336,6 +2355,8 @@ paths:
                   $ref: "#/components/examples/recResponse6"
                 response5:
                   $ref: "#/components/examples/recResponse7"
+                response6:
+                  $ref: "#/components/examples/recResponse8"
         "403":
           $ref: "#/components/responses/AcessoNegado"
         "404":
@@ -2413,6 +2434,13 @@ paths:
             type: "string"
             title: "Status do registro da recorrência"
             description: "Filtro pelo status da recorrência."
+        - name: "convenio"
+          in: "query"
+          schema:
+            type: "string"
+            title: "Convênio"
+            maxLength: 60
+            description: "Filtro pelo convênio associado."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -2750,6 +2778,13 @@ paths:
             type: "string"
             title: "Status do registro da recorrência"
             description: "Filtro pelo status da recorrência."
+        - name: "convenio"
+          in: "query"
+          schema:
+            type: "string"
+            title: "Convênio"
+            maxLength: 60
+            description: "Filtro pelo convênio associado."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
       tags:
@@ -2758,7 +2793,7 @@ paths:
       security:
         - OAuth2: [cobr.read]
       description: |-
-        Endpoint para consultar cobranças recorrentes através de parâmetros como início, fim, idRec, cpf, cnpj e status.
+        Endpoint para consultar cobranças recorrentes através de parâmetros como início, fim, idRec, cpf, cnpj, status e convênio.
       responses:
         "200":
           description: "Lista de cobranças recorrentes."
@@ -3665,6 +3700,35 @@ components:
         dadosQR:
           jornada: JORNADA_4
           pixCopiaECola: 00020101021226810014br.gov.bcb.pix2559pix.example.com/qr/v2/cobv/1e6c54d3ec9449b7a7fc53b6b0f998e75204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80800014br.gov.bcb.pix2558pix.example.com/qr/v2/rec/3ffa640fa4f14080adccb949fa2dc0d06304A441
+    recResponse8:
+      summary: "Exemplo de Recorrência Completa Jornada 1 com Convênio"
+      value:
+        idRec: RR3781267820250201123deabc339
+        status: CRIADA
+        valor:
+          valorRec: "170.00"
+        vinculo:
+          contrato: "1793651"
+          devedor:
+            cpf: "01536985566"
+            nome: "Fulano de Tal"
+          objeto: "Serviços de Telefonia"
+        calendario:
+          dataFinal: "2028-03-01"
+          dataInicial: "2025-03-01"
+          periodicidade: MENSAL
+        politicaRetentativa: NAO_PERMITE
+        pagador:
+          codMun: "1509873"
+          cpf: "45832633800"
+          ispbParticipante: "52780028"
+        recebedor:
+          convenio: "Master"
+          cnpj: "56958712500811"
+          nome: "Academia Saúde"
+        atualizacao:
+          - data: "2025-02-01T08:30:02.050Z"
+            nome: CRIADA
     recWebhookNotification1:
       summary: "Exemplo de Notificação de Recorrência 1"
       value:
@@ -4208,6 +4272,22 @@ components:
               - $ref: "#/components/examples/payloadLocationResponse2/value"
           - allOf:
               - $ref: "#/components/examples/payloadLocationResponse3/value"
+    getPayloadLocationRec1:
+      summary: "Exemplo de retorno da consulta de locations de recorrência 1"
+      value:
+        parametros:
+          inicio: "2023-12-01T00:00:00Z"
+          fim: "2024-04-01T23:59:59Z"
+          paginacao:
+            paginaAtual: 0
+            itensPorPagina: 100
+            quantidadeDePaginas: 1
+            quantidadeTotalDeItens: 1
+        loc:
+          - id: 12069
+            location: pix.example.com/qr/v2/rec/2353c790eefb11eaadc10242ac120002
+            criacao: "2023-12-20T12:38:28.774Z"
+            idRec: RR123456782024011510056892226
     getWebhook1:
       summary: "Exemplo de retorno da consulta de Webhooks 1"
       value:
@@ -4376,7 +4456,7 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/CobROperacaoInvalida
         title: "Operação inválida."
         status: 400
-        detail: "Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira liquidação."
+        detail: "Não é possível cancelar uma cobrança em uma data igual ou maior que a data prevista da primeira tentativa de liquidação."
     OperacaoInvalidaRecExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -6118,7 +6198,7 @@ components:
     RecCompleta:
       type: "object"
       title: "Recorrência Completa"
-      required: ["status"]
+      required: ["status","recebedor"]
       description: "Atributos de Configuração de Recorrência"
       allOf:
         - type: "object"
@@ -6131,6 +6211,14 @@ components:
             recebedor:
               oneOf:
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
+              allOf:
+                - type: "object"
+                  properties:
+                    convenio:
+                      type: "string"
+                      title: "Convênio"
+                      description: "Convênio entre usuário e participante recebedor."
+                      maxLength: 60
         - $ref: "#/components/schemas/DadosPagadorRec"
         - $ref: "#/components/schemas/RecStatus"
         - $ref: "#/components/schemas/RecConfiguracao"
@@ -6189,7 +6277,7 @@ components:
     RecCompletaPesquisada:
       type: "object"
       title: "Recorrência Completa Pesquisada"
-      required: ["status"]
+      required: ["status","recebedor"]
       description: "Atributos de Configuração de Recorrência"
       allOf:
         - type: "object"
@@ -6202,6 +6290,14 @@ components:
             recebedor:
               oneOf:
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
+              allOf:
+                - type: "object"
+                  properties:
+                    convenio:
+                      type: "string"
+                      title: "Convênio"
+                      description: "Convênio entre usuário e participante recebedor."
+                      maxLength: 60
         - $ref: "#/components/schemas/DadosPagadorRec"
         - $ref: "#/components/schemas/RecStatus"
         - $ref: "#/components/schemas/RecConfiguracao"
@@ -6225,6 +6321,7 @@ components:
     RecGerada:
       type: "object"
       title: "Recorrência Gerada"
+      required: ["recebedor"]
       description: "Atributos de Configuração de Recorrência"
       allOf:
         - type: "object"
@@ -6237,6 +6334,14 @@ components:
             recebedor:
               oneOf:
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
+              allOf:
+                - type: "object"
+                  properties:
+                    convenio:
+                      type: "string"
+                      title: "Convênio"
+                      description: "Convênio entre usuário e participante recebedor."
+                      maxLength: 60
         - $ref: "#/components/schemas/RecStatus"
         - type: "object"
           properties:
@@ -6252,6 +6357,16 @@ components:
       description: "Atributos de Configuração de Recorrência"
       allOf:
         - $ref: "#/components/schemas/RecBase"
+        - type: "object"
+          properties:
+            recebedor:
+              type: "object"
+              properties:
+                convenio:
+                  type: "string"
+                  title: "Convênio"
+                  description: "Convênio entre usuário e participante recebedor."
+                  maxLength: 60
         - $ref: "#/components/schemas/RecConfiguracao"
         - type: "object"
           properties:
@@ -6262,7 +6377,7 @@ components:
     RecPayload:
       type: "object"
       title: "Payload da Recorrência"
-      required: ["idRec","atualizacao"]
+      required: ["idRec","atualizacao","recebedor"]
       description: "Atributos de Configuração de Recorrência"
       allOf:
         - type: "object"
@@ -6556,7 +6671,7 @@ components:
     RecBase:
       title: "Recorrência Base"
       type: "object"
-      required: ["idRec", "calendario","vinculo","recebedor", "retentativa"]
+      required: ["idRec", "calendario","vinculo","retentativa"]
       description: "Atributos de Configuração de Recorrência"
       properties:
         vinculo:
@@ -6749,7 +6864,7 @@ components:
       type: "object"
       title: "Cobrança Recorrente Gerada"
       required:
-        ["idRec","txid", "status", "valor", "devedor", "recebedor", "calendario"]
+        ["idRec","txid", "status", "valor", "recebedor", "calendario"]
       description: "Dados criados ou alterados da cobrança recorrente via API Pix"
       allOf:
         - type: "object"
@@ -6784,7 +6899,7 @@ components:
       type: "object"
       title: "Cobrança Recorrente Completa"
       required:
-        ["idRec","txid", "status", "valor", "devedor", "recebedor", "calendario"]
+        ["idRec","txid", "status", "valor", "recebedor", "calendario"]
       description: "Dados completos da cobrança recorrente via API Pix"
       allOf:
         - type: "object"
@@ -6910,7 +7025,6 @@ components:
                         - AB10
                         - AC05
                         - AC06
-                        - AG12
                         - AM02
                         - AM09
                         - DENC
@@ -6993,6 +7107,42 @@ components:
                       type: "string"
                       format: "date-time"
                       description: "Data e hora do registro de status atualizado. Respeita RFC 3339."
+              rejeicao:
+                type: "object"
+                title: "Informações sobre a rejeição da tentativa da cobrança"
+                required: ["codigo", "descricao"]
+                description: "Informações sobre a rejeição da tentativa da cobrança"
+                properties:
+                  codigo:
+                    type: "string"
+                    title: "Código da rejeição da tentativa"
+                    description: "Código da rejeição da tentativa. Corresponde ao código de rejeição presente no catálogo de mensagens. Os códigos de rejeição da tentativa `AC05`,`AM09`,`DENC`,`DS27`,`DTED`,`MIDI`,`MSUC`,`NITX`,`RC09` e `DTED` causam a rejeição da cobrança recorrente correspondente."
+                    maxLength: 4
+                    enum:
+                      - AB10
+                      - AC05
+                      - AC06
+                      - AM02
+                      - AM09
+                      - DENC
+                      - DS27
+                      - DTED
+                      - DTNT
+                      - FBRD
+                      - IRNT
+                      - MIDI
+                      - MSUC
+                      - NIEC
+                      - NIPA
+                      - NITX
+                      - QUNT
+                      - RC09
+                      - UDEI
+                  descricao:
+                    type: "string"
+                    title: "Descricao da rejeição"
+                    description: "Descricao da causa da rejeição"
+                    maxLength: 105          
     CobRRevisada:
       type: "object"
       title: "Cobrança Recorrente Revisada"
@@ -7097,7 +7247,7 @@ components:
               type: "string"
               format: "date"
               title: "Data de vencimento da cobrança"
-              description: "Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. É a data de expiração da cobrança."
+              description: "Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601. É a data de vencimento da cobrança."
               example: "2023-04-01"
         valor:
           type: "object"
@@ -7112,9 +7262,9 @@ components:
               description: "Valor original da cobrança."
         ajusteDiaUtil:
           type: "boolean"
-          title: "Ajuste data vencimento para próximo dia útil"
+          title: "Ajuste data prevista para liquidação para próximo dia útil"
           default: true
-          description: "Campo de ativação do ajuste da data de vencimento para próximo dia útil caso o vencimento corrente seja um dia não útil. O PSP Pagador deverá considerar os feriados locais com base no código município do usuário pagador."
+          description: "Campo de ativação do ajuste da data prevista para liquidação para próximo dia útil caso o vencimento corrente seja um dia não útil. O PSP Recebedor deverá considerar os feriados locais com base no código município do usuário pagador."
         recebedor:
           description: "O objeto recebedor organiza as informações sobre o recebedor da cobrança."
           allOf:
@@ -7776,6 +7926,15 @@ components:
           type: "string"
           title: "Status do registro da recorrência"
           description: "Filtro pelo status das recorrências."
+        recebedor:
+          type: "object"
+          title: "Recebedor"
+          properties:
+            convenio:
+              type: "string"
+              title: "Convênio"
+              description: "Convênio entre usuário e participante recebedor."
+              maxLength: 60
         paginacao:
           $ref: "#/components/schemas/Paginacao"
     ParametrosConsultaCob:
@@ -7849,6 +8008,15 @@ components:
           type: "string"
           title: "Status do registro da cobrança"
           description: "Filtro pelo status das cobranças."
+        recebedor:
+          type: "object"
+          title: "Recebedor"
+          properties:
+            convenio:
+              type: "string"
+              title: "Convênio"
+              description: "Convênio entre usuário e participante recebedor."
+              maxLength: 60
         paginacao:
           $ref: "#/components/schemas/Paginacao"
     ParametrosConsultaLote:
@@ -8456,6 +8624,15 @@ components:
         idRecPresente:
           type: "boolean"
           description: "Filtro pela existência de id da recorrência."
+        recebedor:
+          type: "object"
+          title: "Recebedor"
+          properties:
+            convenio:
+              type: "string"
+              title: "Convênio"
+              description: "Convênio entre usuário e participante recebedor."
+              maxLength: 60
         paginacao:
           $ref: "#/components/schemas/Paginacao"
     PayloadLocationConsultadas:
