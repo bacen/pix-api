@@ -7533,7 +7533,7 @@ components:
         - type: "object"
           properties:
             loc:
-              required: ["id", "txid", "tipoCob", "criacao"]
+              required: ["id", "tipoCob", "criacao"]
               allOf:
                 - $ref: "#/components/schemas/PayloadLocation"
         - type: "object"
