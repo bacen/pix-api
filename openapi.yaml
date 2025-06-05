@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.8.1"
+  version: "2.8.2"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -163,18 +163,18 @@ info:
     pode-se aplicar o HTTP status code [410](https://tools.ietf.org/html/rfc7231#section-6.5.9). Se a presente location não
     está exibindo nenhuma recorrência, pode-se utilizar o HTTP status code [404](https://tools.ietf.org/html/rfc7231#section-6.5.4).
 
-    Uma recorrência pode estar encerrada, cancelada ou rejeitada, nesses casos, é uma liberalidade
+    Uma recorrência pode estar expirada, cancelada ou rejeitada, nesses casos, é uma liberalidade
     do PSP recebedor retornar o presente código de erro ou optar por servir o payload de qualquer maneira,
     objetivando fornecer uma informação adicional ao usuário pagador final a respeito da recorrência.
 
     ### `RecPayloadOperacaoInvalida`
 
-    * __Significado__: a recorrência em questão encontra-se em encerrada, rejeitada ou cancelada para a location requisitada.
+    * __Significado__: a recorrência em questão encontra-se em expirada, rejeitada ou cancelada para a location requisitada.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
     * __endpoint__: `GET /rec/{recUrlAccessToken}`.
 
     __Violações__ para o endpoint `GET /rec/{recUrlAccessToken}`:
-    - O campo `recUrlAccessToken` referencia uma recorrência encerrada, rejeitada ou cancelada.
+    - O campo `recUrlAccessToken` referencia uma recorrência expirada, rejeitada ou cancelada.
 
     ## Tag Rec
 
@@ -214,7 +214,7 @@ info:
       - O location referenciado por `rec.loc` inexiste.
       - O location referenciado por `rec.loc` já está sendo utilizado por outra recorrência.
       - O campo `rec.status` não respeita o _schema_.
-      - A recorrência encontra-se encerrada.
+      - A recorrência encontra-se expirada, cancelada ou rejeitada.
       - O campo `rec.loc` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
       - O campo `rec.calendario.dataInicial` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
       - O campo `rec.dadosJornada.txid` não pode ser alterado quando a recorrência apresentar-se com o status REJEITADA ou CANCELADA.
@@ -2157,7 +2157,7 @@ paths:
         - WebhookRec
       summary: Configurar Webhook.
       description: |
-        Endpoint para configuração do serviço de notificações acerca de recorrências. Somente recorrências associadas a chave e conta serão notificadas.
+        Endpoint para configuração do serviço de notificações acerca de recorrências. Somente recorrências associadas ao usuário recebedor serão notificadas.
       security:
         - OAuth2: [webhookrec.write]
       requestBody:
@@ -2776,8 +2776,8 @@ paths:
           in: "query"
           schema:
             type: "string"
-            title: "Status do registro da recorrência"
-            description: "Filtro pelo status da recorrência."
+            title: "Status do registro da cobrança recorrente."
+            description: "Filtro pelo status da cobrança recorrente."
         - name: "convenio"
           in: "query"
           schema:
@@ -4497,7 +4497,7 @@ components:
         type: https://pix.bcb.gov.br/api/v2/error/RecPayloadOperacaoInvalida
         title: "Recorrência não encontrada."
         status: 400
-        detail: "A recorrência em questão encontra-se encerrada."
+        detail: "A recorrência em questão encontra-se expirada, cancelada ou rejeitada."
     RequisicaoInvalidaCobRTentativaExample1:
       summary: "Exemplo de erro da requisição 1"
       value:
@@ -6610,7 +6610,7 @@ components:
                       type: "string"
                       title: "Descricao da rejeição"
                       description: "Descricao da causa da rejeição"
-                      maxLength: 105
+                      maxLength: 400
             - type: "object"
               properties:
                 cancelamento:
@@ -6645,7 +6645,7 @@ components:
                       type: "string"
                       title: "Descricao do cancelamento"
                       description: "Descricao do cancelamento."
-                      maxLength: 105
+                      maxLength: 400
     RecId:
       type: "string"
       title: "ID Recorrência"
@@ -7007,7 +7007,7 @@ components:
                       type: "string"
                       title: "Descricao do cancelamento"
                       description: "Descricao da causa do cancelamento"
-                      maxLength: 105
+                      maxLength: 400
             - type: "object"
               properties:
                 rejeicao:
@@ -7045,7 +7045,7 @@ components:
                       type: "string"
                       title: "Descricao da rejeição"
                       description: "Descricao da causa da rejeição"
-                      maxLength: 105
+                      maxLength: 400
     CobRTentativas:
       type: "object"
       title: "Histórico de Tentativas da Cobrança Recorrente"
@@ -7142,7 +7142,7 @@ components:
                     type: "string"
                     title: "Descricao da rejeição"
                     description: "Descricao da causa da rejeição"
-                    maxLength: 105          
+                    maxLength: 400          
     CobRRevisada:
       type: "object"
       title: "Cobrança Recorrente Revisada"
