@@ -2,6 +2,13 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.8.2]
+- Ajuste na descrição do `PUT /webhookrec`.
+- Correção nas informações do parâmetro `status` em `GET /cobr` que se refere ao status da cobrança recorrente.
+- Ajuste das propriedades `encerramento.rejeicao.descricao` e `encerramento.cancelamento.descricao` nas recorrências e cobranças recorrentes para o tamanho máximo de `400` caracteres.
+- Ajuste da propriedade `tentativas.rejeicao.descricao` das cobranças recorrentes para o tamanho máximo de `400` caracteres.
+- Nas tags `RecPayload` e `Rec` substituímos a expressão `encerrada` por `expirada, cancelada ou rejeitada`.
+
 ## [2.8.1]
 
 - Inclusão do campo não obrigatório `rec.recebedor.convenio` no request do `POST /rec` e response do `GET /rec`, `GET /rec/{idRec}` e `POST /rec`.
