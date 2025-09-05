@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.8.2"
+  version: "2.9.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -408,7 +408,6 @@ info:
       "EM_PROCESSAMENTO" ou "NEGADA".
       - O campo `cobv.calendario.dataDeVencimento` é anterior à data de criação da cobrança.
       - O campo `cobv.calendario.validadeAposVencimento` é menor do que zero.
-      - O objeto `cobv.devedor` não respeita o _schema_.
       - O objeto `cobv.devedor` não respeita o _schema_.
       - O campo `cobv.chave` não respeita o _schema_.
       - O campo `cobv.chave` corresponde a uma conta que não pertence a este usuário recebedor.
@@ -968,7 +967,7 @@ paths:
           schema:
             type: "string"
             title: "CNPJ"
-            pattern: "/^\\d{14}$/"
+            pattern: "^[0-9A-Z]{14}$"
             description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         - name: "locationPresente"
           in: "query"
@@ -1135,7 +1134,7 @@ paths:
           schema:
             type: "string"
             title: "CNPJ"
-            pattern: "/^\\d{14}$/"
+            pattern: "^[0-9A-Z]{14}$"
             description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         - name: "locationPresente"
           in: "query"
@@ -1712,7 +1711,7 @@ paths:
           schema:
             type: "string"
             title: "CNPJ"
-            pattern: "/^\\d{14}$/"
+            pattern: "^[0-9A-Z]{14}$"
             description: "Filtro pelo CNPJ do pagador. Não pode ser utilizado ao mesmo tempo que o CPF."
         - $ref: "#/components/parameters/paginaAtual"
         - $ref: "#/components/parameters/itensPorPagina"
@@ -2422,7 +2421,7 @@ paths:
           schema:
             type: "string"
             title: "CNPJ"
-            pattern: "/^\\d{14}$/"
+            pattern: "^[0-9A-Z]{14}$"
             description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         - name: "locationPresente"
           in: "query"
@@ -2770,7 +2769,7 @@ paths:
           schema:
             type: "string"
             title: "CNPJ"
-            pattern: "/^\\d{14}$/"
+            pattern: "^[0-9A-Z]{14}$"
             description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         - name: "status"
           in: "query"
@@ -3281,14 +3280,14 @@ components:
         chave: "40a0932d-1918-4eee-845d-35a2da1690dc"
         solicitacaoPagador: "Informar cartão fidelidade"
         pix:
-          - endToEndId: "E12345678202009091221kkkkkkkkkkk"
+          - endToEndId: "E1234567820200909122120200808008"
             txid: "655dfdb1a4514b8fbb58254b958913fb"
             valor: "110.00"
             horario: "2020-09-09T20:15:00.358Z"
             infoPagador: "0123456789"
             devolucoes:
               - id: "123ABC"
-                rtrId: "Dxxxxxxxx202009091221kkkkkkkkkkk"
+                rtrId: "D1234567820200909122120200808006"
                 valor: "10.00"
                 horario:
                   solicitacao: "2020-09-09T20:15:00.358Z"
@@ -4972,7 +4971,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "CNPJ do usuário."
         nome:
           type: "string"
@@ -5002,7 +5001,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "CNPJ do usuário."
         nome:
           type: "string"
@@ -5027,7 +5026,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "CNPJ do usuário."
     DadosComplementaresPessoa:
       type: "object"
@@ -5115,7 +5114,7 @@ components:
           type: "string"
           title: "ISPB do usuário pagador."
           description: "ISPB do usuário pagador."
-          pattern: "\\d{8}"
+          pattern: "^[0-9A-Z]{8}$"
         agencia:
           type: "string"
           title: "Agência do Usuário Pagador"
@@ -5154,7 +5153,7 @@ components:
                   type: "string"
                   title: "ISPB do PSP pagador."
                   description: "ISPB do PSP pagador."
-                  pattern: "\\d{8}"
+                  pattern: "^[0-9A-Z]{8}$"
             - type: "object"
               properties:
                 codMun:
@@ -5187,7 +5186,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         criacao:
           type: "string"
@@ -5831,7 +5830,7 @@ components:
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
-                      pattern: "\\d{8}"
+                      pattern: "^[0-9A-Z]{8}$"
                       description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
@@ -5867,7 +5866,7 @@ components:
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
-                      pattern: "\\d{8}"
+                      pattern: "^[0-9A-Z]{8}$"
                       description: "ISPB do Facilitador de Serviço de Saque"
     CobPayloadValor:
       type: "object"
@@ -6121,7 +6120,7 @@ components:
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
-                      pattern: "\\d{8}"
+                      pattern: "^[0-9A-Z]{8}$"
                       description: "ISPB do Facilitador de Serviço de Saque"
             - type: "object"
               properties:
@@ -6157,7 +6156,7 @@ components:
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
-                      pattern: "\\d{8}"
+                      pattern: "^[0-9A-Z]{8}$"
                       description: "ISPB do Facilitador de Serviço de Saque"
     CobVPayloadValor:
       type: "object"
@@ -6398,7 +6397,7 @@ components:
                       type: "string"
                       title: "ISPB do usuário recebedor."
                       description: "ISPB do usuário recebedor."
-                      pattern: "\\d{8}"
+                      pattern: "^[0-9A-Z]{8}$"
         - $ref: "#/components/schemas/RecConfiguracao"
         - $ref: "#/components/schemas/RecAtualizacao"
     RecRevisada:
@@ -6656,9 +6655,9 @@ components:
         - RAxxxxxxxxyyyyMMddkkkkkkkkkkk (29 caracteres; "case sensitive", isso é, diferencia letras maiúsculas e minúsculas), sendo:
           - "R":  fixo (1 caractere). "R" para a recorrência criada dentro do Pix;
           - "A": identificação da possibilidade de novas tentativas, sendo possíveis os valores "R" ou "N" (1 caractere). "R" caso a recorrência permita novas tentativas de pagamento pós vencimento, ou "N" caso não permita novas tentativas.
-          - "xxxxxxxx":  identificação do agente que presta serviço para o usuário recebedor que gerou o <Id>, podendo ser: o ISPB do participante direto, o ISPB do participante indireto ou os 8 primeiros dígitos do CNPJ do prestador de serviço de iniciação (8 caracteres numéricos [0-9]);
+          - "xxxxxxxx":  identificação do agente que presta serviço para o usuário recebedor que gerou o ID Recorrência, podendo ser: o ISPB do participante direto, o ISPB do participante indireto ou os 8 primeiros caracteres do CNPJ do prestador de serviço de iniciação (8 caracteres alfanuméricos [A-Z|0-9]);
           - "yyyyMMdd":  data (8 caracteres) de criação da recorrência;
-          - "kkkkkkkkkkk": sequencial criado pelo agente que gerou o <Id> (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada "yyyyMMdd".
+          - "kkkkkkkkkkk": sequencial criado pelo agente que gerou o ID Recorrência (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada "yyyyMMdd".
 
         Dessa forma, o ID da recorrência deve ser formado de acordo com um dos tipos a seguir:
         - "RRxxxxxxxxyyyyMMddkkkkkkkkkkk"; para recorrência criada dentro do Pix e que permite novas tentativas de pagamento pós vencimento; ou
@@ -6754,7 +6753,7 @@ components:
             Regra de formação:
             - SCxxxxxxxxyyyyMMddkkkkkkkkkkk (29 caracteres; “case sensitive”, isso é, diferencia letras maiúsculas e minúsculas), sendo:
               - SC - fixo (2 caracteres);
-              - xxxxxxxx – ISPB do agente que envia a mensagem pain.009 de solicitação de confirmação da recorrência;
+              - xxxxxxxx – ISPB do agente que envia a mensagem pain.009 de solicitação de confirmação da recorrência (8 caracteres alfanuméricos [A-Z|0-9]);
               - yyyyMMdd – data (8 caracteres) de criação da mensagem pain.009 de solicitação de confirmação da recorrência;
               - kkkkkkkkkkk – sequencial criado pelo agente que gerou a mensagem de solicitação de confirmação da recorrência (11 caracteres alfanuméricos [a-z|A-Z|0-9]). Deve ser único dentro de cada “yyyyMMdd”.
           pattern: "[a-zA-Z0-9]{29}"
@@ -7588,7 +7587,6 @@ components:
       title: "Cobrança com vencimento completa"
       required: ["status"]
       allOf:
-        - $ref: "#/components/schemas/CobVSolicitada"
         - $ref: "#/components/schemas/CobVGerada"
         - type: "object"
           properties:
@@ -7612,7 +7610,6 @@ components:
       title: "Cobrança imediata completa"
       required: ["status"]
       allOf:
-        - $ref: "#/components/schemas/CobSolicitada"
         - $ref: "#/components/schemas/CobGerada"
         - type: "object"
           properties:
@@ -7917,7 +7914,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         locationPresente:
           type: "boolean"
@@ -7963,7 +7960,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         locationPresente:
           type: "boolean"
@@ -8002,7 +7999,7 @@ components:
         cnpj:
           type: "string"
           title: "CNPJ"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "Filtro pelo CNPJ do devedor. Não pode ser utilizado ao mesmo tempo que o CPF."
         status:
           type: "string"
@@ -8373,7 +8370,7 @@ components:
             prestadorDoServicoDeSaque:
               type: "string"
               title: "Facilitador de Serviço de Saque"
-              pattern: "\\d{8}"
+              pattern: "^[0-9A-Z]{8}$"
               description: "ISPB do Facilitador de Serviço de Saque"
     PixValorTroco:
       type: "object"
@@ -8399,7 +8396,7 @@ components:
             prestadorDoServicoDeSaque:
               type: "string"
               title: "Facilitador de Serviço de Saque"
-              pattern: "\\d{8}"
+              pattern: "^[0-9A-Z]{8}$"
               description: "ISPB do Facilitador de Serviço de Saque"
     PixValorJuros:
       type: "object"
@@ -8695,7 +8692,7 @@ components:
           description: "CPF"
         cnpj:
           type: "string"
-          pattern: "/^\\d{14}$/"
+          pattern: "^[0-9A-Z]{14}$"
           description: "CNPJ"
         paginacao:
           $ref: "#/components/schemas/Paginacao"
