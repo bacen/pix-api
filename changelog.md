@@ -2,6 +2,16 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.9.0]
+
+- Atualização do padrão de campos com domínio `CNPJ` para aceitar valores alfanuméricos, conforme Instrução Normativa RFB nº 2229, de 15 de outubro de 2024.
+- Atualização dos padrões dos campos `ispbParticipante` e `prestadorDoServicoDeSaque` para permitir valores alfanuméricos, considerando que o `ISPB` pode ser derivado do respectivo `CNPJ`.
+- Atualização dos padrões dos campos `idRec` e `idSolicRec` para permitir valores alfanuméricos nos componentes `xxxxxxxx` (ISPBs) das suas regras de formação.
+- Correção na descrição do campo `idRec`.
+- Correção nos campos `cob.devedor` e `cobv.devedor` removendo campos duplicados.
+- Correção nas violações de `CobVOperacaoInvalida` removendo informações duplicadas.
+
+
 ## [2.8.2]
 - Ajuste na descrição do `PUT /webhookrec`.
 - Correção nas informações do parâmetro `status` em `GET /cobr` que se refere ao status da cobrança recorrente.
