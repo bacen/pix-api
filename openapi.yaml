@@ -7555,8 +7555,8 @@ components:
         Os status são assim definidos:
         - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
         - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
-        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança; e
-        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+        - `REMOVIDA_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança; e
+        - `REMOVIDA_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
       enum:
         - "ATIVA"
         - "CONCLUIDA"
