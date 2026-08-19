@@ -2,6 +2,20 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.10.0]
+
+- Correção de exemplos com CEP contendo hífen. Ajustados exemplos para conformidade com o schema `maxLength: 8`.
+- Inclusão de campo não obrigatório `encerramento.rejeicao.motivo` na solicitação de recorrência.
+- Inclusão de violações específicas no endpoint `GET /rec/{idRec}` relacionadas ao campo `recebedor`.
+- Inclusão de violação específica no endpoint `PATCH /rec/{idRec}`.
+- Inclusão de violação específica no endpoint `POST /solicrec`.
+- Inclusão da opção `AP15` no campo `encerramento.rejeicao.codigo` da recorrência.
+- Inclusão do parâmetro de consulta `finalidadeMED` no endpoint `GET /pix` para filtro pela finalidade MED.
+- Ajuste na descrição do campo `cobr.tentativas.dataLiquidacao`.
+- Marcação dos códigos de cancelamento de recorrência `PCFD` e `ERSL` como deprecated.
+- Marcação do valor de domínio `AGPSS` do campo `modalidadeAgente` como deprecated, com orientação para uso de `AGFSS` no mapeamento para pacs.008.
+- Correções gerais de textos e descrições.
+
 ## [2.9.0]
 
 - Atualização do padrão de campos com domínio `CNPJ` para aceitar valores alfanuméricos, conforme Instrução Normativa RFB nº 2229, de 15 de outubro de 2024.
