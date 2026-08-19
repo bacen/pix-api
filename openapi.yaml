@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.9.0"
+  version: "2.10.0"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -207,6 +207,7 @@ info:
       - O location referenciado por `rec.loc` inexiste.
       - O location referenciado por `rec.loc` já está sendo utilizado por outra recorrência.
       - O valor do campo `rec.recebedor.convenio` não é aceito pelo PSP Recebedor.
+      - o recebedor da cobrança identificado pelo campo `rec.dadosJornada.txid` não corresponde ao recebedor associado à recorrência.
 
     __Violações__ para o endpoint `PATCH /rec/{idRec}`:
 
@@ -217,7 +218,9 @@ info:
       - A recorrência encontra-se expirada, cancelada ou rejeitada.
       - O campo `rec.loc` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
       - O campo `rec.calendario.dataInicial` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
+      - O campo `rec.vinculo.devedor.nome` somente pode ser alterado quando a recorrência apresentar-se com o status CRIADA.
       - O campo `rec.dadosJornada.txid` não pode ser alterado quando a recorrência apresentar-se com o status REJEITADA ou CANCELADA.
+      - O recebedor da cobrança identificado pelo campo `rec.dadosJornada.txid` não corresponde ao recebedor associado à recorrência.
 
     ### `RecConsultaInvalida`
 
@@ -238,6 +241,7 @@ info:
 
       - o parâmetro `txid` não corresponde a uma cobrança compatível com o campo `ativacao.tipoJornada`. (_Exemplo: `txid` correspondente a uma CobV e `ativação.tipoJornada` igual a JORNADA_3._)
       - o parâmetro `txid` corresponde a uma cobrança imediata diferente da informada no campo `ativação.dadosJornada.txid`. Esta violação não ocorre caso o parâmetro txid corresponda a uma cobrança com vencimento.
+      - o recebedor da cobrança identificada pelo parâmetro `txid` não corresponde ao recebedor associado à recorrência.
 
     ## Tag SolicRec
 
@@ -261,6 +265,7 @@ info:
       - O campo `solicrec.calendario.dataExpiracaoSolicitacao` é anterior à data de criação da solicitação da recorrência.
       - O objeto `solicrec.destinatario` não respeita o _schema_.
       - Existe uma solicitação ativa referente ao mesmo `solicrec.idRec`.
+      - Não é possível criar uma solicitação para uma recorrência que já foi confirmada ou está pendente de confirmação pelo usuário pagador.
     
     __Violações__ para o endpoint `PATCH /solicrec/{idSolicRec}`:
 
@@ -1699,6 +1704,10 @@ paths:
           in: "query"
           schema:
             type: "boolean"
+        - name: "finalidadeMED"
+          in: "query"
+          schema:
+            type: "boolean"
         - name: "cpf"
           in: "query"
           schema:
@@ -2332,6 +2341,7 @@ paths:
           schema:
             type: "string"
             title: "TxId da cobrança associada a recorrência."
+            pattern: "[a-zA-Z0-9]{26,35}"
       summary: "Consultar recorrência."
       security:
         - OAuth2: [rec.read]
@@ -2972,7 +2982,7 @@ components:
             saque:
               valor: "5.00"
               modalidadeAlteracao: 0
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGFSS"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobBody7:
@@ -3003,7 +3013,7 @@ components:
             saque:
               valor: "20.00"
               modalidadeAlteracao: 1
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGFSS"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobBody9:
@@ -3033,7 +3043,7 @@ components:
           original: "106.07"
         ajusteDiaUtil: true
         devedor:
-          cep: "89256-140"
+          cep: "89256140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
@@ -3061,7 +3071,7 @@ components:
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
         devedor:
-          cep: "89256-140"
+          cep: "89256140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
@@ -3088,7 +3098,7 @@ components:
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
         devedor:
-          cep: "89256-140"
+          cep: "89256140"
           cidade: "Uberlândia"
           email: "sebastiao.tavares@mail.com"
           logradouro: "Alameda Franco 1056"
@@ -3114,7 +3124,7 @@ components:
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
         devedor:
-          cep: "63259-740"
+          cep: "63259740"
           cidade: "Campinas"
           email: "beltrano.silva@mail.com"
           logradouro: "Rua Gonçalves Dias 605"
@@ -3151,7 +3161,7 @@ components:
         politicaRetentativa: NAO_PERMITE
         ajusteDiaUtil: true
         devedor:
-          cep: "26901-340"
+          cep: "26901340"
           cidade: "São Luís"
           email: "fulano.tal@mail.com"
           logradouro: "Alameda Cardoso 1007"
@@ -3370,7 +3380,7 @@ components:
             saque:
               valor: "5.00"
               modalidadeAlteracao: 0
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGFSS"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobResponse6:
@@ -3397,7 +3407,7 @@ components:
             saque:
               valor: "20.00"
               modalidadeAlteracao: 1
-              modalidadeAgente: "AGPSS"
+              modalidadeAgente: "AGFSS"
               prestadorDoServicoDeSaque: "12345678"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
     cobResponse7:
@@ -3474,6 +3484,10 @@ components:
         ativacao:
           dadosJornada:
             txid: "33beb661beda44a8928fef47dbeb2dc5"
+    recBody4:
+      summary: "Exemplo de Cancelamento de Recorrência 1"
+      value:
+        status: CANCELADA
     recResponse1:
       summary: "Exemplo de Recorrência 1"
       value:
@@ -4027,7 +4041,7 @@ components:
             valor: "180.00"
           saque:
             valor: "20.00"
-            modalidadeAgente: "AGPSS"
+            modalidadeAgente: "AGFSS"
             prestadorDeServicoDeSaque: "12345678"
         horario: "2020-09-10T13:03:33.902Z"
         infoPagador: "Saque Pix"
@@ -4382,7 +4396,7 @@ components:
             ajusteDiaUtil: false
             politicaRetentativa: PERMITE_3R_7D
             devedor:
-              cep: "63259-740"
+              cep: "63259740"
               cidade: "Campinas"
               email: "beltrano.silva@mail.com"
               logradouro: "Rua Gonçalves Dias 605"
@@ -4772,6 +4786,8 @@ components:
           examples:
             retorno1:
               $ref: "#/components/examples/recBody3"
+            exemnplo2:
+              $ref: "#/components/examples/recBody4"
     WebhookPixBody:
       description: "Dados para notificação dos Pix."
       required: true
@@ -5611,7 +5627,9 @@ components:
               - O campo `valor.original` deve ser preenchido com **valor maior que 0.00 (zero)**;
               - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
 
-            **IMPORTANTE**: Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+            **IMPORTANTE**: 
+            - Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+            - O campo `modalidadeAgente` é de preenchimento obrigatório tanto para o saque quanto para o troco. No mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é AGFSS.
 
             #### Exemplos válidos:
             Considerando os campos da estrutura `valor` e o predicado 'presente' cujo resultado é verdade quando a estrutura apontada é encontrada temos: 
@@ -5639,7 +5657,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -5655,7 +5673,7 @@ components:
                   "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -5716,7 +5734,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "50.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   },
                   "troco": {
@@ -5736,7 +5754,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -5768,7 +5786,7 @@ components:
                   "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -5822,11 +5840,12 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
                         - "AGPSS"
+                        - "AGFSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
@@ -5901,7 +5920,9 @@ components:
               - O campo `valor.original` deve ser preenchido com **valor maior que 0.00 (zero)**;
               - O campo `valor.modalidadeAlteracao` deve possuir o valor 0 (zero) explicitamente, ou implicitamente (pelo não preenchimento).
 
-            **IMPORTANTE**: Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+            **IMPORTANTE**: 
+            - Quando usados o `saque` ou `troco` não será permitida a alteração do `valor.original` recebido. Na presença de `saque` ou `troco` o recebimento do campo `valor.modalidadeAlteracao` com valor 1 (um) é considerado erro.
+            - O campo `modalidadeAgente` é de preenchimento obrigatório tanto para o saque quanto para o troco. No caso do saque, o valor "AGPSS" foi substituído por "AGFSS".
 
             #### Exemplos válidos:
             Considerando os campos da estrutura `valor` e o predicado 'presente' cujo resultado é verdade quando a estrutura apontada é encontrada temos: 
@@ -5929,7 +5950,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -5945,7 +5966,7 @@ components:
                   "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -6006,7 +6027,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "50.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   },
                   "troco": {
@@ -6026,7 +6047,7 @@ components:
                 "retirada": {
                   "saque": {
                     "valor": "5.00",
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -6058,7 +6079,7 @@ components:
                   "saque": {
                     "valor": "5.00",
                     "modalidadeAlteracao": 1,
-                    "modalidadeAgente": "AGPSS",
+                    "modalidadeAgente": "AGFSS",
                     "prestadorDoServicoDeSaque": "12345678"
                   }
                 }
@@ -6112,11 +6133,12 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
                         - "AGPSS"
+                        - "AGFSS"
                     prestadorDoServicoDeSaque:
                       type: "string"
                       title: "Facilitador de Serviço de Saque"
@@ -6604,6 +6626,7 @@ components:
                       enum:
                         - AP13
                         - AP14
+                        - AP15
                       maxLength: 4
                     descricao:
                       type: "string"
@@ -6629,7 +6652,7 @@ components:
                     codigo:
                       type: "string"
                       title: "Código do cancelamento"
-                      description: "Código do cancelamento. Corresponde ao código de cancelamento presente no catálogo de mensagens."
+                      description: "Código do cancelamento. Corresponde ao código de cancelamento presente no catálogo de mensagens. **IMPORTANTE:** `PCFD` e `ERSL` estão em desuso (deprecated) sem substitutos."
                       enum:
                        - ACCL
                        - CPCL
@@ -6828,6 +6851,26 @@ components:
                 type: "string"
                 format: "date-time"
                 description: "Data e hora do registro de status atualizado. Respeita RFC 3339."
+    SolicRecEncerramento:
+      type: "object"
+      title: "Detalhamento do encerramento da solicitação de recorrência."
+      properties:
+        encerramento:
+          type: "object"
+          title: "Detalhamento do encerramento da solicitação de recorrência."
+          properties:
+            rejeicao:
+              type: "object"
+              title: "Informações sobre a rejeição da solicitação de recorrência"
+              required: ["motivo"]
+              description: "Informações sobre a rejeição da solicitação de recorrência"
+              properties:
+                motivo:
+                  type: "string"
+                  title: "Motivo da rejeição"
+                  description: "Motivo pelo qual a solicitação de recorrência foi rejeitada."
+                  enum:
+                    - "DADOS_BANCARIOS_INVALIDOS"
     SolicRecSolicitada:
       type: "object"
       title: "Solicitação de Recorrência"
@@ -6855,6 +6898,7 @@ components:
         - $ref: "#/components/schemas/SolicRecBase"
         - $ref: "#/components/schemas/SolicRecStatus"
         - $ref: "#/components/schemas/SolicRecAtualizacao"
+        - $ref: "#/components/schemas/SolicRecEncerramento"
         - type: "object"
           properties:
             recPayload:
@@ -7060,7 +7104,7 @@ components:
               dataLiquidacao:
                 type: "string"
                 format: "date"
-                description: "Data da liquidação da cobrança. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601."
+                description: "Data prevista para liquidação da cobrança. Trata-se de uma data, no formato `YYYY-MM-DD`, segundo ISO 8601."
                 example: "2023-04-01"
               tipo:
                 type: "string"
@@ -7489,7 +7533,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobStatus"
         - type: "object"
           properties:
             valor:
@@ -7538,7 +7582,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobVStatus"
         - type: "object"
           properties:
             valor:
@@ -7546,7 +7590,7 @@ components:
               allOf:
                 - $ref: "#/components/schemas/CobVValor"
         - $ref: "#/components/schemas/CobBaseCopiaCola"
-    CobrancaStatus:
+    CobStatus:
       type: "string"
       title: "Status do registro da cobrança."
       description: |
@@ -7555,7 +7599,23 @@ components:
         Os status são assim definidos:
         - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
         - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
-        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança; e
+        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
+        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+      enum:
+        - "ATIVA"
+        - "CONCLUIDA"
+        - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+        - "REMOVIDA_PELO_PSP"
+    CobVStatus:
+      type: "string"
+      title: "Status do registro da cobrança com vencimento."
+      description: |
+        Estado do registro da cobrança com vencimento. Não se confunde com o estado da cobrança em si, ou seja, não guarda relação com o fato de a cobrança encontrar-se vencida ou expirada, por exemplo.
+
+        Os status são assim definidos:
+        - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
+        - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
+        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
         - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
       enum:
         - "ATIVA"
@@ -7605,7 +7665,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobVStatus"
     CobCompleta:
       title: "Cobrança imediata completa"
       required: ["status"]
@@ -7614,7 +7674,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobStatus"
         - type: "object"
           properties:
             pix:
@@ -7725,7 +7785,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobVStatus"
         - type: "object"
           properties:
             valor:
@@ -7761,7 +7821,7 @@ components:
         - type: "object"
           properties:
             status:
-              $ref: "#/components/schemas/CobrancaStatus"
+              $ref: "#/components/schemas/CobStatus"
         - type: "object"
           properties:
             valor:
@@ -8144,7 +8204,7 @@ components:
               "componentesValor": {
                 "saque": {
                   "valor": "100.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               }
@@ -8159,7 +8219,7 @@ components:
                 },
                 "saque": {
                   "valor": "100.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               }
@@ -8222,7 +8282,7 @@ components:
                 },
                 "saque": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               }
@@ -8234,12 +8294,12 @@ components:
               "componentesValor": [
                 "saque": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 },
                 "saque": {
                   "valor": "10.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 } 
               ]
@@ -8254,7 +8314,7 @@ components:
                 },
                 "saque": {
                   "valor": "20.00",
-                  "modalidadeAgente": "AGPSS",
+                  "modalidadeAgente": "AGFSS",
                   "prestadorDeServicoDeSaque": "12345678"
                 },
                 "troco": {
@@ -8313,6 +8373,165 @@ components:
           title: "Valor do Pix."
           pattern: "\\d{1,10}\\.\\d{2}"
           description: "Valor do Pix."
+        componentesValor:
+          type: "object"
+          title: "Informações sobre o valor do Pix"
+          description: |-
+            O objetivo dessa estrutura é explicar os elementos de composição do valor do Pix, incluindo informações sobre as multas, juros, descontos e abatimentos quando o Pix for relativo a cobranças com vencimento.
+
+            Regras da estrutura:
+            - O `valor` do Pix é igual a: 
+              - (`original.valor` + `saque.valor` + `troco.valor`) + `multa.valor` + `juros.valor` – `abatimento.valor` – `desconto.valor`
+              considerando-se apenas os campos que estiverem presentes para cada tipo de cobrança pago.
+            - As estruturas `saque` e `troco` só serão retornadas quando o Pix for relativo a um Pix Saque ou Pix Troco, respectivamente, e 
+            as demais estruturas (`juros`, `multa`, `abatimento` e `desconto`) só serão pertinentes aos Pix de pagamentos das cobranças com vencimento.
+            - Não pode haver simultaneamente uma subsestrutura do tipo `saque` e outra do tipo `troco`;
+            - Não há restrição na ordem das subestruturas.
+
+            Para o caso de um Pix Saque pode-se retornar `original` com valor=0.00 (zero) uma vez que a soma será respeitada, ou pode-se omitir a 
+            subestrutura original. No caso de um Pix Troco ou de um pagamento de cobrança com vencimento a subsestrutura `original` vai sempre estar 
+            presente.
+
+            #### Exemplos válidos:
+            Exemplo de preenchimentos válidos. 
+
+            - **Pix para pagamento de cobrança imediata (sem saque ou troco).**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "100.00"
+                } 
+              }
+              ...
+              ```
+            - **Pix Saque.**
+              ```
+              ...
+              "componentesValor": {
+                "saque": {
+                  "valor": "100.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              }
+              ...
+              ```
+            - **Pix para pagamento de cobrança imediata com saque (pode vir original.valor=0.00).**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "0.00"
+                },
+                "saque": {
+                  "valor": "100.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              }
+              ...
+              ```
+            - **Pix Troco.**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "80.00"
+                },
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              }
+              ...
+              ```
+            - **Pix para pagamento de cobrança imediata com troco (ordem não importa).**
+              ```
+              ...
+              "componentesValor": {
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
+                },
+                "original": {
+                  "valor": "80.00"
+                }
+              }
+              ...
+              ```
+            - **Pix para pagamento de cobrança com vencimento de R$100,00 considerando-se um atraso de 2 dias a uma multa de 3% e juros de 1% ao dia. O `valor` do Pix será R$105,00.**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "100.00"
+                },
+                "multa": {
+                  "valor": "3.00"
+                },
+                "juros": {
+                  "valor": "2.00"
+                }
+              }
+              ...
+              ```            
+            #### Exemplos inválidos:
+            Exemplos, não exaustivos, de preenchimentos inválidos.
+            - **`original.valor` maior que 0.00 (zero) e `saque` juntos**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "80.00"
+                },
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              }
+              ...
+              ```
+            - **dois elementos de `saque`**
+              ```
+              ...
+              "componentesValor": [
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                },
+                "saque": {
+                  "valor": "10.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              ]
+              ...
+              ```
+            - **saque e troco simultaneamente**
+              ```
+              ...
+              "componentesValor": {
+                "original": {
+                  "valor": "60.00"
+                },
+                "saque": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGFSS",
+                  "prestadorDeServicoDeSaque": "12345678"
+                },
+                "troco": {
+                  "valor": "20.00",
+                  "modalidadeAgente": "AGTEC",
+                  "prestadorDeServicoDeSaque": "12345678"
+                } 
+              }
+              ...
+              ```
           anyOf:
             - $ref: "#/components/schemas/PixValorOriginal"
             - $ref: "#/components/schemas/PixValorJuros"
@@ -8362,11 +8581,12 @@ components:
               title: "Modalidade do Agente"
               description: |
                 ##### Modalidade do Agente
-                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento para o campo 'modalidadeAgente', da pacs.008, esse valor deve ser substituído por <b>AGFSS</b>)</td></tr></table>
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
               enum:
                 - "AGTEC"
                 - "AGTOT"
                 - "AGPSS"
+                - "AGFSS"
             prestadorDoServicoDeSaque:
               type: "string"
               title: "Facilitador de Serviço de Saque"
@@ -8686,6 +8906,9 @@ components:
         devolucaoPresente:
           type: "boolean"
           description: "Filtro pela existência de devolução."
+        finalidadeMED:
+          type: "boolean"
+          description: "Filtro pela finalidade MED."
         cpf:
           type: "string"
           pattern: "/^\\d{11}$/"
