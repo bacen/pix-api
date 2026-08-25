@@ -2635,7 +2635,7 @@ paths:
                 $ref: "#/components/schemas/CobRGerada"
               examples:
                 response1:
-                  $ref: "#/components/examples/cobRResponse2"
+                  $ref: "#/components/examples/cobRResponse1Gerada"
         "400":
           description: "Requisição com formato inválido."
           content:
@@ -2732,7 +2732,7 @@ paths:
                 $ref: "#/components/schemas/CobRGerada"
               examples:
                 response1:
-                  $ref: "#/components/examples/cobRResponse1"
+                  $ref: "#/components/examples/cobRResponse1Gerada"
         "400":
           description: "Requisição com formato inválido."
           content:
@@ -3056,8 +3056,8 @@ components:
       summary: "Exemplo de revisão de cobrança recorrente 1"
       value:
         status: CANCELADA
-    cobRResponse1:
-      summary: "Exemplo de cobrança recorrente 1"
+    cobRResponse1Gerada:
+      summary: "Exemplo de cobrança recorrente 1 - Gerada"
       value:
         idRec: RR1234567820240115abcdefghijk
         txid: 3136957d93134f2184b369e8f1c0729d
@@ -3068,7 +3068,6 @@ components:
         status: CRIADA
         valor:
           original: "106.07"
-        politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
         devedor:
           cep: "89256140"
@@ -3080,9 +3079,6 @@ components:
           agencia: "9708"
           conta: "012682"
           tipoConta: CORRENTE
-        atualizacao:
-          - data: "2024-04-01T14:47:29.470Z"
-            status: CRIADA
     cobRResponse2:
       summary: "Exemplo de cobrança recorrente 1"
       value:
