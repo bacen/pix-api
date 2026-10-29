@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: API Pix
-  version: "2.10.0"
+  version: "2.11.0-rc1"
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -299,6 +299,9 @@ info:
       - O objeto `cobr.devedor` não respeita o _schema_.
       - O campo `cobr.txid` encontra-se em uso.
       - Existe uma CobR com status diferente de REJEITADA e CANCELADA referente ao mesmo `cobr.idRec` com `calendario.dataDeVencimento` no mesmo ciclo.
+      - O objeto `cobr.tributo` não respeita o _schema_.
+      - O objeto `cobr.tributo` não pode ser preenchido quando o `rec.vinculo.devedor` representar pessoa física.
+      - O somatório dos valores dos tributos é maior que o valor da cobrança, considerando, para cada tributo, o valor da categoria `informado`.
 
     __Violações__ para o endpoint `PATCH /cobr/{txid}`:
 
@@ -359,6 +362,9 @@ info:
       - O `location` referenciado por `loc.id` inexiste.
       - O `location` referenciado por `loc.id` já está sendo utilizado por outra cobrança.
       - O `location` referenciado por `cob.loc.id` apresenta tipo "cobv" (deveria ser "cob").
+      - O objeto `cob.tributo` não respeita o _schema_.
+      - O objeto `cob.tributo` não pode ser preenchido quando `cob.devedor` estiver ausente ou representar pessoa física.
+      - O somatório dos valores dos tributos é maior que o valor da cobrança, considerando, para cada tributo, o valor de `corrigido` quando preenchido e, na sua ausência, o valor de `informado`.
 
     __Violações__ específicas para o endpoint `PUT /cob/{txid}`:
       - A cobrança já existe, não está no status ATIVA, e a presente requisição busca alterá-la.
@@ -369,7 +375,9 @@ info:
       seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
       (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
       alterações que não serão aproveitadas).
-      - o campo `cob.status` não respeita o _schema_.
+      - O campo `cob.status` não respeita o _schema_.
+      - O campo `cob.tributo.cbs.informado` somente pode ser alterado enquanto o campo `cob.tributo.cbs.corrigido` não estiver preenchido.
+      - O campo `cob.tributo.ibs.informado` somente pode ser alterado enquanto o campo `cob.tributo.ibs.corrigido` não estiver preenchido.
 
     ### `CobConsultaInvalida`
 
@@ -441,8 +449,9 @@ info:
       o elemento `cobv.valor.desconto.valorPerc` não está preenchido.
       - O objeto `cobv.valor.desconto` apresenta modalidade nos valores de `3` a `6`, porém
       o elemento `cobv.valor.desconto.descontoDataFixa` está preenchido ou não nulo.
-
-
+      - O objeto `cobv.tributo` não respeita o _schema_.
+      - O objeto `cobv.tributo` não pode ser preenchido quando `cobv.devedor` representar pessoa física.
+      - O somatório dos valores dos tributos é maior que o valor da cobrança, considerando, para cada tributo, o valor de `corrigido` quando preenchido e, na sua ausência, o valor de `informado`.
 
     __Violações__ específicas para o endpoint `PUT /cobv/{txid}`:
       - A cobrança já existe, não está ATIVA, e a presente requisição busca alterá-la
@@ -453,7 +462,9 @@ info:
       seu status para _REMOVIDA_PELO_USUARIO_RECEBEDOR_ juntamente com outras alterações
       (não faz sentido remover uma cobrança ao mesmo tempo em que se realizam
       alterações que não serão aproveitadas).
-      - o campo `cob.status` não respeita o _schema_.
+      - o campo `cobv.status` não respeita o _schema_.
+      - O campo `cobv.tributo.cbs.informado` somente pode ser alterado enquanto o campo `cobv.tributo.cbs.corrigido` não estiver preenchido.
+      - O campo `cobv.tributo.ibs.informado` somente pode ser alterado enquanto o campo `cobv.tributo.ibs.corrigido` não estiver preenchido.
 
     ### `CobVConsultaInvalida`
 
@@ -706,9 +717,61 @@ info:
     * __Significado__: os parâmetros de consulta à lista de webhooks ativados não respeitam o schema
     ou não fazem sentido semanticamente.
     * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
-    * __endpoints__: `GET /webhookcobr`.
+    * __endpoints__: `GET /webhookcob`.
 
-    __Violações__ específicas para o endpoint `GET /webhookcobr`:
+    __Violações__ específicas para o endpoint `GET /webhookcob`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+
+    ## Tag WebhookCob
+    Reúne erros dos endpoints que tratam do gerenciamento dos Webhooks de cobranças imediatas da API Pix.
+
+    ### `WebhookCobOperacaoInvalida`
+    * __Significado__: a presente requisição busca criar um webhook sem respeitar o _schema_ ou,
+    ainda, apresenta semântica inválida.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `PUT /webhookcob`.
+
+    __Violações__ para o endpoint `PUT /webhookcob`:
+      - o campo `webhookUrl` não respeita o _schema_.
+
+    ### `WebhookCobConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de webhooks ativados não respeitam o schema
+    ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /webhookcob`.
+
+    __Violações__ específicas para o endpoint `GET /webhookcob`:
+      - algum dos parâmetros informados para a consulta não respeita o _schema_.
+      - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
+      representado pelo parâmetro `inicio`.
+      - o parâmetro `paginacao.paginaAtual` é negativo.
+      - o parâmetro `paginacao.itensPorPagina` é negativo.
+
+    ## Tag WebhookCobV
+    Reúne erros dos endpoints que tratam do gerenciamento dos Webhooks de cobranças com vencimento da API Pix.
+
+    ### `WebhookCobVOperacaoInvalida`
+    * __Significado__: a presente requisição busca criar um webhook sem respeitar o _schema_ ou,
+    ainda, apresenta semântica inválida.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `PUT /webhookcobv`.
+
+    __Violações__ para o endpoint `PUT /webhookcobv`:
+      - o campo `webhookUrl` não respeita o _schema_.
+
+    ### `WebhookCobVConsultaInvalida`
+
+    * __Significado__: os parâmetros de consulta à lista de webhooks ativados não respeitam o schema
+    ou não fazem sentido semanticamente.
+    * __HTTP Status Code__: [400](https://tools.ietf.org/html/rfc7231#section-6.5.1).
+    * __endpoints__: `GET /webhookcobv`.
+
+    __Violações__ específicas para o endpoint `GET /webhookcobv`:
       - algum dos parâmetros informados para a consulta não respeita o _schema_.
       - o _timestamp_ representado pelo parâmetro `fim` é anterior ao timestamp
       representado pelo parâmetro `inicio`.
@@ -788,6 +851,14 @@ tags:
     x-displayName: Gerenciamento de notificações de cobranças recorrentes
     description: |-
       Reúne endpoints para gerenciamento de notificações de cobranças recorrentes por parte do PSP recebedor ao usuário recebedor.
+  - name: WebhookCob
+    x-displayName: Gerenciamento de notificações de cobranças imediatas
+    description: |-
+      Reúne endpoints para gerenciamento de notificações de cobranças imediatas por parte do PSP recebedor ao usuário recebedor.
+  - name: WebhookCobV
+    x-displayName: Gerenciamento de notificações de cobranças com vencimento
+    description: |-
+      Reúne endpoints para gerenciamento de notificações de cobranças com vencimento por parte do PSP recebedor ao usuário recebedor.
 paths:
   /cob/{txid}:
     parameters:
@@ -1663,7 +1734,8 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Pix"
+                allOf:
+                  - $ref: "#/components/schemas/PixConsultado"
               examples:
                 retorno1:
                   $ref: "#/components/examples/pixResponse1"
@@ -1864,6 +1936,8 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobPayload1"
+                retorno2:
+                  $ref: "#/components/examples/cobPayload4"
         "400":
           description: "Requisição com formato inválido."
           content:
@@ -1940,6 +2014,8 @@ paths:
               examples:
                 retorno1:
                   $ref: "#/components/examples/cobPayload2"
+                retorno2:
+                  $ref: "#/components/examples/cobPayload5"
         "400":
           description: "Requisição com formato inválido."
           content:
@@ -2314,6 +2390,158 @@ paths:
         removido.
       security:
         - OAuth2: [webhookcobr.write]
+      responses:
+        "204":
+          description: "Webhook para notificações foi cancelado."
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+  "/webhookcob":
+    put:
+      tags:
+        - WebhookCob
+      summary: Configurar Webhook.
+      description: |
+        Endpoint para configuração do serviço de notificações acerca de cobranças imediatas. Somente cobranças imediatas associadas ao usuário recebedor serão notificadas.
+      security:
+        - OAuth2: [webhookcob.write]
+      requestBody:
+        $ref: "#/components/requestBodies/WebhookCobConfigBody"
+      responses:
+        "200":
+          description: Webhook para notificações.
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problema"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+      callbacks:
+        cob:
+          "{$request.body#/webhookUrl}/cob":
+            post:
+              description: ""
+              security: []
+              requestBody:
+                $ref: "#/components/requestBodies/WebhookCobBody"
+              responses:
+                "200":
+                  description: "Notificação recebida com sucesso"
+    get:
+      tags:
+        - WebhookCob
+      summary: "Exibir informações acerca do Webhook."
+      description: |
+        Endpoint para recuperação de informações sobre o Webhook.
+      security:
+        - OAuth2: [webhookcob.read]
+      responses:
+        "200":
+          description: "Dados do webhook."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/WebhookCobCompleto"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+    delete:
+      tags:
+        - WebhookCob
+      summary: "Cancelar o Webhook."
+      description: |
+        Endpoint para cancelamento do webhook. Não é a única forma pela qual um webhook pode ser
+        removido.
+      security:
+        - OAuth2: [webhookcob.write]
+      responses:
+        "204":
+          description: "Webhook para notificações foi cancelado."
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+  "/webhookcobv":
+    put:
+      tags:
+        - WebhookCobV
+      summary: Configurar Webhook.
+      description: |
+        Endpoint para configuração do serviço de notificações acerca de cobranças recorrentes. Somente cobranças recorrentes associadas ao usuário recebedor serão notificadas.
+      security:
+        - OAuth2: [webhookcobV.write]
+      requestBody:
+        $ref: "#/components/requestBodies/WebhookCobVConfigBody"
+      responses:
+        "200":
+          description: Webhook para notificações.
+        "400":
+          description: "Requisição com formato inválido."
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problema"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+      callbacks:
+        cobr:
+          "{$request.body#/webhookUrl}/cobv":
+            post:
+              description: ""
+              security: []
+              requestBody:
+                $ref: "#/components/requestBodies/WebhookCobVBody"
+              responses:
+                "200":
+                  description: "Notificação recebida com sucesso"
+    get:
+      tags:
+        - WebhookCobV
+      summary: "Exibir informações acerca do Webhook."
+      description: |
+        Endpoint para recuperação de informações sobre o Webhook.
+      security:
+        - OAuth2: [webhookcobv.read]
+      responses:
+        "200":
+          description: "Dados do webhook."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/WebhookCobVCompleto"
+        "403":
+          $ref: "#/components/responses/AcessoNegado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "503":
+          $ref: "#/components/responses/ServicoIndisponivel"
+    delete:
+      tags:
+        - WebhookCobV
+      summary: "Cancelar o Webhook."
+      description: |
+        Endpoint para cancelamento do webhook. Não é a única forma pela qual um webhook pode ser
+        removido.
+      security:
+        - OAuth2: [webhookcobv.write]
       responses:
         "204":
           description: "Webhook para notificações foi cancelado."
@@ -2895,6 +3123,10 @@ components:
             webhookrec.write: Permissão para alteração do webhook
             webhookcobr.read: Permissão para consulta do webhook
             webhookcobr.write: Permissão para alteração do webhook
+            webhookcob.read: Permissão para consulta do webhook
+            webhookcob.write: Permissão para alteração do webhook
+            webhookcobv.read: Permissão para consulta do webhook
+            webhookcobv.write: Permissão para alteração do webhook
             payloadlocation.write: Permissão para alteração de payloads
             payloadlocation.read: Permissão para consulta de payloads
             payloadlocationrec.write: Permissão para alteração de payloads
@@ -2928,6 +3160,15 @@ components:
             descontoDataFixa:
               - data: "2020-11-30"
                 valorPerc: "30.00"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "sghhqerhrqew346346erg3346"
+          cbs:
+            informado:
+              valor: "4.32"
+          ibs:
+            informado:
+              valor: "8.13"
         chave: "5f84a4c5-c5cb-4599-9f13-7eb4d419dacc"
         solicitacaoPagador: "Cobrança dos serviços prestados."
     cobBody2:
@@ -2941,6 +3182,15 @@ components:
         valor:
           original: "37.00"
           modalidadeAlteracao: 1
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "wwrtjwrtj1623471765ny6nqergwrqerhwrthwtrht442eerg"
+          cbs:
+            informado:
+              valor: "1.20"
+          ibs:
+            informado:
+              valor: "2.80"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
         solicitacaoPagador: "Serviço realizado."
         infoAdicionais:
@@ -2958,6 +3208,15 @@ components:
           nome: "Francisco da Silva"
         valor:
           original: "123.45"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "lkjalkjfspjroij2poij523lk2nflqkef"
+          cbs:
+            informado:
+              valor: "4.50"
+          ibs:
+            informado:
+              valor: "8.60"
         solicitacaoPagador: "Cobrança dos serviços prestados."
     cobBody4:
       summary: "Exemplo de revisão de cobrança 2"
@@ -2999,6 +3258,15 @@ components:
           nome: "Francisco da Silva"
         valor:
           original: "123.45"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "lddlg2glkkl620fs9908093235"
+          cbs:
+            informado:
+              valor: "4.32"
+          ibs:
+            informado:
+              valor: "8.13"
         solicitacaoPagador: "Cobrança dos serviços prestados."
     cobBody8:
       summary: "Exemplo de criação de cobrança imediata com Saque Pix 2"
@@ -3041,6 +3309,15 @@ components:
           dataDeVencimento: "2024-04-15"
         valor: 
           original: "106.07"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "gsgsglllwkfwfubrsjfd7373dfd235"
+          cbs:
+            informado:
+              valor: "3.71"
+          ibs:
+            informado:
+              valor: "7.42"
         ajusteDiaUtil: true
         devedor:
           cep: "89256140"
@@ -3068,6 +3345,18 @@ components:
         status: CRIADA
         valor:
           original: "106.07"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "wwkfkjkjknccxbvzfafaf727652jdjdjss"
+          cbs:
+            informado:
+              valor: "3.71"
+              data: "2024-04-01T14:47:29.470Z"
+          ibs:
+            informado:
+              valor: "7.42"
+              data: "2024-04-01T14:47:29.470Z"
+        valorLiquidoEstimado: "94.94"
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
         devedor:
@@ -3094,6 +3383,18 @@ components:
           dataDeVencimento: "2024-04-15"
         valor: 
           original: "106.07"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "asmfaskfajkfaskfjaskfjk2124124124dwwg8"
+          cbs:
+            informado:
+              valor: "3.71"
+              data: "2024-04-01T14:47:29.470Z"
+          ibs:
+            informado:
+              valor: "7.42"
+              data: "2024-04-01T14:47:29.470Z"
+        valorLiquidoEstimado: "94.94"
         status: CRIADA
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
@@ -3120,6 +3421,24 @@ components:
           dataDeVencimento: "2024-06-20"
         valor: 
           original: "50.33"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "kjsyriedcncfgfkdks7shs62j39sd83"
+          cbs:
+            informado:
+              valor: "1.76"
+              data: "2024-05-20T14:47:29.470Z"
+            corrigido:
+              valor: "1.80"
+              data: "2024-06-20T09:00:00.000Z"
+          ibs:
+            informado:
+              valor: "3.52"
+              data: "2024-05-20T14:47:29.470Z"
+            corrigido:
+              valor: "3.60"
+              data: "2024-06-20T09:00:00.000Z"
+        valorLiquidoEstimado: "44.93"
         status: ATIVA
         politicaRetentativa: PERMITE_3R_7D
         ajusteDiaUtil: true
@@ -3157,6 +3476,18 @@ components:
           dataDeVencimento: "2024-06-20"
         valor: 
           original: "210.00"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "xjsjjfhasjhu821412ad7dajjqwfjjjvvjj"
+          cbs:
+            informado:
+              valor: "7.35"
+              data: "2024-05-20T14:47:29.470Z"
+          ibs:
+            informado:
+              valor: "14.70"
+              data: "2024-05-20T14:47:29.470Z"
+        valorLiquidoEstimado: "187.95"
         status: CANCELADA
         politicaRetentativa: NAO_PERMITE
         ajusteDiaUtil: true
@@ -3261,6 +3592,18 @@ components:
         valor:
           original: "37.00"
           modalidadeAlteracao: 1
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "mxncvbagudt38bw33b4ssdd"
+          cbs:
+            informado:
+              valor: "1.20"
+              data: "2020-09-09T20:15:00.358Z"
+          ibs:
+            informado:
+              valor: "2.80"
+              data: "2020-09-09T20:15:00.358Z"
+        valorLiquidoEstimado: "33.00"
         chave: "7d9f0335-8dcc-4054-9bf9-0dbd61d36906"
         solicitacaoPagador: "Serviço realizado."
         infoAdicionais:
@@ -3354,6 +3697,18 @@ components:
           nome: "Empresa de Logística SA"
         valor:
           original: "123.45"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "kkjkasjfkafjkjjjuuuuyyyyee345fsfg"
+          cbs:
+            informado:
+              valor: "4.32"
+              data: "2020-12-31T09:15:00.000Z"
+          ibs:
+            informado:
+              valor: "8.13"
+              data: "2020-12-31T09:15:00.000Z"
+        valorLiquidoEstimado: "111.00"
         chave: "5f84a4c5-c5cb-4599-9f13-7eb4d419dacc"
         solicitacaoPagador: "Cobrança dos serviços prestados."
     cobResponse5:
@@ -4015,6 +4370,24 @@ components:
         valor: "100.00"
         horario: "2020-09-10T13:03:33.902Z"
         infoPagador: "Reforma da casa"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "laos93846878sdjadhjda6768adkj14814"
+          cbs:
+            segregado:
+              valor: "3.50"
+              data: "2020-09-10T21:01:22.202Z"
+            informado:
+              valor: "3.50"
+              data: "2020-09-10T13:03:33.902Z"
+          ibs:
+            segregado:
+              valor: "6.60"
+              data: "2020-09-10T21:01:22.202Z"
+            informado:
+              valor: "6.60"
+              data: "2020-09-10T13:03:33.902Z"
+        valorLiquido: "89.90"
         devolucoes:
           - id: "000AAA111"
             rtrId: "D12345678202009091000abcde123456"
@@ -4111,6 +4484,20 @@ components:
               tipo: AGND
               status: SOLICITADA
               endToEndId: E12345678202406201221abcdef12345
+            valor: 
+               original: "100.00"
+            tributo:
+              documentoFiscal:
+                chaveDeAcesso: "lkkajfakfjkasjfaks8678126487126878"
+              cbs:
+                informado:
+                  valor: "2.94"
+                  data: "2024-08-20T12:34:21.300Z"
+              ibs:
+                informado:
+                  valor: "5.88"
+                  data: "2024-08-20T12:34:21.300Z"
+            valorLiquidoEstimado: "91.18"
     devolucaoResponse1:
       summary: "Exemplo de devolução 1"
       value:
@@ -4183,6 +4570,99 @@ components:
         infoAdicionais:
           - nome: "quantidade"
             valor: "2"
+    cobPayload3:
+      summary: "Exemplo de payload de cobrança imediata 2"
+      value:
+        calendario:
+          criacao: "2020-09-15T19:39:54.013Z"
+          apresentacao: "2020-04-01T18:00:00Z"
+          expiracao: 3600
+        txid: "fc9a4366ff3d4964b5dbc6c91a8722d3"
+        revisao: 3
+        status: "ATIVA"
+        valor:
+          original: "500.00"
+          modalidadeAlteracao: 0
+        chave: "7407c9c8-f78b-11ea-adc1-0242ac120002"
+        solicitacaoPagador: "Informar cartao fidelidade"
+        infoAdicionais:
+          - nome: "quantidade"
+            valor: "2"
+    cobPayload4:
+      summary: "Exemplo de payload de cobrança imediata 2 com tributos"
+      value:
+        calendario:
+          criacao: "2025-11-20T14:22:10.000Z"
+          apresentacao: "2025-12-01T09:30:00Z"
+          expiracao: 3600
+        txid: "a1b2c3d4e5f6478890abcdef12345678"
+        revisao: 3
+        status: "ATIVA"
+        valor:
+          original: "750.50"
+          modalidadeAlteracao: 0
+        chave: "9f8e7d6c-5b4a-11ee-9a34-0242ac120003"
+        solicitacaoPagador: "Informar número do pedido"
+        infoAdicionais:
+          - nome: "quantidade"
+            valor: "2"
+          - nome: "produto"
+            valor: "Assinatura Mensal"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "nchsgsgddkgjdhsueyrgkasjdh"
+          cbs:
+            informado:
+              valor: "20.00"
+              data: "2025-11-20T14:22:10.000Z"
+          ibs:
+            informado:
+              valor: "35.25"
+              data: "2025-11-20T14:22:10.000Z"
+        valorLiquidoEstimado: "695.25"
+    cobPayload5:
+      summary: "Exemplo de payload de cobrança com vencimento 2 com tributos"
+      value:
+        calendario:
+          criacao: "2026-06-09T10:00:00.000Z"
+          apresentacao: "2026-06-15T18:00:00Z"
+          dataDeVencimento: "2026-07-31"
+          validadeAposVencimento: 30
+        devedor:
+          cnpj: "92221288310574"
+          nome: "Imobiliária Bom Sucesso"
+        recebedor:
+          logradouro: "Rua 15 Numero 1200, Bairro São Luiz"
+          cidade: "São Paulo"
+          uf: "SP"
+          cep: "70800100"
+          cnpj: "37989000025711"
+          nome: "Empresa de Logística SA"
+        txid: "d4f7a9b2c3e44f1a9b8c7d6e5f123abc"
+        revisao: 3
+        status: "ATIVA"
+        valor:
+          original: "200.00"
+          multa: "10.00"
+          juros: "1.50"
+          final: "211.50"
+        chave: "b12f3e4a-6c7d-11ee-9a34-0242ac120010"
+        solicitacaoPagador: "Informar cartão fidelidade"
+        infoAdicionais:
+          - nome: "quantidade"
+            valor: "2"
+        tributo:
+          documentoFiscal:
+            chaveDeAcesso: "oakeir7361u4n538d87ad8aj42jk"
+          cbs:
+            informado:
+              valor: "12.00"
+              data: "2026-06-09T10:00:00.000Z"
+          ibs:
+            informado:
+              valor: "8.50"
+              data: "2026-06-09T10:00:00.000Z"
+        valorLiquidoEstimado: "179.50"
     getCobs1:
       summary: "Exemplo de retorno da consulta de cobranças 1"
       value:
@@ -4748,6 +5228,18 @@ components:
           examples:
             exemplo1:
               $ref: "#/components/examples/cobRWebhookBody1"
+    WebhookCobConfigBody:
+      required: true
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/WebhookCobSolicitado"
+    WebhookCobVConfigBody:
+      required: true
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/WebhookCobVSolicitado"
     SolicRecBody:
       description: "Dados para geração da solicitação da recorrência."
       content:
@@ -4798,7 +5290,8 @@ components:
               pix:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Pix"
+                  allOf:
+                    - $ref: "#/components/schemas/PixConsultado"
                 example:
                   - allOf:
                       - $ref: "#/components/examples/pixWebhook1/value"
@@ -4830,6 +5323,28 @@ components:
                   $ref: "#/components/schemas/CobRNotification"
           example:
             $ref: "#/components/examples/cobRWebhookNotification1/value"
+    WebhookCobBody:
+      description: "Dados para notificação."
+      required: true
+      content:
+        "application/json":
+          schema:
+            properties:
+              cobs:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CobNotification"
+    WebhookCobVBody:
+      description: "Dados para notificação."
+      required: true
+      content:
+        "application/json":
+          schema:
+            properties:
+              cobsv:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CobVNotification"
   schemas:
     TxId:
       type: "string"
@@ -4900,10 +5415,10 @@ components:
           - `RETIRADA`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix Saque ou ao valor do troco em um Pix Troco (`SL02`);
           - `MED_OPERACIONAL`: quando a devolução ocorre no âmbito do MED por motivo de falha operacional e se refere a um Pix comum (`BE08`);
           - `MED_FRAUDE`: quando a devolução ocorre no âmbito do MED por fundada suspeita de fraude e se refere a um Pix comum (`FR01`).
-          - `MED_PIX_AUTOMATICO`: reembolso total ou parcial ao participante do usuário pagador no âmbito do MED (Mecanismo Especial de Devolução) para o Pix Automático pela utilização de recursos próprios para ressarcimento do usuário pagador.(`REFU`);
+          - `MED_PIX_AUTOMATICO` (em desuso - será removido na próxima major release): reembolso total ou parcial ao participante do usuário pagador no âmbito do MED (Mecanismo Especial de Devolução) para o Pix Automático pela utilização de recursos próprios para ressarcimento do usuário pagador.(`REFU`);
 
         Os valores de devoluções são sempre limitados aos valores máximos a seguir:
-        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_OPERACIONAL ou MED_FRAUDE);
+        - Pix comum: o valor da devolução é limitado ao `valor` do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_OPERACIONAL ou MED_FRAUDE);
         - Pix Saque: o valor da devolução é limitado ao valor da retirada (a natureza nesse caso deve ser: RETIRADA); e
         - Pix Troco: o valor da devolução é limitado ao valor relativo à compra ou ao troco:
           - Quando a devolução for referente à compra, o valor limita-se ao valor da compra (a natureza nesse caso deve ser ORIGINAL); e
@@ -4925,10 +5440,10 @@ components:
         As naturezas são assim definidas:
           - `ORIGINAL`: quando a devolução é solicitada pelo usuário recebedor e se refere a um Pix comum (`MD06`);
           - `MED_FRAUDE`: quando a devolução ocorre no âmbito do MED (Mecanismo Especial de Devolução) por fundada suspeita de fraude e se refere a um Pix comum (`FR01`).
-          - `MED_PIX_AUTOMATICO`: reembolso total ou parcial ao participante do usuário pagador no âmbito do MED (Mecanismo Especial de Devolução) para o Pix Automático pela utilização de recursos próprios para ressarcimento do usuário pagador.(`REFU`);
+          - `MED_PIX_AUTOMATICO` (em desuso - será removido na próxima major release): reembolso total ou parcial ao participante do usuário pagador no âmbito do MED (Mecanismo Especial de Devolução) para o Pix Automático pela utilização de recursos próprios para ressarcimento do usuário pagador.(`REFU`);
 
         Os valores de devoluções são sempre limitados aos valores máximos a seguir:
-        - Pix comum: o valor da devolução é limitado ao valor do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_PIX_AUTOMATICO ou MED_FRAUDE);
+        - Pix comum: o valor da devolução é limitado ao `valor` do próprio Pix (a natureza nesse caso pode ser: ORIGINAL, MED_PIX_AUTOMATICO ou MED_FRAUDE);
 
       enum:
         - "ORIGINAL"
@@ -5252,6 +5767,54 @@ components:
           title: "Data de Criação"
           description: "Data e hora em que o webhook foi cadastrado. Respeita RFC 3339."
           readOnly: true
+    WebhookCobCompleto:
+      type: "object"
+      required: ["webhookUrl"]
+      title: "Webhook Base"
+      properties:
+        webhookUrl:
+          type: "string"
+          title: "URL Webhook"
+          format: uri
+          example: https://pix.example.com/api/webhookcob/
+        criacao:
+          type: "string"
+          format: "date-time"
+          title: "Data de Criação"
+          description: "Data e hora em que o webhook foi cadastrado. Respeita RFC 3339."
+          readOnly: true
+    WebhookCobVSolicitado:
+      type: "object"
+      required: ["webhookUrl"]
+      title: "Webhook Base"
+      properties:
+        webhookUrl:
+          type: "string"
+          title: "URL Webhook"
+          format: uri
+          example: https://pix.example.com/api/webhookcobv/
+        criacao:
+          type: "string"
+          format: "date-time"
+          title: "Data de Criação"
+          description: "Data e hora em que o webhook foi cadastrado. Respeita RFC 3339."
+          readOnly: true
+    WebhookCobVCompleto:
+      type: "object"
+      required: ["webhookUrl"]
+      title: "Webhook Base"
+      properties:
+        webhookUrl:
+          type: "string"
+          title: "URL Webhook"
+          format: uri
+          example: https://pix.example.com/api/webhookcobv/
+        criacao:
+          type: "string"
+          format: "date-time"
+          title: "Data de Criação"
+          description: "Data e hora em que o webhook foi cadastrado. Respeita RFC 3339."
+          readOnly: true
     InfoBaseAgenciaConta:
       type: "object"
       required: ["agencia", "conta"]
@@ -5302,6 +5865,16 @@ components:
           title: "URL Webhook"
           format: uri
           example: https://pix.example.com/api/webhookrec/
+    WebhookCobSolicitado:
+      type: "object"
+      required: ["webhookUrl"]
+      title: "Webhook Base"
+      properties:
+        webhookUrl:
+          type: "string"
+          title: "URL Webhook"
+          format: uri
+          example: https://pix.example.com/api/webhookcob/
     CobExpiracao:
       type: "object"
       title: "Expiração"
@@ -5840,7 +6413,7 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Em desuso. Utilizar <b>AGFSS</b>.</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
@@ -6133,7 +6706,7 @@ components:
                       title: "Modalidade do Agente"
                       description: |
                         ##### Modalidade do Agente
-                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                        <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Em desuso. Utilizar <b>AGFSS</b>.</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
                       enum:
                         - "AGTEC"
                         - "AGTOT"
@@ -6903,6 +7476,247 @@ components:
           properties:
             recPayload:
               $ref: "#/components/schemas/RecPayload"
+    TributoCompleto:
+      type: "object"
+      title: "Tributos Detalhados"
+      description: "Informações completas sobre tributos."
+      required: ["cbs", "ibs"]
+      properties:
+        documentoFiscal:
+          type: "object"
+          title: "Documento Fiscal"
+          description: "Informações detalhadas acerca da documentação fiscal."
+          required: ["chaveDeAcesso"]
+          properties:
+            chaveDeAcesso:
+              type: "string"
+              title: "Chave de Acesso para o Documento Fiscal"
+              pattern: "^[a-zA-Z0-9]{1,50}$"
+        cbs:
+          title: "CBS"
+          description: "CBS (Contribuição sobre Bens e Serviços): Tributo federal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoCompleto"
+        ibs:
+          title: "IBS"
+          description: "IBS (Imposto sobre Bens e Serviços): Tributo estadual/municipal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoCompleto"
+    TributoCompletoPix:
+      type: "object"
+      title: "Tributos Detalhados Pix"
+      description: "Informações completas sobre tributos."
+      required: ["cbs", "ibs"]
+      properties:
+        documentoFiscal:
+          type: "object"
+          title: "Documento Fiscal"
+          description: "Informações detalhadas acerca da documentação fiscal."
+          required: ["chaveDeAcesso"]
+          properties:
+            chaveDeAcesso:
+              type: "string"
+              title: "Chave de Acesso para o Documento Fiscal"
+              pattern: "^[a-zA-Z0-9]{1,50}$"
+        cbs:
+          title: "CBS"
+          description: "CBS (Contribuição sobre Bens e Serviços): Tributo federal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoCompletoPix"
+        ibs:
+          title: "IBS"
+          description: "IBS (Imposto sobre Bens e Serviços): Tributo estadual/municipal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoCompletoPix"
+    TributoPayload:
+      type: "object"
+      title: "Tributos para acesso via payload"
+      description: "Informações tributárias atualizadas acessíveis via payload."
+      required: ["cbs", "ibs"]
+      properties:
+        documentoFiscal:
+          type: "object"
+          title: "Documento Fiscal"
+          description: "Informações detalhadas acerca da documentação fiscal."
+          required: ["chaveDeAcesso"]
+          properties:
+            chaveDeAcesso:
+              type: "string"
+              title: "Chave de Acesso para o Documento Fiscal"
+              pattern: "^[a-zA-Z0-9]{1,50}$"
+        cbs:
+          title: "CBS"
+          description: "CBS (Contribuição sobre Bens e Serviços): Tributo federal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoPayload"
+        ibs:
+          title: "IBS"
+          description: "IBS (Imposto sobre Bens e Serviços): Tributo estadual/municipal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoPayload"
+    TributoInformadoCompleto:
+      type: "object"
+      title: "Tributos Informados completos"
+      description: "Informações tributárias detalhadas de todas as categorias de tributos disponíveis."
+      required: ["cbs", "ibs"]
+      properties:
+        documentoFiscal:
+          type: "object"
+          title: "Documento Fiscal"
+          description: "Informações detalhadas acerca da documentação fiscal."
+          required: ["chaveDeAcesso"]
+          properties:
+            chaveDeAcesso:
+              type: "string"
+              title: "Chave de Acesso para o Documento Fiscal"
+              pattern: "^[a-zA-Z0-9]{1,50}$"
+        cbs:
+          title: "CBS"
+          description: "CBS (Contribuição sobre Bens e Serviços): Tributo federal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoInformadoCompleto"
+        ibs:
+          title: "IBS"
+          description: "IBS (Imposto sobre Bens e Serviços): Tributo estadual/municipal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoInformadoCompleto"
+    TributoInformadoSolicitado:
+      type: "object"
+      title: "Tributos Informados solicitados"
+      description: "Informações tributárias informadas pelo usuário recebedor no momento da criação ou revisão da cobrança, quando aplicável."
+      required: ["cbs", "ibs"]
+      properties:
+        documentoFiscal:
+          type: "object"
+          title: "Documento Fiscal"
+          description: "Informações detalhadas acerca da documentação fiscal."
+          required: ["chaveDeAcesso"]
+          properties:
+            chaveDeAcesso:
+              type: "string"
+              title: "Chave de Acesso para o Documento Fiscal"
+              pattern: "^[a-zA-Z0-9]{1,50}$"
+        cbs:
+          title: "CBS"
+          description: "CBS (Contribuição sobre Bens e Serviços): Tributo federal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoInformadoSolicitado"
+        ibs:
+          title: "IBS"
+          description: "IBS (Imposto sobre Bens e Serviços): Tributo estadual/municipal incidente sobre operações de bens e serviços, cujo valor absoluto será informado para fins de split tributário."
+          allOf:
+            - $ref: "#/components/schemas/RegistroCategoriaTributoInformadoSolicitado"
+    RegistroCategoriaTributoInformadoSolicitado:
+      type: "object"
+      title: "Registro de tributo informado"
+      description: "Detalhamento dos valores informados do tributo, segregados por categoria."
+      required: ["informado"]
+      properties:
+        informado:
+          title: "Tributo informado"
+          description: "Categoria de tributo informado."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheSolicitado"
+    RegistroCategoriaTributoInformadoCompleto:
+      type: "object"
+      title: "Registro de tributo informado criado"
+      description: "Detalhamento dos valores informados do tributo, segregados por categoria."
+      required: ["informado"]
+      properties:
+        informado:
+          title: "Tributo informado"
+          description: "Categoria de tributo informado."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+    RegistroCategoriaTributoPayload:
+      type: "object"
+      title: "Registro de tributo informado e corrigido."
+      description: "Informações tributárias disponibilizadas publicamente."
+      required: ["informado"]
+      properties:
+        informado:
+          title: "Tributo informado"
+          description: "Categoria de tributo informado."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+        corrigido:
+          title: "Tributo corrigido"
+          description: "Categoria de tributo corrigido."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+    RegistroCategoriaTributoCompleto:
+      type: "object"
+      title: "Registro de tributo completo"
+      description: "Detalhamento dos valores completos do tributo, segregados por categoria."
+      required: ["informado"]
+      properties:
+        segregado:
+          title: "Tributo segregado"
+          description: "Categoria cujo valor e data correspondem ao que foi efetivamente segregado na liquidação do Pix."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+        emAberto:
+          title: "Tributo em aberto"
+          description: "Categoria cujo valor e data correspondem ao registro do último valor em aberto obtido da Plataforma Pública."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+        corrigido:
+          title: "Tributo corrigido"
+          description: "Categoria cujo valor e data correspondem ao registro da última correção obtida da Plataforma Pública."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+        informado:
+          title: "Tributo informado"
+          description: "Categoria cujo valor é informado pelo recebedor e a data corresponde ao momento de criação do objeto tributo."
+          allOf:
+            - $ref: "#/components/schemas/ValorTributoDetalheCompleto"
+    RegistroCategoriaTributoCompletoPix:
+      type: "object"
+      title: "Registro de tributo completo Pix"
+      description: "Detalhamento dos valores completos do tributo, segregados por categoria."
+      required: ["informado","segregado"]
+      allOf:
+        - $ref: "#/components/schemas/RegistroCategoriaTributoCompleto"
+    ValorTributoDetalheCompleto:
+      type: "object"
+      title: "Informação completa do valor do tributo"
+      required: ["valor", "data"]
+      properties:
+        valor:
+          type: "string"
+          pattern: "\\d{1,10}\\.\\d{2}"
+          title: "Valor do tributo"
+          #description: "Valor do tributo relacionado ao pagamento."
+        data:
+          type: "string"
+          format: "date-time"
+          title: "Data de referência do tributo"
+    ValorTributoDetalheSolicitado:
+      type: "object"
+      title: "Informação solicitada do valor do tributo"
+      required: ["valor"]
+      properties:
+        valor:
+          type: "string"
+          pattern: "\\d{1,10}\\.\\d{2}"
+          title: "Valor do tributo"
+          #description: "Valor do tributo relacionado ao pagamento."
+    ValorLiquidoEstimado:
+      type: "object"
+      title: "Valor estimado da cobrança após recolhimento de CBS e IBS."
+      properties:
+        valorLiquidoEstimado:
+          type: "string"
+          title: "Valor Líquido Estimado."
+          pattern: "\\d{1,10}\\.\\d{2}"
+          description: |-
+            Valor estimado da cobrança após recolhimento de CBS e IBS.
+
+            -	Se houver tributo segregado é dado pela fórmula: `valorLiquido = valor - (tributo.cbs.segregado.valor + tributo.ibs.segregado.valor)`; senão
+            -	Se houver tributo em aberto é dado pela fórmula: `valorLiquido = valor.original - (tributo.cbs.emAberto.valor + tributo.ibs. emAberto.valor)`; senão
+            -	Se houver tributo corrigido é dado pela fórmula: `valorLiquido = valor.original - (tributo.cbs.corrigido.valor + tributo.ibs.corrigido.valor)`; senão
+            -	Se houver tributo informado é dado pela fórmula: `valorLiquido = valor.original - (tributo.cbs.informado.valor + tributo.ibs.informado.valor)`; senão
+            -	Se não houver tributo informado: `valorLiquido = valor.original`.
     CobRGerada:
       type: "object"
       title: "Cobrança Recorrente Gerada"
@@ -6938,6 +7752,11 @@ components:
                 - $ref: "#/components/schemas/PessoaJuridicaRecorrencia"
         - $ref: "#/components/schemas/CobRStatus"
         - $ref: "#/components/schemas/DadosDevedorRecorrencia"
+        - type: "object"
+          properties:
+            tributo:
+              $ref: "#/components/schemas/TributoInformadoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
     CobRCompleta:
       type: "object"
       title: "Cobrança Recorrente Completa"
@@ -6976,15 +7795,14 @@ components:
               title: "Pix recebidos"
               items:
                 allOf:
-                  - $ref: "#/components/schemas/PixAutomatico"
-                  - type: "object"
-                    properties:
-                      txid:
-                        allOf:
-                          - $ref: "#/components/schemas/TxId"
-                          - pattern: "[a-zA-Z0-9]{26,35}"
+                  - $ref: "#/components/schemas/PixAutomaticoConsultado"
         - $ref: "#/components/schemas/CobRAtualizacao"
         - $ref: "#/components/schemas/CobRTentativas"
+        - type: "object"
+          properties:
+            tributo:
+              $ref: "#/components/schemas/TributoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
     CobRAtualizacao:
       type: "object"
       title: "Histórico de Atualização da Cobrança Recorrente"
@@ -7062,7 +7880,10 @@ components:
                     codigo:
                       type: "string"
                       title: "Código da rejeição"
-                      description: "Código da rejeição. Corresponde ao código de rejeição presente no catálogo de mensagens."
+                      description: |
+                        Código da rejeição. Corresponde ao código de rejeição presente no catálogo de mensagens. 
+                      
+                        Os códigos: `AB10`, `AC06`, `AM02`, `DS27`, `DTNT`, `FBRD`, `IRNT`, `NIEC`, `NIPA`, `QUNT` e `RC09` estão em desuso.
                       maxLength: 4
                       enum:
                         - AB10
@@ -7070,11 +7891,14 @@ components:
                         - AC06
                         - AM02
                         - AM09
+                        - CRNC
                         - DENC
                         - DS27
                         - DTED
                         - DTNT
                         - FBRD
+                        - FCD2
+                        - GRER
                         - IRNT
                         - MIDI
                         - MSUC
@@ -7159,7 +7983,12 @@ components:
                   codigo:
                     type: "string"
                     title: "Código da rejeição da tentativa"
-                    description: "Código da rejeição da tentativa. Corresponde ao código de rejeição presente no catálogo de mensagens. Os códigos de rejeição da tentativa `AC05`,`AM09`,`DENC`,`DS27`,`DTED`,`MIDI`,`MSUC`,`NITX`,`RC09` e `DTED` causam a rejeição da cobrança recorrente correspondente."
+                    description: |
+                      Código da rejeição da tentativa. Corresponde ao código de rejeição presente no catálogo de mensagens. 
+                      
+                      Os códigos de rejeição da tentativa `AC05`,`AM09`,`CRNC`, `DENC`,`DTED`, `FCD2`, `GRER`, `MIDI`, `MSUC`, `NITX` e `UDEI` causam a rejeição da cobrança recorrente correspondente.
+
+                      Os códigos de rejeição da tentativa `DS27`, `FBRD` e `RC09` estão em desuso.
                     maxLength: 4
                     enum:
                       - AB10
@@ -7167,11 +7996,15 @@ components:
                       - AC06
                       - AM02
                       - AM09
+                      - CRNC
                       - DENC
                       - DS27
                       - DTED
                       - DTNT
                       - FBRD
+                      - FCD1
+                      - FCD2
+                      - GRER
                       - IRNT
                       - MIDI
                       - MSUC
@@ -7204,11 +8037,15 @@ components:
               $ref: "#/components/schemas/RecId"
         - $ref: "#/components/schemas/CobRBase"
         - $ref: "#/components/schemas/DadosDevedorRecorrencia"
+        - type: "object"
+          properties:
+            tributo:
+              $ref: "#/components/schemas/TributoInformadoSolicitado"
     CobRNotification:
       type: "object"
       title: "Cobrança Recorrente Notificada"
       required: ["idRec", "txid", "status", "atualizacao"]
-      description: "Dados enviados para criação da cobrança recorrente via API Pix"
+      description: "Dados enviados para notificação da cobrança recorrente via API Pix"
       allOf:
         - type: "object"
           properties:
@@ -7223,18 +8060,44 @@ components:
         - $ref: "#/components/schemas/CobRTentativas"
         - type: "object"
           properties:
+            valor:
+              type: "object"
+              title: "Valor da cobrança recorrente"
+              required: ["original"]
+              description: "Valor da cobrança recorrente. Deve ser preenchido quando houver informação de tributo preenchida."
+              properties:
+                original:
+                  type: "string"
+                  title: "Valor"
+                  pattern: "\\d{1,10}\\.\\d{2}"
+                  description: "Valor original da cobrança."
+        - type: "object"
+          properties:
+            tributo:
+              $ref: "#/components/schemas/TributoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
+        - type: "object"
+          properties:
             pix:
               type: "array"
               title: "Pix recebidos"
               items:
                 allOf:
-                  - $ref: "#/components/schemas/PixAutomatico"
-                  - type: "object"
-                    properties:
-                      txid:
-                        allOf:
-                          - $ref: "#/components/schemas/TxId"
-                          - pattern: "[a-zA-Z0-9]{26,35}"
+                  - $ref: "#/components/schemas/PixAutomaticoConsultado"
+    CobNotification:
+      type: "object"
+      title: "Cobrança Imediata Notificada"
+      required: ["txid", "status"]
+      description: "Dados enviados para notificação da cobrança imediata via API Pix"
+      allOf:
+        - $ref: "#/components/schemas/CobCompleta"
+    CobVNotification:
+      type: "object"
+      title: "Cobrança com Vencimento Notificada"
+      required: ["txid", "status"]
+      description: "Dados enviados para notificação da cobrança com vencimento via API Pix"
+      allOf:
+        - $ref: "#/components/schemas/CobVCompleta"
     CobRConfiguracao:
       type: "object"
       title: "Configuração da Cobrança Recorrente"
@@ -7396,6 +8259,11 @@ components:
                 - required: ["original"]
                 - $ref: "#/components/schemas/CobValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoSolicitado"
     CobVSolicitada:
       type: "object"
       title: "Cobrança com vencimento solicitada"
@@ -7422,6 +8290,11 @@ components:
                 - required: ["original"]
                 - $ref: "#/components/schemas/CobVValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoSolicitado"
     CobRevisada:
       type: "object"
       title: "Cobrança imediata revisada"
@@ -7458,6 +8331,11 @@ components:
             valor:
               $ref: "#/components/schemas/CobValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoSolicitado"
     CobVRevisada:
       type: "object"
       title: "Cobrança com vencimento revisada"
@@ -7488,9 +8366,14 @@ components:
             valor:
               $ref: "#/components/schemas/CobVValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoSolicitado"
     CobGerada:
       type: "object"
-      title: "Cobrança imediata gerada"
+      title: "Cobrança Imediata Gerada"
       description: "Dados criados ou alterados da cobrança imediata via API Pix"
       required: ["txid", "calendario", "revisao", "status", "valor", "chave"]
       allOf:
@@ -7541,9 +8424,15 @@ components:
               allOf:
                 - $ref: "#/components/schemas/CobValor"
         - $ref: "#/components/schemas/CobBaseCopiaCola"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
     CobVGerada:
       type: "object"
-      title: "Cobrança com vencimento gerada"
+      title: "Cobrança com Vencimento Gerada"
       description: "Dados criados ou alterados da cobrança com vencimento via API Pix"
       required:
         [
@@ -7590,6 +8479,12 @@ components:
               allOf:
                 - $ref: "#/components/schemas/CobVValor"
         - $ref: "#/components/schemas/CobBaseCopiaCola"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoInformadoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
     CobStatus:
       type: "string"
       title: "Status do registro da cobrança."
@@ -7599,8 +8494,8 @@ components:
         Os status são assim definidos:
         - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
         - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
-        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
-        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+        - `REMOVIDA_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
+        - `REMOVIDA_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
       enum:
         - "ATIVA"
         - "CONCLUIDA"
@@ -7615,13 +8510,16 @@ components:
         Os status são assim definidos:
         - `ATIVA`: indica que o registro se refere a uma cobrança que foi gerada mas ainda não foi paga nem removida;
         - `CONCLUIDA`: indica que o registro se refere a uma cobrança que já foi paga e, por conseguinte, não pode acolher outro pagamento;
-        - `REMOVIDO_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
-        - `REMOVIDO_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança.
+        - `CONCLUIDA_POR_OUTRO_ARRANJO`: indica que o registro se refere a uma cobrança que já foi paga pelo arranjo de boletos e, por conseguinte, não pode acolher outro pagamento;
+        - `REMOVIDA_PELO_USUARIO_RECEBEDOR`: indica que o usuário recebedor solicitou a remoção do registro da cobrança;
+        - `REMOVIDA_PELO_PSP`: indica que o PSP Recebedor solicitou a remoção do registro da cobrança; e
+        - `REMOVIDA_PELO_PSP_BOLETO`: indica que o PSP Recebedor solicitou a remoção do registro de cobrança, porque o pagamento é possível apenas por boleto.
       enum:
         - "ATIVA"
         - "CONCLUIDA"
         - "REMOVIDA_PELO_USUARIO_RECEBEDOR"
         - "REMOVIDA_PELO_PSP"
+        - "REMOVIDA_PELO_PSP_BOLETO"
     LoteCobVGerado:
       title: "Lote de cobranças com vencimento gerado"
       type: "object"
@@ -7650,22 +8548,28 @@ components:
         - $ref: "#/components/schemas/CobVGerada"
         - type: "object"
           properties:
+            status:
+              $ref: "#/components/schemas/CobVStatus"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
+        - type: "object"
+          properties:
             pix:
               type: "array"
               title: "Pix recebidos"
               items:
                 allOf:
-                  - $ref: "#/components/schemas/Pix"
+                  - $ref: "#/components/schemas/PixConsultado"
                   - type: "object"
                     properties:
                       txid:
                         allOf:
                           - $ref: "#/components/schemas/TxId"
                           - pattern: "[a-zA-Z0-9]{26,35}"
-        - type: "object"
-          properties:
-            status:
-              $ref: "#/components/schemas/CobVStatus"
     CobCompleta:
       title: "Cobrança imediata completa"
       required: ["status"]
@@ -7677,12 +8581,18 @@ components:
               $ref: "#/components/schemas/CobStatus"
         - type: "object"
           properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoCompleto"
+        - $ref: "#/components/schemas/ValorLiquidoEstimado"
+        - type: "object"
+          properties:
             pix:
               type: "array"
               title: "Pix recebidos"
               items:
                 allOf:
-                  - $ref: "#/components/schemas/Pix"
+                  - $ref: "#/components/schemas/PixConsultado"
                   - type: "object"
                     properties:
                       txid:
@@ -7791,6 +8701,11 @@ components:
             valor:
               $ref: "#/components/schemas/CobVPayloadValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoPayload"
     CobPayload:
       type: "object"
       title: "Payload JSON da cobrança imediata"
@@ -7827,6 +8742,11 @@ components:
             valor:
               $ref: "#/components/schemas/CobPayloadValor"
         - $ref: "#/components/schemas/CobBase"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoPayload"
     PayloadLocation:
       type: "object"
       title: "Location do Payload"
@@ -8357,9 +9277,21 @@ components:
           title: "Devoluções"
           items:
             $ref: "#/components/schemas/Devolucao"
+        tributo:
+          allOf:
+            - $ref: "#/components/schemas/TributoCompletoPix"
+        valorLiquido:
+          type: "string"
+          title: "Valor Líquido do Pix."
+          pattern: "\\d{1,10}\\.\\d{2}"
+          description: |-
+            Valor líquido do Pix após recolhimento de CBS e IBS.
+
+            - Quando houver tributo segregado é dado pela fórmula: `valorLiquido = valor – (tributo.cbs.segregado.valor + tributo.ibs.segregado.valor)`
+            - Quando não houver tributo segregado: `valorLiquido = valor`
     PixAutomatico:
       type: "object"
-      title: "Pix"
+      title: "Pix Automático"
       required: ["txid","endToEndId", "valor", "horario"]
       properties:
         endToEndId:
@@ -8552,6 +9484,18 @@ components:
           title: "Devoluções"
           items:
             $ref: "#/components/schemas/DevolucaoPixAutomatico"
+        tributo:
+          allOf:
+            - $ref: "#/components/schemas/TributoCompletoPix"
+        valorLiquido:
+          type: "string"
+          title: "Valor Líquido do Pix."
+          pattern: "\\d{1,10}\\.\\d{2}"
+          description: |-
+            Valor líquido do Pix após recolhimento de CBS e IBS.
+
+            - Quando houver tributo segregado é dado pela fórmula: `valorLiquido = valor – (tributo.cbs.segregado.valor + tributo.ibs.segregado.valor)`
+            - Quando não houver tributo segregado: `valorLiquido = valor`
     PixValorOriginal:
       type: "object"
       properties:
@@ -8581,7 +9525,7 @@ components:
               title: "Modalidade do Agente"
               description: |
                 ##### Modalidade do Agente
-                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Agente Facilitador de Serviço de Saque (<b>ATENÇÃO</b>: no mapeamento do campo da API Pix (AGPSS) para o campo 'modalidadeAgente', da pacs.008, o domínio a ser considerado é <b>AGFSS</b>)</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
+                <table><tr><th>SIGLA</th><th>Descrição</th></tr><tr><td>AGTEC</td><td>Agente Estabelecimento Comercial</td></tr><tr><td>AGTOT</td><td>Agente Outra Espécie de Pessoa Jurídica ou Correspondente no País</td></tr><tr><td>AGPSS</td><td>Em desuso. Utilizar <b>AGFSS</b>.</td></tr><tr><td>AGFSS</td><td>Agente Facilitador de Serviço de Saque</td></tr></table>
               enum:
                 - "AGTEC"
                 - "AGTOT"
@@ -8905,10 +9849,10 @@ components:
           description: "Filtro pela existência de txid."
         devolucaoPresente:
           type: "boolean"
-          description: "Filtro pela existência de devolução."
+          description: "Filtro pela existência do array de devoluções."
         finalidadeMED:
           type: "boolean"
-          description: "Filtro pela finalidade MED."
+          description: "Filtro pela finalidade MED. Quando preenchido com `true` apenas os Pix (PACS008) cuja finalidade seja uma devolução no âmbito do MED serão retornados. Quando preenchido com `false` todos os Pix que não forem MED serão retornados. Na ausência deste filtro, qualquer Pix que atenda aos demais parâmetros de pesquisa será retornado na resposta."
         cpf:
           type: "string"
           pattern: "/^\\d{11}$/"
@@ -8938,6 +9882,31 @@ components:
           example: "2020-12-01T17:00:00Z"
         paginacao:
           $ref: "#/components/schemas/Paginacao"
+    PixConsultado:
+      type: "object"
+      title: "Pix Consultado"
+      allOf:
+        - $ref: "#/components/schemas/Pix"
+        - type: "object"
+          properties:
+            tributo:
+              allOf:
+                - $ref: "#/components/schemas/TributoCompletoPix"
+    PixAutomaticoConsultado:
+      type: "object"
+      title: "Pix Automático Consultado"
+      allOf:
+        - $ref: "#/components/schemas/PixAutomatico"
+        - type: "object"
+          properties:
+            tributo:
+              $ref: "#/components/schemas/TributoCompletoPix"
+        - type: "object"
+          properties:
+            txid:
+              allOf:
+                - $ref: "#/components/schemas/TxId"
+                - pattern: "[a-zA-Z0-9]{26,35}"
     PixConsultados:
       type: "object"
       title: "Pix Consultados"
@@ -8950,7 +9919,7 @@ components:
           title: "Lista de Pix recebidos"
           items:
             allOf:
-              - $ref: "#/components/schemas/Pix"
+              - $ref: "#/components/schemas/PixConsultado"
     WebhooksConsultados:
       type: "object"
       title: "Webhooks Consultados"
