@@ -2,6 +2,22 @@
 
 Mudanças relevantes na API Pix serão documentadas aqui neste documento.
 
+## [2.11.0-rc1]
+
+- Inclusão de novos status para cobranças com vencimento: `CONCLUIDA_POR_OUTRO_ARRANJO` e `REMOVIDA_PELO_PSP_BOLETO`.
+- Inclusão dos campos `cob.tributo`, `cobv.tributo`, `cobr.tributo` e `pix.tributo` relacionados a Split Tributário.
+- Inclusão de violações específicas nos endpoints `POST /cob`, `PUT /cob`,  `PATCH /cob`,  `PUT /cobv`, `PATCH /cobv` e `PUT /cobr` relacionadas a Split Tributário.
+- Inclusão do campo `valorLiquido` na estruturas Pix e suas notificações.
+- Inclusão do campo `valorLiquidoEstimado` para cobrança imediata, cobrança com vencimento e cobrança recorrente.
+- Inclusão das Tags/Webhook: `WebhookCob` e `WebhookCobv` para notificações de mudanças, como por exemplo a atualização de dados tributários.
+- Inclusão do campo `valor` para a notificação de cobrança recorrente `CobRNotification` e ajuste do respectivo exemplo com a inclusão do campo `tributo` para refletir a estrutura correta do valor da cobrança.
+- Correção das descrições do `CobStatus` e `CobVStatus` (`REMOVIDA_PELO_USUARIO_RECEBEDOR`, `REMOVIDA_PELO_PSP` e `REMOVIDA_PELO_PSP_BOLETO`).
+- Informação de que o `MED_PIX_AUTOMATICO` nas devoluções está depreciado, obsoleto e será removido na próxima major release.
+- Melhoramento da descrição do `devolucaoPresente` e `finalidadeMED` nas pesquisas de Pix.
+- Ajuste na descrição do limite da devolução para que seja limitado ao campo `valor` do Pix comum.
+- Atualização dos códigos de rejeição de cobranças e códigos de rejeição da tentativa de cobrança recorrente: indicações de códigos em desuso e inclusão de novos códigos.
+- Atualização das descrições relacionadas ao campo `modalidadeAgente`, incluindo a marcação do valor `AGPSS` como em desuso e a orientação para uso de `AGFSS`.
+
 ## [2.10.0]
 
 - Correção de exemplos com CEP contendo hífen. Ajustados exemplos para conformidade com o schema `maxLength: 8`.
